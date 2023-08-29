@@ -1,0 +1,23 @@
+{
+  "name": "threejs-with-ts",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@tsconfig/recommended": "^1.0.2",
+    "@types/three": "^0.155.1",
+    "lil-gui": "^0.18.2",
+    "tslib": "^2.6.2",
+    "typescript": "^5.0.2",
+    "vite": "^4.4.5"
+  },
+  "dependencies": {
+    "three": "^0.155.0",
+    "three-addons": "^1.2.0"
+  }
+}
