@@ -108,7 +108,7 @@ import {FullScreenScene} from "./lib/scene/FullScreenScene";
 // tick()
 
 let scene = new HexMapScene()
-scene.init()
+scene.init(true)
 const tick = () => {
     scene.update()
     // scene.orbitals.update()

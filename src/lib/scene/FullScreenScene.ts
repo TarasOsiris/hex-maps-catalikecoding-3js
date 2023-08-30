@@ -1,13 +1,19 @@
 import * as THREE from "three";
 import {Helpers} from "../Helpers";
-import {SceneUtils} from "../SceneUtils";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
+import GUI from "lil-gui";
 
 export class FullScreenScene extends THREE.Scene {
     mainCamera!: THREE.PerspectiveCamera;
     renderer!: THREE.WebGLRenderer;
+    axesHelper!: THREE.AxesHelper
 
-    init() {
+    debugControls = {
+        showAxesHelper: true,
+        axesSize: 1
+    }
+
+    init(debug: boolean = false) {
         const canvas = document.querySelector<HTMLCanvasElement>('canvas.webgl')!!
         const size = new THREE.Vector2(window.innerWidth, window.innerHeight)
 
@@ -22,9 +28,11 @@ export class FullScreenScene extends THREE.Scene {
         Helpers.addFullScreenToggle(canvas)
         this.createMainCamera(size);
 
-        SceneUtils.addDefaultCube(this)
         this.onAddElements()
 
+        if (debug) {
+            this.drawDebugUi();
+        }
 
         this.renderer = new THREE.WebGLRenderer({canvas: canvas})
         this.updateRenderer(size)
@@ -33,7 +41,7 @@ export class FullScreenScene extends THREE.Scene {
     }
 
     private createMainCamera(size: THREE.Vector2) {
-        this.mainCamera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 100)
+        this.mainCamera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 200)
         this.mainCamera.position.z = 3
         this.add(this.mainCamera)
     }
@@ -50,5 +58,26 @@ export class FullScreenScene extends THREE.Scene {
     update() {
         this.mainCamera.updateProjectionMatrix();
         this.renderer.render(this, this.mainCamera);
+    }
+
+    private drawDebugUi() {
+        this.axesHelper = new THREE.AxesHelper(this.debugControls.axesSize)
+        this.add(this.axesHelper)
+
+        const gui = new GUI();
+        let folder = gui.addFolder("Axes");
+
+        folder.add(this.debugControls, 'showAxesHelper').name("Show Axes")
+            .onChange(() => {
+                this.axesHelper.visible = !this.axesHelper.visible
+            })
+        folder.add(this.debugControls, 'axesSize')
+            .min(1).max(10).step(0.5)
+            .onFinishChange(() => {
+                this.axesHelper.removeFromParent()
+                this.axesHelper.dispose()
+                this.axesHelper = new THREE.AxesHelper(this.debugControls.axesSize)
+                this.add(this.axesHelper)
+            })
     }
 }
