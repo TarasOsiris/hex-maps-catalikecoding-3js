@@ -1,5 +1,6 @@
 import {HexCell} from "./HexCell";
 import * as THREE from "three";
+import {HexMetrics} from "./HexMetrics";
 
 export class HexGrid {
     width: number = 6;
@@ -25,7 +26,11 @@ export class HexGrid {
     }
 
     private createCell(x: number, z: number, i: number) {
-        let position = new THREE.Vector3(x * 10, 0, z * 10)
+        let position = new THREE.Vector3()
+        position.x = x * (HexMetrics.innerRadius * 2);
+        position.y = 0;
+        position.z = z * (HexMetrics.outerRadius * 1.5)
+
         const cell = this.cells[i] = new HexCell()
         cell.position.set(position.x, position.y, position.z)
         this.group.add(cell)
