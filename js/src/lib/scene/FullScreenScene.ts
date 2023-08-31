@@ -9,8 +9,8 @@ export class FullScreenScene extends THREE.Scene {
     axesHelper!: THREE.AxesHelper
 
     debugControls = {
-        showAxesHelper: true,
-        axesSize: 1
+        axesVisible: true,
+        axesSize: 1,
     }
 
     init(debug: boolean = false) {
@@ -67,19 +67,24 @@ export class FullScreenScene extends THREE.Scene {
         const gui = new GUI();
 
         let folder = gui.addFolder("Axes");
-        folder.add(this.debugControls, 'showAxesHelper').name("Is Visible")
+        folder.add(this.debugControls, 'axesVisible').name("Is Visible")
             .onChange(() => {
                 this.axesHelper.visible = !this.axesHelper.visible
             })
         folder.add(this.debugControls, 'axesSize').name("Size")
             .min(1).max(10).step(0.5)
-            .onFinishChange(() => {
+            .onFinishChange((value: number) => {
                 this.remove(this.axesHelper)
                 this.axesHelper.dispose()
-                this.axesHelper = new THREE.AxesHelper(this.debugControls.axesSize)
+                this.axesHelper = new THREE.AxesHelper(value)
                 this.add(this.axesHelper)
             })
 
         gui.addFolder("Orbit controls")
+        gui.add(this, 'test')
+    }
+
+    test() {
+        this.axesHelper.visible = !this.axesHelper.visible
     }
 }
