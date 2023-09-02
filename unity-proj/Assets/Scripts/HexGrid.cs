@@ -36,8 +36,7 @@ public class HexGrid : MonoBehaviour
 		cell.transform.SetParent(transform, false);
 		cell.transform.localPosition = position;
 		
-		TextMeshProUGUI label = Instantiate<TextMeshProUGUI>(cellLabelPrefab);
-		label.rectTransform.SetParent(gridCanvas.transform, false);
+		TextMeshProUGUI label = Instantiate(cellLabelPrefab, gridCanvas.transform, false);
 		label.rectTransform.anchoredPosition =
 			new Vector2(position.x, position.z);
 		label.text = x + "\n" + z;

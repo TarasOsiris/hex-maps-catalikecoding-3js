@@ -1,10 +1,10 @@
-import * as THREE from 'three'
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
-import {SimpleMeshDataScene} from "./experiments/SimpleMeshDataScene";
+// import * as THREE from 'three'
+// import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
+// import {SimpleMeshDataScene} from "./experiments/SimpleMeshDataScene";
 import {HexMapScene} from "./hexmap/HexMapScene";
-import {FullScreenScene} from "./lib/scene/FullScreenScene";
-import {color} from "three/examples/jsm/nodes/shadernode/ShaderNodeBaseElements";
-import {Helpers} from "./lib/Helpers";
+// import {FullScreenScene} from "./lib/scene/FullScreenScene";
+// import {color} from "three/examples/jsm/nodes/shadernode/ShaderNodeBaseElements";
+// import {Helpers} from "./lib/Helpers";
 
 // const canvas = document.querySelector<HTMLCanvasElement>('canvas.webgl')!!
 // const scene = new THREE.Scene()
