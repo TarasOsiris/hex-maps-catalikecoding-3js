@@ -9,7 +9,7 @@ export class HexMapScene extends FullScreenScene {
         this.mainCamera.lookAt(Vector3.zero)
 
         // SceneUtils.addDefaultCube(this)
-        let grid = new HexGrid(this)
+        let grid = new HexGrid(this, this.gui)
 
     }
 }

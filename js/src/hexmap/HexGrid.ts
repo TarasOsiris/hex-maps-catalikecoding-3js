@@ -5,22 +5,24 @@ import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry";
 import {Font, FontLoader} from "three/examples/jsm/loaders/FontLoader";
 import {HexMesh} from "./HexMesh";
 import {Scene} from "three";
+import GUI from "lil-gui";
 
 export class HexGrid {
     width: number = 6;
     height: number = 6;
 
-    private cells: Array<HexCell> = [];
-    private hexMesh = new HexMesh();
-
     private readonly cellsGroup: THREE.Group = new THREE.Group()
+
+    private cells: Array<HexCell> = [];
+    private hexMesh: HexMesh
 
     // text
     private fontLoader: FontLoader = new FontLoader()
-    private fontMat = new THREE.MeshBasicMaterial({color: 0x00ff00});
+    private fontMat = new THREE.MeshBasicMaterial({color: 0x000000});
     private font!: Font;
 
-    constructor(scene: THREE.Scene) {
+    constructor(scene: THREE.Scene, gui: GUI) {
+        this.hexMesh = new HexMesh(gui)
         this.initCells(scene)
         scene.add(this.cellsGroup)
     }
@@ -35,7 +37,7 @@ export class HexGrid {
                 }
             }
 
-            this.hexMesh.triangulate(this.cells, scene)
+            this.hexMesh.triangulate(this.cells)
             scene.add(this.hexMesh)
         })
     }

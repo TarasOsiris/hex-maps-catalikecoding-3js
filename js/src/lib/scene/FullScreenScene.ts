@@ -7,6 +7,7 @@ export abstract class FullScreenScene extends THREE.Scene {
     mainCamera!: THREE.PerspectiveCamera;
     renderer!: THREE.WebGLRenderer;
     axesHelper!: THREE.AxesHelper
+    gui!: GUI = new GUI()
 
     debugControls = {
         axesVisible: true,
@@ -62,9 +63,7 @@ export abstract class FullScreenScene extends THREE.Scene {
         this.axesHelper = new THREE.AxesHelper(this.debugControls.axesSize)
         this.add(this.axesHelper)
 
-        const gui = new GUI();
-
-        let folder = gui.addFolder("Axes");
+        let folder = this.gui.addFolder("Axes");
         folder.add(this.debugControls, 'axesVisible').name("Is Visible")
             .onChange(() => {
                 this.axesHelper.visible = !this.axesHelper.visible
@@ -78,8 +77,8 @@ export abstract class FullScreenScene extends THREE.Scene {
                 this.add(this.axesHelper)
             })
 
-        gui.addFolder("Orbit controls")
-        gui.add(this, 'test')
+        this.gui.addFolder("Orbit controls")
+        this.gui.add(this, 'test')
     }
 
     test() {
