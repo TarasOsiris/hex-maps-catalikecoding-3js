@@ -3,14 +3,16 @@ import * as THREE from "three";
 import {HexMetrics} from "./HexMetrics";
 import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry";
 import {Font, FontLoader} from "three/examples/jsm/loaders/FontLoader";
+import {HexMesh} from "./HexMesh";
 
 export class HexGrid {
     width: number = 6;
     height: number = 6;
 
     private cells: Array<HexCell> = [];
+    private hexMesh = new HexMesh();
 
-    private readonly group: THREE.Group = new THREE.Group()
+    private readonly cellsGroup: THREE.Group = new THREE.Group()
 
     // text
     private fontLoader: FontLoader = new FontLoader()
@@ -19,7 +21,10 @@ export class HexGrid {
 
     constructor(scene: THREE.Scene) {
         this.initCells()
-        scene.add(this.group)
+        scene.add(this.cellsGroup)
+
+        this.hexMesh.triangulate(this.cells)
+        scene.add(this.hexMesh)
     }
 
     initCells() {
@@ -43,7 +48,7 @@ export class HexGrid {
 
         const cell = this.cells[i] = new HexCell()
         cell.position.set(position.x, position.y, position.z)
-        this.group.add(cell)
+        this.cellsGroup.add(cell)
         this.createDebugText(x, z, position);
     }
 
@@ -52,6 +57,6 @@ export class HexGrid {
         const textMesh = new THREE.Mesh(textGeometry, this.fontMat);
         textMesh.position.set(position.x, position.y, position.z)
         textMesh.rotateX(-Math.PI / 2)
-        this.group.add(textMesh);
+        this.cellsGroup.add(textMesh);
     }
 }
