@@ -28,17 +28,18 @@ export class HexGrid {
             this.cells = new Array(this.width * this.height)
             for (let z = 0, i = 0; z < this.height; z++) {
                 for (let x = 0; x < this.width; x++) {
-                    this.createCell(x, /* note inversion */ -z, i++);
+                    this.createCell(x, z, i++);
                 }
             }
         })
     }
 
     private createCell(x: number, z: number, i: number) {
+        let invertedZ = -z;
         let position = new THREE.Vector3()
-        position.x = x * (HexMetrics.innerRadius * 2);
+        position.x = (x + z * 0.5 - Math.floor(z / 2)) * (HexMetrics.innerRadius * 2);
         position.y = 0;
-        position.z = z * (HexMetrics.outerRadius * 1.5)
+        position.z = invertedZ * (HexMetrics.outerRadius * 1.5)
 
         const cell = this.cells[i] = new HexCell()
         cell.position.set(position.x, position.y, position.z)
@@ -47,7 +48,7 @@ export class HexGrid {
     }
 
     private createDebugText(x: number, z: number, position: THREE.Vector3) {
-        const textGeometry = new TextGeometry(`${x}\n${-z}`, {font: this.font, size: 2, height: 0.02,});
+        const textGeometry = new TextGeometry(`${x}\n${z}`, {font: this.font, size: 2, height: 0.02,});
         const textMesh = new THREE.Mesh(textGeometry, this.fontMat);
         textMesh.position.set(position.x, position.y, position.z)
         textMesh.rotateX(-Math.PI / 2)

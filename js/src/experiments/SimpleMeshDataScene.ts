@@ -21,10 +21,7 @@ export class SimpleMeshDataScene extends THREE.Scene {
         const scene = new THREE.Scene()
 
         this.camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height)
-        this.camera.position.x = 0
-        this.camera.position.y = 0
-        this.camera.position.z = 2
-        this.camera.lookAt(Vector3.zero)
+
         scene.add(this.camera)
 
         const axesHelper = new THREE.AxesHelper(2);

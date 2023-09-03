@@ -3,14 +3,14 @@ import {Helpers} from "../Helpers";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
 import GUI from "lil-gui";
 
-export class FullScreenScene extends THREE.Scene {
+export abstract class FullScreenScene extends THREE.Scene {
     mainCamera!: THREE.PerspectiveCamera;
     renderer!: THREE.WebGLRenderer;
     axesHelper!: THREE.AxesHelper
 
     debugControls = {
         axesVisible: true,
-        axesSize: 1,
+        axesSize: 15,
     }
 
     init(debug: boolean = false) {
@@ -28,7 +28,7 @@ export class FullScreenScene extends THREE.Scene {
         Helpers.addFullScreenToggle(canvas)
         this.createMainCamera(size);
 
-        this.onAddElements()
+        this.onInit()
 
         if (debug) {
             this.drawDebugUi();
@@ -46,9 +46,7 @@ export class FullScreenScene extends THREE.Scene {
         this.add(this.mainCamera)
     }
 
-    onAddElements() {
-        // TODO make abstract class + methods
-    }
+    abstract onInit();
 
     private updateRenderer(size: THREE.Vector2) {
         this.renderer.setSize(size.width, size.height)
@@ -72,7 +70,7 @@ export class FullScreenScene extends THREE.Scene {
                 this.axesHelper.visible = !this.axesHelper.visible
             })
         folder.add(this.debugControls, 'axesSize').name("Size")
-            .min(1).max(10).step(0.5)
+            .min(1).max(50).step(0.5)
             .onFinishChange((value: number) => {
                 this.remove(this.axesHelper)
                 this.axesHelper.dispose()
