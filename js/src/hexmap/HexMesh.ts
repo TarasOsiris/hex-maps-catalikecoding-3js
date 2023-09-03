@@ -13,7 +13,7 @@ export class HexMesh extends THREE.Mesh {
         const geometry = new THREE.BufferGeometry()
         // TODO add debug gui toggle for wireframe
         const material = new THREE.MeshBasicMaterial({color: 0xffffff, wireframe: false})
-        material.side = THREE.DoubleSide
+        material.side = THREE.BackSide
         super(geometry, material);
 
         gui.addFolder("HexMesh").add(material, 'wireframe')

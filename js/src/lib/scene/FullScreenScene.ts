@@ -7,7 +7,7 @@ export abstract class FullScreenScene extends THREE.Scene {
     mainCamera!: THREE.PerspectiveCamera;
     renderer!: THREE.WebGLRenderer;
     axesHelper!: THREE.AxesHelper
-    gui!: GUI = new GUI()
+    gui: GUI = new GUI()
 
     debugControls = {
         axesVisible: true,
