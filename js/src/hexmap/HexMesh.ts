@@ -1,52 +1,53 @@
 import * as THREE from "three";
 import {HexCell} from "./HexCell";
-import {BoxGeometry, BufferGeometry, Mesh} from "three";
 import {HexMetrics} from "./HexMetrics";
+import {Vector3} from "../lib/Vector3";
 
 export class HexMesh extends THREE.Mesh {
 
-    meshGeometry: THREE.BufferGeometry = new BufferGeometry()
+    meshGeometry: THREE.BufferGeometry = new THREE.BufferGeometry()
     meshVertices: Array<THREE.Vector3> = new Array<THREE.Vector3>()
     meshTriangles: Array<number> = new Array<number>()
 
     constructor() {
-        const geometry = new THREE.PlaneGeometry(10, 10)
-        const material = new THREE.MeshBasicMaterial({color: 0xffff00, wireframe: false})
+        const geometry = new THREE.BufferGeometry()
+        // TODO add debug gui toggle for wireframe
+        const material = new THREE.MeshBasicMaterial({color: 0xffffff, wireframe: false})
+        material.side = THREE.DoubleSide
         super(geometry, material);
     }
 
-    triangulate(cells: Array<HexCell>, scene: THREE.Scene) {
+    triangulate(cells: Array<HexCell>) {
         this.meshVertices = []
         this.meshTriangles = []
-        this.meshGeometry = new BufferGeometry()
         for (let i = 0; i < cells.length; i++) {
             this.triangulateCell(cells[i])
         }
 
         const flatennedVertices: number[] = []
         this.meshVertices.forEach(vertex => {
-            let mesh = new Mesh(new BoxGeometry(1,1,1), new THREE.MeshBasicMaterial({color: 0xff0000}));
-            mesh.position.set(vertex.x, vertex.y, vertex.z)
-            scene.add(mesh)
             flatennedVertices.push(vertex.x, vertex.y, vertex.z);
         })
+        console.log(this.meshTriangles)
+        console.log(flatennedVertices)
+        this.meshGeometry = new THREE.BufferGeometry()
         this.meshGeometry.setIndex(this.meshTriangles)
         this.meshGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(flatennedVertices), 3));
         this.meshGeometry.computeVertexNormals()
         this.geometry = this.meshGeometry
-        this.geometry = new BoxGeometry(1,1,1)
+        // this.geometry = new BoxGeometry(3,3,3)
     }
 
     triangulateCell(cell: HexCell) {
-        const center = new THREE.Vector3()
-        center.copy(cell.position)
+        const center = Vector3.copy(cell.position)
 
-        // TODO
-        // this.addTriangle(
-        //     center,
-        //     center.add(HexMetrics.corners[0]),
-        //     center.add(HexMetrics.corners[1])
-        // )
+        for (let i = 0; i < 6; i++) {
+            this.addTriangle(
+                center,
+                Vector3.add(center, HexMetrics.corners[i]),
+                Vector3.add(center, HexMetrics.corners[i + 1])
+            )
+        }
     }
 
     addTriangle(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3) {

@@ -17,7 +17,7 @@ export class HexGrid {
 
     // text
     private fontLoader: FontLoader = new FontLoader()
-    private fontMat = new THREE.MeshBasicMaterial({color: 0x00ff00});
+    private fontMat = new THREE.MeshBasicMaterial({color: 0x000000});
     private font!: Font;
 
     constructor(scene: THREE.Scene) {
@@ -35,7 +35,7 @@ export class HexGrid {
                 }
             }
 
-            this.hexMesh.triangulate(this.cells, scene)
+            this.hexMesh.triangulate(this.cells)
             scene.add(this.hexMesh)
         })
     }
