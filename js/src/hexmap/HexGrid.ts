@@ -4,6 +4,7 @@ import {HexMetrics} from "./HexMetrics";
 import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry";
 import {Font, FontLoader} from "three/examples/jsm/loaders/FontLoader";
 import {HexMesh} from "./HexMesh";
+import {Scene} from "three";
 
 export class HexGrid {
     width: number = 6;
@@ -16,18 +17,15 @@ export class HexGrid {
 
     // text
     private fontLoader: FontLoader = new FontLoader()
-    private fontMat = new THREE.MeshBasicMaterial({color: 0x000000});
+    private fontMat = new THREE.MeshBasicMaterial({color: 0x00ff00});
     private font!: Font;
 
     constructor(scene: THREE.Scene) {
-        this.initCells()
+        this.initCells(scene)
         scene.add(this.cellsGroup)
-
-        this.hexMesh.triangulate(this.cells)
-        scene.add(this.hexMesh)
     }
 
-    initCells() {
+    initCells(scene: THREE.Scene) {
         this.fontLoader.load('/fonts/roboto.json', (font) => {
             this.font = font
             this.cells = new Array(this.width * this.height)
@@ -36,19 +34,23 @@ export class HexGrid {
                     this.createCell(x, z, i++);
                 }
             }
+
+            this.hexMesh.triangulate(this.cells, scene)
+            scene.add(this.hexMesh)
         })
     }
 
     private createCell(x: number, z: number, i: number) {
+        const cell = this.cells[i] = new HexCell()
+        this.cellsGroup.add(cell)
+
         let invertedZ = -z;
         let position = new THREE.Vector3()
         position.x = (x + z * 0.5 - Math.floor(z / 2)) * (HexMetrics.innerRadius * 2);
         position.y = 0;
         position.z = invertedZ * (HexMetrics.outerRadius * 1.5)
 
-        const cell = this.cells[i] = new HexCell()
         cell.position.set(position.x, position.y, position.z)
-        this.cellsGroup.add(cell)
         this.createDebugText(x, z, position);
     }
 

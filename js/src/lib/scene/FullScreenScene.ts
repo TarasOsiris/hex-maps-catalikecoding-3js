@@ -41,7 +41,7 @@ export abstract class FullScreenScene extends THREE.Scene {
     }
 
     private createMainCamera(size: THREE.Vector2) {
-        this.mainCamera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 200)
+        this.mainCamera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 500)
         this.mainCamera.position.z = 3
         this.add(this.mainCamera)
     }
