@@ -13,6 +13,7 @@ export abstract class FullScreenScene extends THREE.Scene {
         axesVisible: true,
         axesSize: 15,
     }
+    private mouseDownListener?: (mouseCoordinate: THREE.Vector2) => void;
 
     init(debug: boolean = false) {
         const canvas = document.querySelector<HTMLCanvasElement>('canvas.webgl')!!
@@ -24,6 +25,15 @@ export abstract class FullScreenScene extends THREE.Scene {
             this.mainCamera.aspect = size.width / size.height
             this.mainCamera.updateProjectionMatrix()
             this.updateRenderer(size);
+        })
+
+        window.addEventListener('mousedown', event => {
+            if (!this.mouseDownListener) return
+            // Calculate normalized mouse coordinates (-1 to 1) based on canvas size
+            const normalizedMouseCoordinates = new THREE.Vector2()
+            normalizedMouseCoordinates.x = (event.clientX / window.innerWidth) * 2 - 1;
+            normalizedMouseCoordinates.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            this.mouseDownListener(normalizedMouseCoordinates)
         })
 
         Helpers.addFullScreenToggle(canvas)
@@ -39,6 +49,11 @@ export abstract class FullScreenScene extends THREE.Scene {
         this.updateRenderer(size)
 
         new OrbitControls(this.mainCamera, canvas)
+    }
+
+    setOnMouseDownListener(mouseDownListener: (mouseCoordinate: THREE.Vector2) => void) {
+        this.mouseDownListener = mouseDownListener;
+
     }
 
     private createMainCamera(size: THREE.Vector2) {

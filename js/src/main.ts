@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
 import {SimpleMeshDataScene} from "./experiments/SimpleMeshDataScene";
-import {HexMapScene} from "./hexmap/HexMapScene";
+import {HexMapScene} from "./hexmap/scenes/HexMapScene";
 import {FullScreenScene} from "./lib/scene/FullScreenScene";
 import {color} from "three/examples/jsm/nodes/shadernode/ShaderNodeBaseElements";
 import {Helpers} from "./lib/Helpers";

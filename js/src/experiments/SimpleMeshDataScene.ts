@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import {Vector3} from "../lib/Vector3";
-import {Vector2} from "../lib/Vector2";
+import {Vector3} from "../lib/math/Vector3";
+import {Vector2} from "../lib/math/Vector2";
 import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
 import * as dat from "lil-gui";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";

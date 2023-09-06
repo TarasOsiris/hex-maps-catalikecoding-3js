@@ -9,8 +9,7 @@ export class Vector3 {
     static up = new THREE.Vector3(0, 1, 0)
 
     static copy(vector: THREE.Vector3) {
-        const copy = new THREE.Vector3()
-        return copy.copy(vector)
+        return new THREE.Vector3().copy(vector)
     }
 
     static add(vector1: THREE.Vector3, vector2: THREE.Vector3) {
