@@ -35,7 +35,7 @@ export class HexGrid {
     initCells(scene: HexMapScene) {
         this.fontLoader.load('/fonts/roboto.json', (font) => {
             this.font = font
-            this.cells = new Array(this.width * this.height)
+            this.cells = new Array<HexCell>(this.width * this.height)
             for (let z = 0, i = 0; z < this.height; z++) {
                 for (let x = 0; x < this.width; x++) {
                     this.createCell(x, z, i++);
