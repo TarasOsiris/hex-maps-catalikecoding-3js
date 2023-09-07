@@ -4,6 +4,7 @@ import {HexMetrics} from "./HexMetrics";
 import {Vector3} from "../lib/math/Vector3";
 import GUI from "lil-gui";
 import {HexDirection} from "./HexDirection";
+import {ColorUtils} from "../lib/ColorUtils";
 
 export class HexMesh extends THREE.Mesh {
 
@@ -52,8 +53,10 @@ export class HexMesh extends THREE.Mesh {
             Vector3.add(center, HexMetrics.getFirstCorner(direction)),
             Vector3.add(center, HexMetrics.getSecondCorner(direction))
         )
-        let edgeColor = cell.getNeighbor(direction) ?? cell;
-        this.addTriangleColor(cell.color, edgeColor.color, edgeColor.color)
+        let neighbor = cell.getNeighbor(direction) ?? cell;
+        const cellColorCopy = ColorUtils.copy(cell.color)
+        let edgeColor = cellColorCopy.add(neighbor.color).multiplyScalar(0.5);
+        this.addTriangleColor(cell.color, edgeColor, edgeColor)
     }
 
     private addTriangleColor(c1: THREE.Color, c2: THREE.Color, c3: THREE.Color) {
