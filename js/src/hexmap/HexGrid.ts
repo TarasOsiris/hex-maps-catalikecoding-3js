@@ -4,10 +4,10 @@ import {HexMetrics} from "./HexMetrics";
 import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry";
 import {Font, FontLoader} from "three/examples/jsm/loaders/FontLoader";
 import {HexMesh} from "./HexMesh";
-import {Scene} from "three";
 import GUI from "lil-gui";
 import {HexCoordinates} from "./HexCoordinates";
 import {HexMapScene} from "./scenes/HexMapScene";
+import {HexDirection} from "./HexDirection";
 
 export class HexGrid {
     width: number = 6;
@@ -24,7 +24,6 @@ export class HexGrid {
     private font!: Font;
 
     private defaultColor: THREE.Color = new THREE.Color(1, 1, 1)
-    private touchedColor: THREE.Color = new THREE.Color(1, 1, 0)
 
     constructor(scene: HexMapScene, gui: GUI) {
         this.hexMesh = new HexMesh(gui)
@@ -44,24 +43,15 @@ export class HexGrid {
 
             this.hexMesh.triangulate(this.cells)
             scene.add(this.hexMesh)
-            this.handleMouseClicks(scene);
         })
     }
 
-    private handleMouseClicks(scene: HexMapScene) {
-        scene.setOnMouseDownListener(mouseCoordinate => {
-            scene.raycaster.setFromCamera(mouseCoordinate, scene.mainCamera)
-            const intersects = scene.raycaster.intersectObjects(scene.children)
-            if (intersects.length > 0) {
-                this.touchCell(intersects[0].point);
-            }
-        })
-    }
-
-    private touchCell(point: THREE.Vector3) {
-        let position = this.cellsGroup.worldToLocal(point)
+    colorCell(position: THREE.Vector3, color: THREE.Color) {
+        position = this.cellsGroup.worldToLocal(position)
         let coordinates = HexCoordinates.fromPosition(position)
-        console.log(coordinates.toString())
+        const index = coordinates.x + coordinates.z * this.width + Math.floor(coordinates.z / 2);
+        this.cells[index].color = color
+        this.hexMesh.triangulate(this.cells)
     }
 
     private createCell(x: number, z: number, i: number) {
@@ -74,9 +64,30 @@ export class HexGrid {
         const cell = this.cells[i] = new HexCell(HexCoordinates.fromOffsetCoordinates(x, z))
         this.cellsGroup.add(cell)
         cell.position.set(position.x, position.y, position.z)
-        cell.color = this.touchedColor
+        cell.color = this.defaultColor
+
+        this.setNeighbors(cell, x, z, i);
 
         this.createDebugText(cell, position);
+    }
+
+    private setNeighbors(cell: HexCell, x: number, z: number, i: number) {
+        if (x > 0) {
+            cell.setNeighbor(HexDirection.W, this.cells[i - 1])
+        }
+        if (z > 0) {
+            if ((z & 1) == 0) {
+                cell.setNeighbor(HexDirection.SE, this.cells[i - this.width])
+                if (x > 0) {
+                    cell.setNeighbor(HexDirection.SW, this.cells[i - this.width - 1])
+                }
+            } else {
+                cell.setNeighbor(HexDirection.SW, this.cells[i - this.width])
+                if (x < this.width - 1) {
+                    cell.setNeighbor(HexDirection.SE, this.cells[i - this.width + 1]);
+                }
+            }
+        }
     }
 
     private createDebugText(cell: HexCell, position: THREE.Vector3) {

@@ -3,6 +3,7 @@ import {HexCell} from "./HexCell";
 import {HexMetrics} from "./HexMetrics";
 import {Vector3} from "../lib/math/Vector3";
 import GUI from "lil-gui";
+import {HexDirection} from "./HexDirection";
 
 export class HexMesh extends THREE.Mesh {
 
@@ -39,22 +40,30 @@ export class HexMesh extends THREE.Mesh {
     }
 
     triangulateCell(cell: HexCell) {
-        const center = Vector3.copy(cell.position)
-
-        for (let i = 0; i < 6; i++) {
-            this.addTriangle(
-                center,
-                Vector3.add(center, HexMetrics.corners[i]),
-                Vector3.add(center, HexMetrics.corners[i + 1])
-            )
-            this.addTriangleColor(cell.color)
+        for (let d = HexDirection.NE; d <= HexDirection.NW; d++) {
+            this.triangulateSector(d, cell);
         }
     }
 
-    private addTriangleColor(color: THREE.Color) {
-        this.meshColors.push(color.r, color.g, color.b)
-        this.meshColors.push(color.r, color.g, color.b)
-        this.meshColors.push(color.r, color.g, color.b)
+    private triangulateSector(direction: HexDirection, cell: HexCell) {
+        const center = Vector3.copy(cell.position)
+        this.addTriangle(
+            center,
+            Vector3.add(center, HexMetrics.getFirstCorner(direction)),
+            Vector3.add(center, HexMetrics.getSecondCorner(direction))
+        )
+        let edgeColor = cell.getNeighbor(direction) ?? cell;
+        this.addTriangleColor(cell.color, edgeColor.color, edgeColor.color)
+    }
+
+    private addTriangleColor(c1: THREE.Color, c2: THREE.Color, c3: THREE.Color) {
+        this.addColor(c1);
+        this.addColor(c2);
+        this.addColor(c3);
+    }
+
+    private addColor(color1: THREE.Color) {
+        this.meshColors.push(color1.r, color1.g, color1.b)
     }
 
     addTriangle(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3) {

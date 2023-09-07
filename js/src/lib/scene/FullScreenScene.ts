@@ -7,7 +7,7 @@ export abstract class FullScreenScene extends THREE.Scene {
     mainCamera!: THREE.PerspectiveCamera;
     renderer!: THREE.WebGLRenderer;
     axesHelper!: THREE.AxesHelper
-    gui: GUI = new GUI()
+    gui: GUI = new GUI({title: "=== Inspector ===", closeFolders: true})
 
     debugControls = {
         axesVisible: true,
@@ -91,9 +91,6 @@ export abstract class FullScreenScene extends THREE.Scene {
                 this.axesHelper = new THREE.AxesHelper(value)
                 this.add(this.axesHelper)
             })
-
-        this.gui.addFolder("Orbit controls")
-        this.gui.add(this, 'test')
     }
 
     test() {

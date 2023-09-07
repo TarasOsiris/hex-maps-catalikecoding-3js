@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import {HexDirection} from "./HexDirection";
 
 export class HexMetrics {
     static outerRadius = 10;
@@ -6,7 +7,7 @@ export class HexMetrics {
 
     private static invZ = -1;
 
-    public static corners = [
+    private static corners = [
         new THREE.Vector3(0, 0, HexMetrics.invZ * this.outerRadius),
         new THREE.Vector3(this.innerRadius, 0, HexMetrics.invZ * 0.5 * this.outerRadius),
         new THREE.Vector3(this.innerRadius, 0, HexMetrics.invZ * -0.5 * this.outerRadius),
@@ -15,4 +16,12 @@ export class HexMetrics {
         new THREE.Vector3(-this.innerRadius, 0, HexMetrics.invZ * 0.5 * this.outerRadius),
         new THREE.Vector3(0, 0, HexMetrics.invZ * this.outerRadius),
     ];
+
+    public static getFirstCorner(direction: HexDirection): THREE.Vector3 {
+        return HexMetrics.corners[direction];
+    }
+
+    public static getSecondCorner(direction: HexDirection): THREE.Vector3 {
+        return HexMetrics.corners[direction + 1];
+    }
 }
