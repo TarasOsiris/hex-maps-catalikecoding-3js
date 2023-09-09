@@ -16,7 +16,7 @@ export class HexMapScene extends FullScreenScene {
         new THREE.Color(0, 0, 1),
     )
     private activeColor: THREE.Color = new THREE.Color(0, 1, 0)
-    private activeElevation = 0
+    private activeElevation = 3
 
     onInit() {
 
@@ -47,22 +47,22 @@ export class HexMapScene extends FullScreenScene {
     private addLighting(center: THREE.Vector3) {
         let ambientLight = new THREE.AmbientLight(0xffffff, 1);
         this.add(ambientLight)
-        let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-        directionalLight.position.set(0, 100, -center.z * 2)
+        let directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+        directionalLight.position.set(0, 25, 25)
         directionalLight.castShadow = true
         directionalLight.shadow.mapSize.width = 1024
         directionalLight.shadow.mapSize.height = 1024
         directionalLight.shadow.camera.near = 0.1
-        directionalLight.shadow.camera.far = 200
+        directionalLight.shadow.camera.far = 100
         directionalLight.shadow.camera.top = 100
         directionalLight.shadow.camera.bottom = -10
         directionalLight.shadow.camera.left = -10
         directionalLight.shadow.camera.right = 100
         directionalLight.shadow.camera.lookAt(center)
-        this.add(new CameraHelper(directionalLight.shadow.camera))
+        // this.add(new CameraHelper(directionalLight.shadow.camera))
         this.add(directionalLight)
-        let directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 10, 0xff0000);
-        this.add(directionalLightHelper)
+        // let directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 10, 0xff0000);
+        // this.add(directionalLightHelper)
     }
 
     private handleMouseClicks(grid: HexGrid) {
@@ -70,13 +70,16 @@ export class HexMapScene extends FullScreenScene {
             this.raycaster.setFromCamera(mouseCoordinate, this.mainCamera)
             const intersects = this.raycaster.intersectObjects(this.children)
             if (intersects.length > 0) {
+                if (intersects[0].object.type != 'Mesh') {
+                    return
+                }
                 this.editCell(grid.getCell(intersects[0].point));
             }
         })
     }
 
     editCell(cell: HexCell) {
-        cell.color = this.activeColor
+        cell.color = this.activeColor.clone()
         cell.elevation = this.activeElevation
         this.hexGrid.refresh()
     }
