@@ -12,9 +12,11 @@ export class HexMesh extends THREE.Mesh {
 
     constructor(gui: GUI) {
         const geometry = new THREE.BufferGeometry()
-        const material = new THREE.MeshBasicMaterial({wireframe: false, vertexColors: true})
+        const material = new THREE.MeshStandardMaterial({wireframe: false, vertexColors: true})
         material.side = THREE.BackSide
         super(geometry, material);
+        this.receiveShadow = true
+        this.castShadow = true
 
         gui.addFolder("HexMesh").add(material, 'wireframe')
     }
@@ -68,6 +70,7 @@ export class HexMesh extends THREE.Mesh {
         let bridge = HexMetrics.getBridge(direction);
         let v3 = v1.clone().add(bridge);
         let v4 = v2.clone().add(bridge);
+        v3.y = v4.y = neighbor.elevation * HexMetrics.elevationStep
 
         this.addQuad(v1, v2, v3, v4)
         this.addQuadColor2v(cell.color.clone(), neighbor.color.clone())
@@ -75,7 +78,9 @@ export class HexMesh extends THREE.Mesh {
         let nextDirection = HexDirectionUtils.next(direction);
         const nextNeighbor = cell.getNeighbor(nextDirection)
         if (direction <= HexDirection.E && nextNeighbor != null) {
-            this.addTriangle(v2, v4, v2.clone().add(HexMetrics.getBridge(nextDirection)))
+            const v5 = v2.clone().add(HexMetrics.getBridge(nextDirection))
+            v5.y = nextNeighbor.elevation * HexMetrics.elevationStep
+            this.addTriangle(v2, v4, v5)
             this.addTriangleColor(cell.color, neighbor.color, nextNeighbor.color)
         }
     }

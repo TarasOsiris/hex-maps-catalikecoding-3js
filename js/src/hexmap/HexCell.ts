@@ -5,9 +5,10 @@ import {HexMetrics} from "./HexMetrics";
 
 export class HexCell extends THREE.Object3D {
     coordinates: HexCoordinates;
-    private _elevation: number;
-    color: THREE.Color
+    private _elevation: number = 0;
+    color!: THREE.Color
     neighbors: Array<HexCell> = new Array<HexCell>(6)
+    textMesh!: THREE.Mesh;
 
     constructor(coordinates: HexCoordinates) {
         super();
@@ -17,6 +18,7 @@ export class HexCell extends THREE.Object3D {
     set elevation(value: number) {
         this._elevation = value;
         this.position.set(this.position.x, value * HexMetrics.elevationStep, this.position.z)
+        this.textMesh.position.set(this.textMesh.position.x, this._elevation * HexMetrics.elevationStep, this.textMesh.position.z)
     }
 
     get elevation(): number {

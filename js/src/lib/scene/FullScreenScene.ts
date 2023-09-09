@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import {Helpers} from "../Helpers";
-import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
 import GUI from "lil-gui";
 
 export abstract class FullScreenScene extends THREE.Scene {
@@ -47,8 +46,9 @@ export abstract class FullScreenScene extends THREE.Scene {
         }
 
         this.renderer = new THREE.WebGLRenderer({canvas: this.canvas})
+        this.renderer.shadowMap.enabled = true
+        this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
         this.updateRenderer(size)
-
     }
 
     setOnMouseDownListener(mouseDownListener: (mouseCoordinate: THREE.Vector2) => void) {

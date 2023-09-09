@@ -1,12 +1,9 @@
 import {FullScreenScene} from "../../lib/scene/FullScreenScene";
 import {HexGrid} from "../HexGrid";
-import {Vector3} from "../../lib/math/Vector3";
 import * as THREE from "three";
-import {BoxGeometry, CameraHelper, MeshBasicMaterial} from "three";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
-import {or} from "three/examples/jsm/nodes/shadernode/ShaderNodeBaseElements";
-import {HexMetrics} from "../HexMetrics";
 import {HexCell} from "../HexCell";
+import {CameraHelper} from "three";
 
 export class HexMapScene extends FullScreenScene {
 
@@ -22,6 +19,8 @@ export class HexMapScene extends FullScreenScene {
     private activeElevation = 0
 
     onInit() {
+
+
         // SceneUtils.addDefaultCube(this)
         this.hexGrid = new HexGrid(this, this.gui, mesh => {
             let boundingBox = mesh.geometry.boundingBox!!;
@@ -32,6 +31,7 @@ export class HexMapScene extends FullScreenScene {
 
             this.mainCamera.position.set(center.x, 120, center.z)
             this.mainCamera.lookAt(center)
+            this.addLighting(center);
         })
 
         this.handleMouseClicks(this.hexGrid)
@@ -42,6 +42,27 @@ export class HexMapScene extends FullScreenScene {
         })
         folder.add(this, 'selectTestColor')
         this.gui.add(this, 'activeElevation').min(0).max(6).step(1)
+    }
+
+    private addLighting(center: THREE.Vector3) {
+        let ambientLight = new THREE.AmbientLight(0xffffff, 1);
+        this.add(ambientLight)
+        let directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(0, 100, -center.z * 2)
+        directionalLight.castShadow = true
+        directionalLight.shadow.mapSize.width = 1024
+        directionalLight.shadow.mapSize.height = 1024
+        directionalLight.shadow.camera.near = 0.1
+        directionalLight.shadow.camera.far = 200
+        directionalLight.shadow.camera.top = 100
+        directionalLight.shadow.camera.bottom = -10
+        directionalLight.shadow.camera.left = -10
+        directionalLight.shadow.camera.right = 100
+        directionalLight.shadow.camera.lookAt(center)
+        this.add(new CameraHelper(directionalLight.shadow.camera))
+        this.add(directionalLight)
+        let directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 10, 0xff0000);
+        this.add(directionalLightHelper)
     }
 
     private handleMouseClicks(grid: HexGrid) {

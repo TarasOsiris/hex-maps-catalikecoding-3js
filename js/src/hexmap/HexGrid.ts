@@ -20,7 +20,7 @@ export class HexGrid {
 
     // text
     private fontLoader: FontLoader = new FontLoader()
-    private fontMat = new THREE.MeshBasicMaterial({color: 0x0000ff});
+    private fontMat = new THREE.MeshBasicMaterial({color: 0x000000});
     private font!: Font;
 
     private defaultColor: THREE.Color = new THREE.Color(1, 1, 1)
@@ -34,6 +34,7 @@ export class HexGrid {
     }
 
     initCells(scene: HexMapScene) {
+        // TODO move font loading to scene
         this.fontLoader.load('/fonts/roboto.json', (font) => {
             this.font = font
             this.cells = new Array<HexCell>(this.width * this.height)
@@ -71,10 +72,9 @@ export class HexGrid {
         this.cellsGroup.add(cell)
         cell.position.set(position.x, position.y, position.z)
         cell.color = this.defaultColor
+        cell.textMesh = this.createDebugText(cell, position)
 
         this.setNeighbors(cell, x, z, i);
-
-        this.createDebugText(cell, position);
     }
 
     private setNeighbors(cell: HexCell, x: number, z: number, i: number) {
@@ -100,12 +100,13 @@ export class HexGrid {
         const textGeometry = new TextGeometry(cell.coordinates.toStringOnSeparateLines(), {
             font: this.font,
             size: 2,
-            height: 0.02,
+            height: 0.2,
         });
         textGeometry.center()
         const textMesh = new THREE.Mesh(textGeometry, this.fontMat);
         textMesh.position.set(position.x, position.y + 0.05, position.z)
         textMesh.rotateX(-Math.PI / 2)
         this.cellsGroup.add(textMesh);
+        return textMesh
     }
 }
