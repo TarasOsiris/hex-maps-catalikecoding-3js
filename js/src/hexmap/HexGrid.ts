@@ -49,11 +49,14 @@ export class HexGrid {
         })
     }
 
-    colorCell(position: THREE.Vector3, color: THREE.Color) {
+    getCell(position: THREE.Vector3) {
         position = this.cellsGroup.worldToLocal(position)
         let coordinates = HexCoordinates.fromPosition(position)
         const index = coordinates.x + coordinates.z * this.width + Math.floor(coordinates.z / 2);
-        this.cells[index].color = color
+        return this.cells[index]
+    }
+
+    refresh() {
         this.hexMesh.triangulate(this.cells)
     }
 

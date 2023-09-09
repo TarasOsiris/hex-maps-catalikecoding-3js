@@ -6,6 +6,7 @@ export class HexMetrics {
     static innerRadius = this.outerRadius * 0.866025404;
     static solidFactor = 0.75
     static blendFactor = 1 - this.solidFactor
+    static elevationStep = 5
 
     private static invZ = -1;
 

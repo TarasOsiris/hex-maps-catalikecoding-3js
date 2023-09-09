@@ -6,9 +6,11 @@ import {BoxGeometry, CameraHelper, MeshBasicMaterial} from "three";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {or} from "three/examples/jsm/nodes/shadernode/ShaderNodeBaseElements";
 import {HexMetrics} from "../HexMetrics";
+import {HexCell} from "../HexCell";
 
 export class HexMapScene extends FullScreenScene {
 
+    private hexGrid!: HexGrid;
     raycaster = new THREE.Raycaster()
 
     private colors: Array<THREE.Color> = new Array<THREE.Color>(
@@ -17,10 +19,11 @@ export class HexMapScene extends FullScreenScene {
         new THREE.Color(0, 0, 1),
     )
     private activeColor: THREE.Color = new THREE.Color(0, 1, 0)
+    private activeElevation = 0
 
     onInit() {
         // SceneUtils.addDefaultCube(this)
-        let grid = new HexGrid(this, this.gui, mesh => {
+        this.hexGrid = new HexGrid(this, this.gui, mesh => {
             let boundingBox = mesh.geometry.boundingBox!!;
             let center = boundingBox.getCenter(new THREE.Vector3());
 
@@ -31,13 +34,14 @@ export class HexMapScene extends FullScreenScene {
             this.mainCamera.lookAt(center)
         })
 
-        this.handleMouseClicks(grid)
+        this.handleMouseClicks(this.hexGrid)
 
         let folder = this.gui.addFolder("Colors");
         this.colors.forEach((_, idx) => {
             folder.addColor(this.colors, idx.toString())
         })
         folder.add(this, 'selectTestColor')
+        this.gui.add(this, 'activeElevation').min(0).max(6).step(1)
     }
 
     private handleMouseClicks(grid: HexGrid) {
@@ -45,9 +49,15 @@ export class HexMapScene extends FullScreenScene {
             this.raycaster.setFromCamera(mouseCoordinate, this.mainCamera)
             const intersects = this.raycaster.intersectObjects(this.children)
             if (intersects.length > 0) {
-                grid.colorCell(intersects[0].point, this.activeColor);
+                this.editCell(grid.getCell(intersects[0].point));
             }
         })
+    }
+
+    editCell(cell: HexCell) {
+        cell.color = this.activeColor
+        cell.elevation = this.activeElevation
+        this.hexGrid.refresh()
     }
 
     selectTestColor() {
