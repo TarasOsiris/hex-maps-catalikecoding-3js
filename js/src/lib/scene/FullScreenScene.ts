@@ -4,6 +4,7 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
 import GUI from "lil-gui";
 
 export abstract class FullScreenScene extends THREE.Scene {
+    canvas!: HTMLCanvasElement
     mainCamera!: THREE.PerspectiveCamera;
     renderer!: THREE.WebGLRenderer;
     axesHelper!: THREE.AxesHelper
@@ -16,7 +17,7 @@ export abstract class FullScreenScene extends THREE.Scene {
     private mouseDownListener?: (mouseCoordinate: THREE.Vector2) => void;
 
     init(debug: boolean = false) {
-        const canvas = document.querySelector<HTMLCanvasElement>('canvas.webgl')!!
+        this.canvas = document.querySelector<HTMLCanvasElement>('canvas.webgl')!!
         const size = new THREE.Vector2(window.innerWidth, window.innerHeight)
 
         window.addEventListener('resize', () => {
@@ -36,7 +37,7 @@ export abstract class FullScreenScene extends THREE.Scene {
             this.mouseDownListener(normalizedMouseCoordinates)
         })
 
-        Helpers.addFullScreenToggle(canvas)
+        Helpers.addFullScreenToggle(this.canvas)
         this.createMainCamera(size);
 
         this.onInit()
@@ -45,15 +46,13 @@ export abstract class FullScreenScene extends THREE.Scene {
             this.drawDebugUi();
         }
 
-        this.renderer = new THREE.WebGLRenderer({canvas: canvas})
+        this.renderer = new THREE.WebGLRenderer({canvas: this.canvas})
         this.updateRenderer(size)
 
-        new OrbitControls(this.mainCamera, canvas)
     }
 
     setOnMouseDownListener(mouseDownListener: (mouseCoordinate: THREE.Vector2) => void) {
         this.mouseDownListener = mouseDownListener;
-
     }
 
     private createMainCamera(size: THREE.Vector2) {

@@ -2,6 +2,10 @@ import {FullScreenScene} from "../../lib/scene/FullScreenScene";
 import {HexGrid} from "../HexGrid";
 import {Vector3} from "../../lib/math/Vector3";
 import * as THREE from "three";
+import {BoxGeometry, CameraHelper, MeshBasicMaterial} from "three";
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
+import {or} from "three/examples/jsm/nodes/shadernode/ShaderNodeBaseElements";
+import {HexMetrics} from "../HexMetrics";
 
 export class HexMapScene extends FullScreenScene {
 
@@ -15,11 +19,17 @@ export class HexMapScene extends FullScreenScene {
     private activeColor: THREE.Color = new THREE.Color(0, 1, 0)
 
     onInit() {
-        this.mainCamera.position.set(0, 100, 0)
-        this.mainCamera.lookAt(Vector3.zero)
-
         // SceneUtils.addDefaultCube(this)
-        let grid = new HexGrid(this, this.gui)
+        let grid = new HexGrid(this, this.gui, mesh => {
+            let boundingBox = mesh.geometry.boundingBox!!;
+            let center = boundingBox.getCenter(new THREE.Vector3());
+
+            let orbitControls = new OrbitControls(this.mainCamera, this.canvas);
+            orbitControls.target = center
+
+            this.mainCamera.position.set(center.x, 120, center.z)
+            this.mainCamera.lookAt(center)
+        })
 
         this.handleMouseClicks(grid)
 

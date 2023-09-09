@@ -27,6 +27,7 @@ export class HexMesh extends THREE.Mesh {
             this.triangulateCell(cells[i])
         }
         this.geometry = this.createGeometry()
+        this.geometry.computeBoundingBox()
     }
 
     private createGeometry() {
@@ -77,7 +78,6 @@ export class HexMesh extends THREE.Mesh {
         this.addColor(c2);
         this.addColor(c3);
     }
-
 
     addTriangle(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3) {
         const vertexIndex = this.meshVertices.length / 3;

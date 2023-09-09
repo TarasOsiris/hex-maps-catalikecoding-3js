@@ -24,8 +24,10 @@ export class HexGrid {
     private font!: Font;
 
     private defaultColor: THREE.Color = new THREE.Color(1, 1, 1)
+    private readonly _onMeshReady: (hexMesh: HexMesh) => void;
 
-    constructor(scene: HexMapScene, gui: GUI) {
+    constructor(scene: HexMapScene, gui: GUI, onFinish: (hexMesh: HexMesh) => void) {
+        this._onMeshReady = onFinish;
         this.hexMesh = new HexMesh(gui)
         this.initCells(scene)
         scene.add(this.cellsGroup)
@@ -43,6 +45,7 @@ export class HexGrid {
 
             this.hexMesh.triangulate(this.cells)
             scene.add(this.hexMesh)
+            this._onMeshReady(this.hexMesh)
         })
     }
 
