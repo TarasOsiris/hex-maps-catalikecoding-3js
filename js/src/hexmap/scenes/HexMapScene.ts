@@ -10,7 +10,7 @@ export class HexMapScene extends FullScreenScene {
     private colors: Array<THREE.Color> = new Array<THREE.Color>(
         new THREE.Color(1, 0, 0),
         new THREE.Color(0, 1, 0),
-        new THREE.Color(1, 0, 1),
+        new THREE.Color(0, 0, 1),
     )
     private activeColor: THREE.Color = new THREE.Color(0, 1, 0)
 

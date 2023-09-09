@@ -55,8 +55,9 @@ export class HexMesh extends THREE.Mesh {
         this.addTriangle(center, v1, v2)
         this.addTriangleColor(cell.color.clone(), cell.color.clone(), cell.color.clone())
 
-        let v3 = center.clone().add(HexMetrics.getFirstCorner(direction));
-        let v4 = center.clone().add(HexMetrics.getSecondCorner(direction));
+        let bridge = HexMetrics.getBridge(direction);
+        let v3 = v1.clone().add(bridge);
+        let v4 = v2.clone().add(bridge);
 
         this.addQuad(v1, v2, v3, v4)
 
@@ -64,17 +65,10 @@ export class HexMesh extends THREE.Mesh {
         const neighbor = cell.getNeighbor(direction) ?? cell;
         const nextNeighbor = cell.getNeighbor(HexDirectionUtils.next(direction)) ?? cell
 
-        this.addQuadColor(
+        this.addQuadColor2v(
             cell.color.clone(),
-            cell.color.clone(),
-            cell.color.clone()
-                .add(previousNeighbor.color.clone())
-                .add(neighbor.color.clone())
-                .multiplyScalar(1 / 3),
-            cell.color.clone()
-                .add(neighbor.color.clone())
-                .add(nextNeighbor.color.clone())
-                .multiplyScalar(1 / 3),
+            cell.color.clone().add(neighbor.color.clone())
+                .multiplyScalar(1 / 2),
         )
     }
 
@@ -84,9 +78,6 @@ export class HexMesh extends THREE.Mesh {
         this.addColor(c3);
     }
 
-    private addColor(color1: THREE.Color) {
-        this.meshColors.push(color1.r, color1.g, color1.b)
-    }
 
     addTriangle(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3) {
         const vertexIndex = this.meshVertices.length / 3;
@@ -94,14 +85,6 @@ export class HexMesh extends THREE.Mesh {
         this.meshTriangles.push(vertexIndex);
         this.meshTriangles.push(vertexIndex + 1);
         this.meshTriangles.push(vertexIndex + 2);
-    }
-
-    addVertex(v: THREE.Vector3) {
-        this.meshVertices.push(v.x, v.y, v.z);
-    }
-
-    addVertices(...vertices: Array<THREE.Vector3>) {
-        vertices.forEach(v => this.addVertex(v))
     }
 
     addQuad(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3, v4: THREE.Vector3) {
@@ -115,10 +98,29 @@ export class HexMesh extends THREE.Mesh {
         this.meshTriangles.push(vertexIndex + 3);
     }
 
-    addQuadColor(c1: THREE.Color, c2: THREE.Color, c3: THREE.Color, c4: THREE.Color) {
+    addQuadColor4v(c1: THREE.Color, c2: THREE.Color, c3: THREE.Color, c4: THREE.Color) {
         this.addColor(c1);
         this.addColor(c2);
         this.addColor(c3);
         this.addColor(c4);
+    }
+
+    addQuadColor2v(c1: THREE.Color, c2: THREE.Color) {
+        this.addColor(c1);
+        this.addColor(c1);
+        this.addColor(c2);
+        this.addColor(c2);
+    }
+
+    private addColor(color1: THREE.Color) {
+        this.meshColors.push(color1.r, color1.g, color1.b)
+    }
+
+    addVertex(v: THREE.Vector3) {
+        this.meshVertices.push(v.x, v.y, v.z);
+    }
+
+    addVertices(...vertices: Array<THREE.Vector3>) {
+        vertices.forEach(v => this.addVertex(v))
     }
 }

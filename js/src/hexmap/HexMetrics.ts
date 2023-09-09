@@ -34,4 +34,10 @@ export class HexMetrics {
     public static getSecondSolidCorner(direction: HexDirection): THREE.Vector3 {
         return HexMetrics.corners[direction + 1].clone().multiplyScalar(this.solidFactor);
     }
+
+    public static getBridge(direction: HexDirection) {
+        let corner1 = this.getFirstCorner(direction).clone();
+        let corner2 = this.getSecondCorner(direction).clone();
+        return corner1.add(corner2).multiplyScalar(0.5 * this.blendFactor)
+    }
 }
