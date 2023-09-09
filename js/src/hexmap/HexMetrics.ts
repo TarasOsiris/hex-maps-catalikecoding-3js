@@ -38,6 +38,6 @@ export class HexMetrics {
     public static getBridge(direction: HexDirection) {
         let corner1 = this.getFirstCorner(direction).clone();
         let corner2 = this.getSecondCorner(direction).clone();
-        return corner1.add(corner2).multiplyScalar(0.5 * this.blendFactor)
+        return corner1.add(corner2).multiplyScalar(this.blendFactor)
     }
 }

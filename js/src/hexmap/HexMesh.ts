@@ -53,24 +53,31 @@ export class HexMesh extends THREE.Mesh {
         this.addTriangle(center, v1, v2)
         this.addTriangleColor(cell.color.clone(), cell.color.clone(), cell.color.clone())
 
+        if (direction <= HexDirection.SE) {
+            const neighbor = cell.getNeighbor(direction)
+            if (neighbor == null) {
+                return
+            }
+            this.triangulateConnection(direction, cell, v1, v2);
+        }
+    }
+
+    private triangulateConnection(direction: HexDirection, cell: HexCell, v1: THREE.Vector3, v2: THREE.Vector3) {
+        const neighbor = cell.getNeighbor(direction) ?? cell;
+
         let bridge = HexMetrics.getBridge(direction);
         let v3 = v1.clone().add(bridge);
         let v4 = v2.clone().add(bridge);
 
         this.addQuad(v1, v2, v3, v4)
+        this.addQuadColor2v(cell.color.clone(), neighbor.color.clone())
 
-        const previousNeighbor = cell.getNeighbor(HexDirectionUtils.previous(direction)) ?? cell
-        const neighbor = cell.getNeighbor(direction) ?? cell;
-        const nextNeighbor = cell.getNeighbor(HexDirectionUtils.next(direction)) ?? cell
-
-        let bridgeColor = cell.color.clone().add(neighbor.color).multiplyScalar(1 / 2);
-        this.addQuadColor2v(cell.color.clone(), bridgeColor)
-
-        this.addTriangle(v1, center.clone().add(HexMetrics.getFirstCorner(direction)), v3)
-        this.addTriangleColor(cell.color, cell.color.clone().add(previousNeighbor.color).add(neighbor.color).multiplyScalar(1 / 3), bridgeColor)
-
-        this.addTriangle(v2, v4, center.clone().add(HexMetrics.getSecondCorner(direction)))
-        this.addTriangleColor(cell.color, bridgeColor, cell.color.clone().add(neighbor.color).add(nextNeighbor.color).multiplyScalar(1 / 3))
+        let nextDirection = HexDirectionUtils.next(direction);
+        const nextNeighbor = cell.getNeighbor(nextDirection)
+        if (direction <= HexDirection.E && nextNeighbor != null) {
+            this.addTriangle(v2, v4, v2.clone().add(HexMetrics.getBridge(nextDirection)))
+            this.addTriangleColor(cell.color, neighbor.color, nextNeighbor.color)
+        }
     }
 
     private addTriangleColor(c1: THREE.Color, c2: THREE.Color, c3: THREE.Color) {
