@@ -1,11 +1,14 @@
 import * as THREE from "three";
 
 export class ColorUtils {
-    static randomColor(): THREE.Color {
-        const r = Math.random();
-        const g = Math.random();
-        const b = Math.random();
+    static white = new THREE.Color('white')
+    static black = new THREE.Color('black')
 
-        return new THREE.Color(r, g, b);
+    static red = new THREE.Color('red')
+    static green = new THREE.Color('green')
+    static blue = new THREE.Color('blue')
+
+    static randomColor(): THREE.Color {
+        return new THREE.Color(Math.random(), Math.random(), Math.random());
     }
 }

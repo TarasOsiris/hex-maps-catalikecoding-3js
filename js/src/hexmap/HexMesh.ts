@@ -15,6 +15,7 @@ export class HexMesh extends THREE.Mesh {
         const material = new THREE.MeshStandardMaterial({wireframe: false, vertexColors: true})
         material.side = THREE.BackSide
         super(geometry, material);
+        this.name = "Hex mesh"
         this.receiveShadow = true
         this.castShadow = true
 
