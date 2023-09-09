@@ -1,11 +1,8 @@
 import * as THREE from "three";
 import {HexCell} from "./HexCell";
 import {HexMetrics} from "./HexMetrics";
-import {Vector3} from "../lib/math/Vector3";
 import GUI from "lil-gui";
 import {HexDirection, HexDirectionUtils} from "./HexDirection";
-import {ColorUtils} from "../lib/ColorUtils";
-import {Color} from "three";
 
 export class HexMesh extends THREE.Mesh {
 
@@ -65,11 +62,14 @@ export class HexMesh extends THREE.Mesh {
         const neighbor = cell.getNeighbor(direction) ?? cell;
         const nextNeighbor = cell.getNeighbor(HexDirectionUtils.next(direction)) ?? cell
 
-        this.addQuadColor2v(
-            cell.color.clone(),
-            cell.color.clone().add(neighbor.color.clone())
-                .multiplyScalar(1 / 2),
-        )
+        let bridgeColor = cell.color.clone().add(neighbor.color).multiplyScalar(1 / 2);
+        this.addQuadColor2v(cell.color.clone(), bridgeColor)
+
+        this.addTriangle(v1, center.clone().add(HexMetrics.getFirstCorner(direction)), v3)
+        this.addTriangleColor(cell.color, cell.color.clone().add(previousNeighbor.color).add(neighbor.color).multiplyScalar(1 / 3), bridgeColor)
+
+        this.addTriangle(v2, v4, center.clone().add(HexMetrics.getSecondCorner(direction)))
+        this.addTriangleColor(cell.color, bridgeColor, cell.color.clone().add(neighbor.color).add(nextNeighbor.color).multiplyScalar(1 / 3))
     }
 
     private addTriangleColor(c1: THREE.Color, c2: THREE.Color, c3: THREE.Color) {
