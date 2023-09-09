@@ -1,39 +1,74 @@
 import * as THREE from 'three'
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
-import {SimpleMeshDataScene} from "./experiments/SimpleMeshDataScene";
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import * as dat from 'lil-gui'
 import {HexMapScene} from "./hexmap/scenes/HexMapScene";
-import {FullScreenScene} from "./lib/scene/FullScreenScene";
-import {color} from "three/examples/jsm/nodes/shadernode/ShaderNodeBaseElements";
-import {Helpers} from "./lib/Helpers";
 
-// const canvas = document.querySelector<HTMLCanvasElement>('canvas.webgl')!!
-// const scene = new THREE.Scene()
-//
-// const loadingManager = new THREE.LoadingManager()
-// const loader = new THREE.TextureLoader(loadingManager);
-// const colorTexture = loader.load('door/color.jpg');
-// colorTexture.colorSpace = "srgb"
-// const alphaTexture = loader.load('door/alpha.jpg');
-// const heightTexture = loader.load('door/height.jpg');
-// const normalTexture = loader.load('door/normal.jpg');
-// const ambientOcclusionTexture = loader.load('door/ambientOcclusion.jpg');
-// const metalnessTexture = loader.load('door/metalness.jpg');
-// const roughnessTexture = loader.load('door/roughness.jpg');
-//
-// // colorTexture.wrapT = THREE.RepeatWrapping
-// // colorTexture.wrapS = THREE.RepeatWrapping
-// // colorTexture.repeat = new THREE.Vector2(2, 3)
+// THREE.ColorManagement.enabled = false
 //
 // /**
-//  * Object
+//  * Base
 //  */
-// const geometry = new THREE.BoxGeometry(1, 1, 1, 2, 2, 2)
-// const material = new THREE.MeshBasicMaterial({
-//     map: colorTexture,
-//     wireframe: false,
-// })
-// const mesh = new THREE.Mesh(geometry, material)
-// scene.add(mesh)
+// // Debug
+// const gui = new dat.GUI()
+//
+// // Canvas
+// const canvas = document.querySelector('canvas.webgl')
+//
+// // Scene
+// const scene = new THREE.Scene()
+//
+// /**
+//  * Lights
+//  */
+// const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
+// scene.add(ambientLight)
+//
+// const pointLight = new THREE.PointLight(0xffffff, 50)
+// pointLight.position.x = 2
+// pointLight.position.y = 3
+// pointLight.position.z = 4
+// pointLight.castShadow = true
+// pointLight.shadow.mapSize.width = 2048
+// pointLight.shadow.mapSize.height = 2048
+// scene.add(pointLight)
+//
+// /**
+//  * Objects
+//  */
+// // Material
+// const material = new THREE.MeshStandardMaterial()
+// material.roughness = 0.4
+//
+// // Objects
+// const sphere = new THREE.Mesh(
+//     new THREE.SphereGeometry(0.5, 32, 32),
+//     material
+// )
+// sphere.castShadow = true
+// sphere.position.x = - 1.5
+//
+// const cube = new THREE.Mesh(
+//     new THREE.BoxGeometry(0.75, 0.75, 0.75),
+//     material
+// )
+// cube.castShadow = true
+//
+// const torus = new THREE.Mesh(
+//     new THREE.TorusGeometry(0.3, 0.2, 32, 64),
+//     material
+// )
+// torus.position.x = 1.5
+// torus.castShadow = true
+//
+// const plane = new THREE.Mesh(
+//     new THREE.PlaneGeometry(5, 5),
+//     material
+// )
+// plane.receiveShadow = true
+// plane.rotation.x = - Math.PI * 0.5
+// plane.position.y = - 0.65
+//
+// scene.add(sphere, cube, torus, plane)
 //
 // /**
 //  * Sizes
@@ -43,25 +78,29 @@ import {Helpers} from "./lib/Helpers";
 //     height: window.innerHeight
 // }
 //
-// window.addEventListener('resize', () => {
+// window.addEventListener('resize', () =>
+// {
+//     // Update sizes
 //     sizes.width = window.innerWidth
 //     sizes.height = window.innerHeight
 //
+//     // Update camera
 //     camera.aspect = sizes.width / sizes.height
 //     camera.updateProjectionMatrix()
 //
+//     // Update renderer
 //     renderer.setSize(sizes.width, sizes.height)
 //     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 // })
-//
-// Helpers.addFullScreenToggle(canvas)
 //
 // /**
 //  * Camera
 //  */
 // // Base camera
 // const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-// camera.position.z = 3
+// camera.position.x = 1
+// camera.position.y = 1
+// camera.position.z = 2
 // scene.add(camera)
 //
 // // Controls
@@ -74,6 +113,8 @@ import {Helpers} from "./lib/Helpers";
 // const renderer = new THREE.WebGLRenderer({
 //     canvas: canvas
 // })
+// renderer.shadowMap.enabled = true
+// renderer.outputColorSpace = THREE.LinearSRGBColorSpace
 // renderer.setSize(sizes.width, sizes.height)
 // renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 //
@@ -82,12 +123,21 @@ import {Helpers} from "./lib/Helpers";
 //  */
 // const clock = new THREE.Clock()
 //
-// const tick = () => {
+// const tick = () =>
+// {
 //     const elapsedTime = clock.getElapsedTime()
+//
+//     // Update objects
+//     sphere.rotation.y = 0.1 * elapsedTime
+//     cube.rotation.y = 0.1 * elapsedTime
+//     torus.rotation.y = 0.1 * elapsedTime
+//
+//     sphere.rotation.x = 0.15 * elapsedTime
+//     cube.rotation.x = 0.15 * elapsedTime
+//     torus.rotation.x = 0.15 * elapsedTime
 //
 //     // Update controls
 //     controls.update()
-//
 //
 //     // Render
 //     renderer.render(scene, camera)

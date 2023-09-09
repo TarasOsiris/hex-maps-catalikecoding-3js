@@ -48,18 +48,24 @@ export class HexMesh extends THREE.Mesh {
     }
 
     private triangulateSector(direction: HexDirection, cell: HexCell) {
-        const center = Vector3.copy(cell.position)
-        this.addTriangle(
-            center,
-            Vector3.add(center, HexMetrics.getFirstCorner(direction)),
-            Vector3.add(center, HexMetrics.getSecondCorner(direction))
-        )
+        const center = cell.position.clone()
+        let v1 = center.clone().add(HexMetrics.getFirstSolidCorner(direction));
+        let v2 = center.clone().add(HexMetrics.getSecondSolidCorner(direction));
+
+        this.addTriangle(center, v1, v2)
+        this.addTriangleColor(cell.color.clone(), cell.color.clone(), cell.color.clone())
+
+        let v3 = center.clone().add(HexMetrics.getFirstCorner(direction));
+        let v4 = center.clone().add(HexMetrics.getSecondCorner(direction));
+
+        this.addQuad(v1, v2, v3, v4)
 
         const previousNeighbor = cell.getNeighbor(HexDirectionUtils.previous(direction)) ?? cell
         const neighbor = cell.getNeighbor(direction) ?? cell;
         const nextNeighbor = cell.getNeighbor(HexDirectionUtils.next(direction)) ?? cell
 
-        this.addTriangleColor(
+        this.addQuadColor(
+            cell.color.clone(),
             cell.color.clone(),
             cell.color.clone()
                 .add(previousNeighbor.color.clone())
@@ -84,11 +90,35 @@ export class HexMesh extends THREE.Mesh {
 
     addTriangle(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3) {
         const vertexIndex = this.meshVertices.length / 3;
-        this.meshVertices.push(v1.x, v1.y, v1.z);
-        this.meshVertices.push(v2.x, v2.y, v2.z);
-        this.meshVertices.push(v3.x, v3.y, v3.z);
+        this.addVertices(v1, v2, v3)
         this.meshTriangles.push(vertexIndex);
         this.meshTriangles.push(vertexIndex + 1);
         this.meshTriangles.push(vertexIndex + 2);
+    }
+
+    addVertex(v: THREE.Vector3) {
+        this.meshVertices.push(v.x, v.y, v.z);
+    }
+
+    addVertices(...vertices: Array<THREE.Vector3>) {
+        vertices.forEach(v => this.addVertex(v))
+    }
+
+    addQuad(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3, v4: THREE.Vector3) {
+        const vertexIndex = this.meshVertices.length / 3;
+        this.addVertices(v1, v2, v3, v4)
+        this.meshTriangles.push(vertexIndex);
+        this.meshTriangles.push(vertexIndex + 2);
+        this.meshTriangles.push(vertexIndex + 1);
+        this.meshTriangles.push(vertexIndex + 1);
+        this.meshTriangles.push(vertexIndex + 2);
+        this.meshTriangles.push(vertexIndex + 3);
+    }
+
+    addQuadColor(c1: THREE.Color, c2: THREE.Color, c3: THREE.Color, c4: THREE.Color) {
+        this.addColor(c1);
+        this.addColor(c2);
+        this.addColor(c3);
+        this.addColor(c4);
     }
 }
