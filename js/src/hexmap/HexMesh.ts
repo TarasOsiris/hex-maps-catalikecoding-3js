@@ -3,6 +3,7 @@ import {HexCell} from "./HexCell";
 import {HexMetrics} from "./HexMetrics";
 import GUI from "lil-gui";
 import {HexDirection, HexDirectionUtils} from "./HexDirection";
+import {HexEdgeType} from "./HexEdgeType";
 
 export class HexMesh extends THREE.Mesh {
 
@@ -73,18 +74,32 @@ export class HexMesh extends THREE.Mesh {
         let v4 = v2.clone().add(bridge);
         v3.y = v4.y = neighbor.elevation * HexMetrics.elevationStep
 
-        this.triangulateEdgeTerraces(v1, v2, cell, v3, v4, neighbor)
-        // this.addQuad(v1, v2, v3, v4)
-        // this.addQuadColor2v(cell.color.clone(), neighbor.color.clone())
+        if (cell.getEdgeType(direction) == HexEdgeType.Slope) {
+            this.triangulateEdgeTerraces(v1, v2, cell, v3, v4, neighbor)
+        } else {
+            this.addQuad(v1, v2, v3, v4)
+            this.addQuadColor2v(cell.color.clone(), neighbor.color.clone())
+        }
 
         let nextDirection = HexDirectionUtils.next(direction);
         const nextNeighbor = cell.getNeighbor(nextDirection)
         if (direction <= HexDirection.E && nextNeighbor != null) {
             const v5 = v2.clone().add(HexMetrics.getBridge(nextDirection))
             v5.y = nextNeighbor.elevation * HexMetrics.elevationStep
-            this.addTriangle(v2, v4, v5)
-            this.addTriangleColor(cell.color, neighbor.color, nextNeighbor.color)
+
+            if (cell.elevation <= neighbor.elevation) {
+                if (cell.elevation <= nextNeighbor.elevation) {
+                    this.triangulateCorner(v2, cell, v4, neighbor, v5, nextNeighbor)
+                }
+            }
         }
+    }
+
+    triangulateCorner(bottom: THREE.Vector3, bottomCell: HexCell,
+                      left: THREE.Vector3, leftCell: HexCell,
+                      right: THREE.Vector3, rightCell: HexCell) {
+        this.addTriangle(bottom, left, right)
+        this.addTriangleColor(bottomCell.color, leftCell.color, rightCell.color)
     }
 
     triangulateEdgeTerraces(beginLeft: THREE.Vector3, beginRight: THREE.Vector3, beginCell: HexCell,

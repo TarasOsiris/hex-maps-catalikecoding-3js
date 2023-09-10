@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import {HexDirection} from "./HexDirection";
+import {HexEdgeType} from "./HexEdgeType";
 
 export class HexMetrics {
     static readonly outerRadius = 10;
@@ -61,5 +62,16 @@ export class HexMetrics {
     public static terraceLerpColor(a: THREE.Color, b: THREE.Color, step: number) {
         const h = step * HexMetrics.horizontalTerraceStepSize;
         return new THREE.Color().lerpColors(a, b, h)
+    }
+
+    public static getEdgeType(elevation1: number, elevation2: number): HexEdgeType {
+        if (elevation1 == elevation2) {
+            return HexEdgeType.Flat
+        }
+        const delta = elevation2 - elevation1
+        if (delta == 1 || delta == -1) {
+            return HexEdgeType.Slope
+        }
+        return HexEdgeType.Cliff
     }
 }

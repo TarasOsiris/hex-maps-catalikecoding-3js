@@ -2,6 +2,7 @@ import * as THREE from "three";
 import {HexCoordinates} from "./HexCoordinates";
 import {HexDirection, HexDirectionUtils} from "./HexDirection";
 import {HexMetrics} from "./HexMetrics";
+import {HexEdgeType} from "./HexEdgeType";
 
 export class HexCell extends THREE.Object3D {
     coordinates: HexCoordinates;
@@ -32,5 +33,9 @@ export class HexCell extends THREE.Object3D {
     public setNeighbor(direction: HexDirection, cell: HexCell) {
         this.neighbors[direction as number] = cell
         cell.neighbors[HexDirectionUtils.opposite(direction) as number] = this
+    }
+
+    getEdgeType(direction: HexDirection): HexEdgeType {
+        return HexMetrics.getEdgeType(this._elevation, this.neighbors[direction as number].elevation)
     }
 }
