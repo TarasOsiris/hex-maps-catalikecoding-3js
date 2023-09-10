@@ -46,12 +46,20 @@ export class HexMetrics {
     }
 
     static readonly horizontalTerraceStepSize = 1 / HexMetrics.terraceSteps
+    static readonly verticalTerraceStepSize = 1 / (HexMetrics.terracesPerSlope + 1)
 
-    public static terraceLerp(a: THREE.Vector3, b: THREE.Vector3, step: number) {
+    public static terraceLerp(a: THREE.Vector3, b: THREE.Vector3, step: number): THREE.Vector3 {
         const h = step * this.horizontalTerraceStepSize
         const result = a.clone()
         result.x += (b.x - a.x) * h
         result.z += (b.z - a.z) * h
-        return a;
+        const v = Math.floor(((step + 1) / 2)) * HexMetrics.verticalTerraceStepSize;
+        result.y += (b.y - a.y) * v;
+        return result;
+    }
+
+    public static terraceLerpColor(a: THREE.Color, b: THREE.Color, step: number) {
+        const h = step * HexMetrics.horizontalTerraceStepSize;
+        return new THREE.Color().lerpColors(a, b, h)
     }
 }

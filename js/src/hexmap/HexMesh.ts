@@ -73,8 +73,9 @@ export class HexMesh extends THREE.Mesh {
         let v4 = v2.clone().add(bridge);
         v3.y = v4.y = neighbor.elevation * HexMetrics.elevationStep
 
-        this.addQuad(v1, v2, v3, v4)
-        this.addQuadColor2v(cell.color.clone(), neighbor.color.clone())
+        this.triangulateEdgeTerraces(v1, v2, cell, v3, v4, neighbor)
+        // this.addQuad(v1, v2, v3, v4)
+        // this.addQuadColor2v(cell.color.clone(), neighbor.color.clone())
 
         let nextDirection = HexDirectionUtils.next(direction);
         const nextNeighbor = cell.getNeighbor(nextDirection)
@@ -84,6 +85,30 @@ export class HexMesh extends THREE.Mesh {
             this.addTriangle(v2, v4, v5)
             this.addTriangleColor(cell.color, neighbor.color, nextNeighbor.color)
         }
+    }
+
+    triangulateEdgeTerraces(beginLeft: THREE.Vector3, beginRight: THREE.Vector3, beginCell: HexCell,
+                            endLeft: THREE.Vector3, endRight: THREE.Vector3, endCell: HexCell) {
+        let v3 = HexMetrics.terraceLerp(beginLeft, endLeft, 1)
+        let v4 = HexMetrics.terraceLerp(beginRight, endRight, 1)
+        let c2 = HexMetrics.terraceLerpColor(beginCell.color, endCell.color, 1)
+
+        this.addQuad(beginLeft, beginRight, v3, v4);
+        this.addQuadColor2v(beginCell.color, c2);
+
+        for (let i = 2; i < HexMetrics.terraceSteps; i++) {
+            let v1 = v3;
+            let v2 = v4;
+            let c1 = c2;
+            v3 = HexMetrics.terraceLerp(beginLeft, endLeft, i);
+            v4 = HexMetrics.terraceLerp(beginRight, endRight, i);
+            c2 = HexMetrics.terraceLerpColor(beginCell.color, endCell.color, i);
+            this.addQuad(v1, v2, v3, v4);
+            this.addQuadColor2v(c1, c2);
+        }
+
+        this.addQuad(v3, v4, endLeft, endRight);
+        this.addQuadColor2v(c2, endCell.color);
     }
 
     private addTriangleColor(c1: THREE.Color, c2: THREE.Color, c3: THREE.Color) {
