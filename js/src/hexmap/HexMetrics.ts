@@ -2,11 +2,14 @@ import * as THREE from "three";
 import {HexDirection} from "./HexDirection";
 
 export class HexMetrics {
-    static outerRadius = 10;
-    static innerRadius = this.outerRadius * 0.866025404;
-    static solidFactor = 0.75
-    static blendFactor = 1 - this.solidFactor
-    static elevationStep = 5
+    static readonly outerRadius = 10;
+    static readonly innerRadius = this.outerRadius * 0.866025404;
+    static readonly solidFactor = 0.75
+    static readonly blendFactor = 1 - this.solidFactor
+
+    static readonly elevationStep = 5
+    static readonly terracesPerSlope = 2
+    static readonly terraceSteps = HexMetrics.terracesPerSlope * 2 + 1
 
     private static invZ = -1;
 
@@ -40,5 +43,15 @@ export class HexMetrics {
         let corner1 = this.getFirstCorner(direction).clone();
         let corner2 = this.getSecondCorner(direction).clone();
         return corner1.add(corner2).multiplyScalar(this.blendFactor)
+    }
+
+    static readonly horizontalTerraceStepSize = 1 / HexMetrics.terraceSteps
+
+    public static terraceLerp(a: THREE.Vector3, b: THREE.Vector3, step: number) {
+        const h = step * this.horizontalTerraceStepSize
+        const result = a.clone()
+        result.x += (b.x - a.x) * h
+        result.z += (b.z - a.z) * h
+        return a;
     }
 }
