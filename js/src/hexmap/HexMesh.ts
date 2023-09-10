@@ -90,7 +90,13 @@ export class HexMesh extends THREE.Mesh {
             if (cell.elevation <= neighbor.elevation) {
                 if (cell.elevation <= nextNeighbor.elevation) {
                     this.triangulateCorner(v2, cell, v4, neighbor, v5, nextNeighbor)
+                } else {
+                    this.triangulateCorner(v5, nextNeighbor, v2, cell, v4, neighbor)
                 }
+            } else if (neighbor.elevation <= nextNeighbor.elevation) {
+                this.triangulateCorner(v4, neighbor, v5, nextNeighbor, v2, cell)
+            } else {
+                this.triangulateCorner(v5, nextNeighbor, v2, cell, v4, neighbor)
             }
         }
     }
