@@ -36,6 +36,10 @@ export class HexCell extends THREE.Object3D {
     }
 
     getEdgeType(direction: HexDirection): HexEdgeType {
-        return HexMetrics.getEdgeType(this._elevation, this.neighbors[direction as number].elevation)
+        return HexMetrics.getEdgeType(this.elevation, this.neighbors[direction as number].elevation)
+    }
+
+    getEdgeTypeWithOtherCell(otherCell: HexCell): HexEdgeType {
+        return HexMetrics.getEdgeType(this.elevation, otherCell.elevation)
     }
 }

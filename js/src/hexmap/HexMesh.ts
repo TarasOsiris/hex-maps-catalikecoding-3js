@@ -104,8 +104,60 @@ export class HexMesh extends THREE.Mesh {
     triangulateCorner(bottom: THREE.Vector3, bottomCell: HexCell,
                       left: THREE.Vector3, leftCell: HexCell,
                       right: THREE.Vector3, rightCell: HexCell) {
+        const leftEdgeType = bottomCell.getEdgeTypeWithOtherCell(leftCell);
+        const rightEdgeType = bottomCell.getEdgeTypeWithOtherCell(rightCell);
+
+        if (leftEdgeType == HexEdgeType.Slope) {
+            if (rightEdgeType == HexEdgeType.Slope) {
+                this.triangulateCornerTerraces(bottom, bottomCell, left, leftCell, right, rightCell)
+                return
+            }
+
+            if (rightEdgeType == HexEdgeType.Flat) {
+                this.triangulateCornerTerraces(left, leftCell, right, rightCell, bottom, bottomCell)
+                return
+            }
+        }
+
+        if (rightEdgeType == HexEdgeType.Slope) {
+            if (leftEdgeType == HexEdgeType.Flat) {
+                this.triangulateCornerTerraces(right, rightCell, bottom, bottomCell, left, leftCell);
+                return;
+            }
+        }
+
         this.addTriangle(bottom, left, right)
         this.addTriangleColor(bottomCell.color, leftCell.color, rightCell.color)
+    }
+
+    triangulateCornerTerraces(
+        begin: THREE.Vector3, beginCell: HexCell,
+        left: THREE.Vector3, leftCell: HexCell,
+        right: THREE.Vector3, rightCell: HexCell
+    ) {
+        let v3 = HexMetrics.terraceLerp(begin, left, 1);
+        let v4 = HexMetrics.terraceLerp(begin, right, 1);
+        let c3 = HexMetrics.terraceLerpColor(beginCell.color, leftCell.color, 1);
+        let c4 = HexMetrics.terraceLerpColor(beginCell.color, rightCell.color, 1);
+
+        this.addTriangle(begin, v3, v4);
+        this.addTriangleColor(beginCell.color, c3, c4);
+
+        for (let i = 2; i < HexMetrics.terraceSteps; i++) {
+            let v1 = v3;
+            let v2 = v4;
+            let c1 = c3;
+            let c2 = c4;
+            v3 = HexMetrics.terraceLerp(begin, left, i);
+            v4 = HexMetrics.terraceLerp(begin, right, i);
+            c3 = HexMetrics.terraceLerpColor(beginCell.color, leftCell.color, i);
+            c4 = HexMetrics.terraceLerpColor(beginCell.color, rightCell.color, i);
+            this.addQuad(v1, v2, v3, v4);
+            this.addQuadColor4v(c1, c2, c3, c4);
+        }
+
+        this.addQuad(v3, v4, left, right);
+        this.addQuadColor4v(c3, c4, leftCell.color, rightCell.color);
     }
 
     triangulateEdgeTerraces(beginLeft: THREE.Vector3, beginRight: THREE.Vector3, beginCell: HexCell,
