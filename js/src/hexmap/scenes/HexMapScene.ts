@@ -17,10 +17,10 @@ export class HexMapScene extends FullScreenScene {
     onInit() {
         // SceneUtils.addDefaultCube(this)
         this.hexGrid = new HexGrid(this, this.gui, mesh => {
-            let boundingBox = mesh.geometry.boundingBox!!;
-            let center = boundingBox.getCenter(new THREE.Vector3());
+            const boundingBox = mesh.geometry.boundingBox!;
+            const center = boundingBox.getCenter(new THREE.Vector3());
 
-            let orbitControls = new OrbitControls(this.mainCamera, this.canvas);
+            const orbitControls = new OrbitControls(this.mainCamera, this.canvas);
             orbitControls.target = center
 
             this.mainCamera.position.set(center.x, 120, center.z)
@@ -30,7 +30,7 @@ export class HexMapScene extends FullScreenScene {
 
         this.handleMouseClicks(this.hexGrid)
 
-        let folder = this.gui.addFolder("Colors");
+        const folder = this.gui.addFolder("Colors");
         this.colors.forEach((_, idx) => {
             folder.addColor(this.colors, idx.toString())
         })
@@ -39,9 +39,9 @@ export class HexMapScene extends FullScreenScene {
     }
 
     private addLighting(center: THREE.Vector3) {
-        let ambientLight = new THREE.AmbientLight(ColorUtils.white, 1);
+        const ambientLight = new THREE.AmbientLight(ColorUtils.white, 1);
         this.add(ambientLight)
-        let directionalLight = new THREE.DirectionalLight(ColorUtils.white, 1.5);
+        const directionalLight = new THREE.DirectionalLight(ColorUtils.white, 1.5);
         directionalLight.position.set(0, 25, 25)
         directionalLight.castShadow = true
         directionalLight.shadow.mapSize.width = 1024

@@ -16,7 +16,7 @@ export class SimpleMeshDataScene extends THREE.Scene {
             height: 600
         }
 
-        const canvas = document.querySelector<HTMLCanvasElement>('canvas.webgl')!!
+        const canvas = document.querySelector<HTMLCanvasElement>('canvas.webgl')!
 
         const scene = new THREE.Scene()
 

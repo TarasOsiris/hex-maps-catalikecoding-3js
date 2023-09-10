@@ -16,7 +16,7 @@ export abstract class FullScreenScene extends THREE.Scene {
     private mouseDownListener?: (mouseCoordinate: THREE.Vector2) => void;
 
     init(debug: boolean = false) {
-        this.canvas = document.querySelector<HTMLCanvasElement>('canvas.webgl')!!
+        this.canvas = document.querySelector<HTMLCanvasElement>('canvas.webgl')!
         const size = new THREE.Vector2(window.innerWidth, window.innerHeight)
 
         window.addEventListener('resize', () => {
@@ -77,7 +77,7 @@ export abstract class FullScreenScene extends THREE.Scene {
         this.axesHelper = new THREE.AxesHelper(this.debugControls.axesSize)
         this.add(this.axesHelper)
 
-        let folder = this.gui.addFolder("Axes");
+        const folder = this.gui.addFolder("Axes");
         folder.add(this.debugControls, 'axesVisible').name("Is Visible")
             .onChange(() => {
                 this.axesHelper.visible = !this.axesHelper.visible

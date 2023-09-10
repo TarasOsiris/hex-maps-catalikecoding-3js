@@ -19,7 +19,7 @@
     "noImplicitThis": false,
     "strictNullChecks": true,
     "outDir": "./build",
-    "baseUrl": "."
+    "baseUrl": ".",
   },
   "include": ["src/**/*", "__tests__/**/*"],
   "exclude": ["node_modules", "build"]

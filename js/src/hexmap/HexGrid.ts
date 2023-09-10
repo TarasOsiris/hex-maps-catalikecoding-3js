@@ -52,7 +52,7 @@ export class HexGrid {
 
     getCell(position: THREE.Vector3) {
         position = this.cellsGroup.worldToLocal(position)
-        let coordinates = HexCoordinates.fromPosition(position)
+        const coordinates = HexCoordinates.fromPosition(position)
         const index = coordinates.x + coordinates.z * this.width + Math.floor(coordinates.z / 2);
         return this.cells[index]
     }
@@ -62,8 +62,8 @@ export class HexGrid {
     }
 
     private createCell(x: number, z: number, i: number) {
-        let invertedZ = -z;
-        let position = new THREE.Vector3()
+        const invertedZ = -z;
+        const position = new THREE.Vector3()
         position.x = (x + z * 0.5 - Math.floor(z / 2)) * (HexMetrics.innerRadius * 2);
         position.y = 0;
         position.z = invertedZ * (HexMetrics.outerRadius * 1.5)

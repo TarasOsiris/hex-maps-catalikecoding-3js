@@ -51,8 +51,8 @@ export class HexMesh extends THREE.Mesh {
 
     private triangulateSector(direction: HexDirection, cell: HexCell) {
         const center = cell.position.clone()
-        let v1 = center.clone().add(HexMetrics.getFirstSolidCorner(direction));
-        let v2 = center.clone().add(HexMetrics.getSecondSolidCorner(direction));
+        const v1 = center.clone().add(HexMetrics.getFirstSolidCorner(direction));
+        const v2 = center.clone().add(HexMetrics.getSecondSolidCorner(direction));
 
         this.addTriangle(center, v1, v2)
         this.addTriangleColor(cell.color.clone(), cell.color.clone(), cell.color.clone())
@@ -69,9 +69,9 @@ export class HexMesh extends THREE.Mesh {
     private triangulateConnection(direction: HexDirection, cell: HexCell, v1: THREE.Vector3, v2: THREE.Vector3) {
         const neighbor = cell.getNeighbor(direction) ?? cell;
 
-        let bridge = HexMetrics.getBridge(direction);
-        let v3 = v1.clone().add(bridge);
-        let v4 = v2.clone().add(bridge);
+        const bridge = HexMetrics.getBridge(direction);
+        const v3 = v1.clone().add(bridge);
+        const v4 = v2.clone().add(bridge);
         v3.y = v4.y = neighbor.elevation * HexMetrics.elevationStep
 
         if (cell.getEdgeType(direction) == HexEdgeType.Slope) {
@@ -81,7 +81,7 @@ export class HexMesh extends THREE.Mesh {
             this.addQuadColor2v(cell.color.clone(), neighbor.color.clone())
         }
 
-        let nextDirection = HexDirectionUtils.next(direction);
+        const nextDirection = HexDirectionUtils.next(direction);
         const nextNeighbor = cell.getNeighbor(nextDirection)
         if (direction <= HexDirection.E && nextNeighbor != null) {
             const v5 = v2.clone().add(HexMetrics.getBridge(nextDirection))
@@ -147,10 +147,10 @@ export class HexMesh extends THREE.Mesh {
         this.addTriangleColor(beginCell.color, c3, c4);
 
         for (let i = 2; i < HexMetrics.terraceSteps; i++) {
-            let v1 = v3;
-            let v2 = v4;
-            let c1 = c3;
-            let c2 = c4;
+            const v1 = v3;
+            const v2 = v4;
+            const c1 = c3;
+            const c2 = c4;
             v3 = HexMetrics.terraceLerp(begin, left, i);
             v4 = HexMetrics.terraceLerp(begin, right, i);
             c3 = HexMetrics.terraceLerpColor(beginCell.color, leftCell.color, i);
@@ -181,9 +181,9 @@ export class HexMesh extends THREE.Mesh {
         this.addQuadColor2v(beginCell.color, c2);
 
         for (let i = 2; i < HexMetrics.terraceSteps; i++) {
-            let v1 = v3;
-            let v2 = v4;
-            let c1 = c2;
+            const v1 = v3;
+            const v2 = v4;
+            const c1 = c2;
             v3 = HexMetrics.terraceLerp(beginLeft, endLeft, i);
             v4 = HexMetrics.terraceLerp(beginRight, endRight, i);
             c2 = HexMetrics.terraceLerpColor(beginCell.color, endCell.color, i);

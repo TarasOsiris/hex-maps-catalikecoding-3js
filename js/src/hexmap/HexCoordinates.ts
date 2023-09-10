@@ -29,7 +29,7 @@ export class HexCoordinates {
         let x = position.x / (HexMetrics.innerRadius * 2)
         let y = -x;
 
-        let invertedZ = -1
+        const invertedZ = -1
         const offset = (invertedZ * position.z) / (HexMetrics.outerRadius * 3);
         x -= offset;
         y -= offset;
