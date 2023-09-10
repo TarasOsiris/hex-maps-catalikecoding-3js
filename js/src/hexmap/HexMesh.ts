@@ -117,6 +117,9 @@ export class HexMesh extends THREE.Mesh {
                 this.triangulateCornerTerraces(left, leftCell, right, rightCell, bottom, bottomCell)
                 return
             }
+
+            this.triangulateCornerTerracesCliff(bottom, bottomCell, left, leftCell, right, rightCell)
+            return
         }
 
         if (rightEdgeType == HexEdgeType.Slope) {
@@ -158,6 +161,14 @@ export class HexMesh extends THREE.Mesh {
 
         this.addQuad(v3, v4, left, right);
         this.addQuadColor4v(c3, c4, leftCell.color, rightCell.color);
+    }
+
+    triangulateCornerTerracesCliff(
+        begin: THREE.Vector3, beginCell: HexCell,
+        left: THREE.Vector3, leftCell: HexCell,
+        right: THREE.Vector3, rightCell: HexCell
+    ) {
+        // TODO implement
     }
 
     triangulateEdgeTerraces(beginLeft: THREE.Vector3, beginRight: THREE.Vector3, beginCell: HexCell,
