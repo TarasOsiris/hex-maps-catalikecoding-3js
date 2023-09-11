@@ -1,7 +1,7 @@
 import * as THREE from "three";
+import {MathUtils} from "three";
 import {HexDirection} from "./HexDirection";
 import {HexEdgeType} from "./HexEdgeType";
-import {MathUtils} from "three";
 
 export class HexMetrics {
     static readonly outerRadius = 10;
@@ -87,8 +87,8 @@ export class HexMetrics {
         const z = -position.z * this.noiseScale
         const wrappedUVs = this.wrapToUV(new THREE.Vector2(x, z))
 
-        const xInd = Math.floor(MathUtils.lerp(0, this.noiseTextureSize, wrappedUVs.x))
-        const zInd = Math.floor(MathUtils.lerp(0, this.noiseTextureSize, wrappedUVs.y))
+        const xInd = Math.round(MathUtils.lerp(0, this.noiseTextureSize, wrappedUVs.x))
+        const zInd = Math.round(MathUtils.lerp(0, this.noiseTextureSize, wrappedUVs.y))
 
         let color = this.sample(xInd, zInd);
         return new THREE.Vector4(color.r, color.g, color.b, 0)
