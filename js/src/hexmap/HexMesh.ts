@@ -307,7 +307,7 @@ export class HexMesh extends THREE.Mesh {
         const result = position.clone()
         const sample = HexMetrics.sampleNoise(position)
         result.x += (sample.x * 2 - 1) * HexMetrics.cellPerturbStrength
-        // result.y += (sample.y * 2 - 1) * HexMetrics.cellPerturbStrength
+        result.y += (sample.y * 2 - 1) * HexMetrics.cellPerturbStrength
         result.z += (sample.z * 2 - 1) * HexMetrics.cellPerturbStrength
         return result
     }

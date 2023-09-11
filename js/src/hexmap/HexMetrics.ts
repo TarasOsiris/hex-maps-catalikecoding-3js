@@ -95,8 +95,8 @@ export class HexMetrics {
     }
 
     private static wrapToUV(texCoord: THREE.Vector2) {
-        let flooredTexCoord = new THREE.Vector2(Math.floor(texCoord.x), Math.floor(texCoord.y));
-        return texCoord.clone().sub(flooredTexCoord)
+        let integerPart = new THREE.Vector2(Math.floor(texCoord.x), Math.floor(texCoord.y));
+        return texCoord.clone().sub(integerPart)
     }
 
     private static sample(x: number, y: number): THREE.Color {
