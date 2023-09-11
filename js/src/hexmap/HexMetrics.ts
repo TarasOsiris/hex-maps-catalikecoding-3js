@@ -74,4 +74,8 @@ export class HexMetrics {
         }
         return HexEdgeType.Cliff
     }
+
+    public static sampleNoise(position: THREE.Vector3): THREE.Vector4 {
+        return new THREE.Vector4()
+    }
 }
