@@ -2,7 +2,7 @@ import {HexCell} from "./HexCell";
 import * as THREE from "three";
 import {HexMetrics} from "./HexMetrics";
 import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry";
-import {Font, FontLoader} from "three/examples/jsm/loaders/FontLoader";
+import {Font} from "three/examples/jsm/loaders/FontLoader";
 import {HexMesh} from "./HexMesh";
 import GUI from "lil-gui";
 import {HexCoordinates} from "./HexCoordinates";
@@ -16,38 +16,31 @@ export class HexGrid {
     private readonly cellsGroup: THREE.Group = new THREE.Group()
 
     private cells: Array<HexCell> = [];
-    private hexMesh: HexMesh
+    hexMesh: HexMesh
 
-    // text
-    private fontLoader: FontLoader = new FontLoader()
-    private fontMat = new THREE.MeshBasicMaterial({color: 0x000000});
-    private font!: Font;
+    private fontMat = new THREE.MeshBasicMaterial({color: 0x000000, wireframe: true});
+    private readonly font!: Font;
 
     private defaultColor: THREE.Color = new THREE.Color(1, 1, 1)
-    private readonly _onMeshReady: (hexMesh: HexMesh) => void;
 
-    constructor(scene: HexMapScene, gui: GUI, onFinish: (hexMesh: HexMesh) => void) {
-        this._onMeshReady = onFinish;
-        this.hexMesh = new HexMesh(gui)
+    constructor(scene: HexMapScene, font: Font, gui: GUI) {
+        this.font = font
+        this.hexMesh = new HexMesh()
         this.initCells(scene)
         scene.add(this.cellsGroup)
+        gui.addFolder("HexMesh").add(this.hexMesh.material, 'wireframe')
     }
 
     initCells(scene: HexMapScene) {
-        // TODO move font loading to scene
-        this.fontLoader.load('/fonts/roboto.json', (font) => {
-            this.font = font
-            this.cells = new Array<HexCell>(this.width * this.height)
-            for (let z = 0, i = 0; z < this.height; z++) {
-                for (let x = 0; x < this.width; x++) {
-                    this.createCell(x, z, i++);
-                }
+        this.cells = new Array<HexCell>(this.width * this.height)
+        for (let z = 0, i = 0; z < this.height; z++) {
+            for (let x = 0; x < this.width; x++) {
+                this.createCell(x, z, i++);
             }
+        }
 
-            this.hexMesh.triangulate(this.cells)
-            scene.add(this.hexMesh)
-            this._onMeshReady(this.hexMesh)
-        })
+        this.hexMesh.triangulate(this.cells)
+        scene.add(this.hexMesh)
     }
 
     getCell(position: THREE.Vector3) {
@@ -72,7 +65,9 @@ export class HexGrid {
         this.cellsGroup.add(cell)
         cell.position.set(position.x, position.y, position.z)
         cell.color = this.defaultColor
+
         cell.textMesh = this.createDebugText(cell, position)
+        cell.textMesh.visible = false
 
         this.setNeighbors(cell, x, z, i);
     }
@@ -97,6 +92,7 @@ export class HexGrid {
     }
 
     private createDebugText(cell: HexCell, position: THREE.Vector3) {
+        // TODO optimize?
         const textGeometry = new TextGeometry(cell.coordinates.toStringOnSeparateLines(), {
             font: this.font,
             size: 2,

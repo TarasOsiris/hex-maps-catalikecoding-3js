@@ -1,7 +1,7 @@
 import * as THREE from "three";
+import {Color} from "three";
 import {HexCell} from "./HexCell";
 import {HexMetrics} from "./HexMetrics";
-import GUI from "lil-gui";
 import {HexDirection, HexDirectionUtils} from "./HexDirection";
 import {HexEdgeType} from "./HexEdgeType";
 
@@ -11,7 +11,7 @@ export class HexMesh extends THREE.Mesh {
     meshTriangles: Array<number> = new Array<number>()
     meshColors: Array<number> = new Array<number>()
 
-    constructor(gui: GUI) {
+    constructor() {
         const geometry = new THREE.BufferGeometry()
         const material = new THREE.MeshStandardMaterial({wireframe: false, vertexColors: true})
         material.side = THREE.BackSide
@@ -19,8 +19,6 @@ export class HexMesh extends THREE.Mesh {
         this.name = "Hex mesh"
         this.receiveShadow = true
         this.castShadow = true
-
-        gui.addFolder("HexMesh").add(material, 'wireframe')
     }
 
     triangulate(cells: Array<HexCell>) {
@@ -110,27 +108,27 @@ export class HexMesh extends THREE.Mesh {
         if (leftEdgeType == HexEdgeType.Slope) {
             if (rightEdgeType == HexEdgeType.Slope) {
                 this.triangulateCornerTerraces(bottom, bottomCell, left, leftCell, right, rightCell)
-                return
-            }
-
-            if (rightEdgeType == HexEdgeType.Flat) {
+            } else if (rightEdgeType == HexEdgeType.Flat) {
                 this.triangulateCornerTerraces(left, leftCell, right, rightCell, bottom, bottomCell)
-                return
+            } else {
+                this.triangulateCornerTerracesCliff(bottom, bottomCell, left, leftCell, right, rightCell)
             }
-
-            this.triangulateCornerTerracesCliff(bottom, bottomCell, left, leftCell, right, rightCell)
-            return
-        }
-
-        if (rightEdgeType == HexEdgeType.Slope) {
+        } else if (rightEdgeType == HexEdgeType.Slope) {
             if (leftEdgeType == HexEdgeType.Flat) {
                 this.triangulateCornerTerraces(right, rightCell, bottom, bottomCell, left, leftCell);
-                return;
+            } else {
+                this.triangulateCornerCliffTerraces(bottom, bottomCell, left, leftCell, right, rightCell)
             }
+        } else if (leftCell.getEdgeTypeWithOtherCell(rightCell) == HexEdgeType.Slope) {
+            if (leftCell.elevation < rightCell.elevation) {
+                this.triangulateCornerCliffTerraces(right, rightCell, bottom, bottomCell, left, leftCell);
+            } else {
+                this.triangulateCornerTerracesCliff(left, leftCell, right, rightCell, bottom, bottomCell);
+            }
+        } else {
+            this.addTriangle(bottom, left, right)
+            this.addTriangleColor(bottomCell.color, leftCell.color, rightCell.color)
         }
-
-        this.addTriangle(bottom, left, right)
-        this.addTriangleColor(bottomCell.color, leftCell.color, rightCell.color)
     }
 
     triangulateCornerTerraces(
@@ -168,7 +166,66 @@ export class HexMesh extends THREE.Mesh {
         left: THREE.Vector3, leftCell: HexCell,
         right: THREE.Vector3, rightCell: HexCell
     ) {
-        // TODO implement
+        let b = 1 / (rightCell.elevation - beginCell.elevation)
+        if (b < 0) {
+            b = -b
+        }
+
+        const boundary = new THREE.Vector3().copy(begin).lerp(right, b)
+        const boundaryColor = new Color().copy(beginCell.color).lerp(rightCell.color, b)
+
+        this.triangulateBoundaryTriangle(begin, beginCell, left, leftCell, boundary, boundaryColor);
+
+        if (leftCell.getEdgeTypeWithOtherCell(rightCell) == HexEdgeType.Slope) {
+            this.triangulateBoundaryTriangle(left, leftCell, right, rightCell, boundary, boundaryColor)
+        } else {
+            this.addTriangle(left, right, boundary)
+            this.addTriangleColor(leftCell.color, rightCell.color, boundaryColor)
+        }
+    }
+
+    triangulateCornerCliffTerraces(
+        begin: THREE.Vector3, beginCell: HexCell,
+        left: THREE.Vector3, leftCell: HexCell,
+        right: THREE.Vector3, rightCell: HexCell
+    ) {
+        let b = 1 / (leftCell.elevation - beginCell.elevation)
+        if (b < 0) {
+            b = -b
+        }
+        const boundary = new THREE.Vector3().copy(begin).lerp(left, b)
+        const boundaryColor = new Color().copy(beginCell.color).lerp(leftCell.color, b)
+
+        this.triangulateBoundaryTriangle(right, rightCell, begin, beginCell, boundary, boundaryColor);
+
+        if (leftCell.getEdgeTypeWithOtherCell(rightCell) == HexEdgeType.Slope) {
+            this.triangulateBoundaryTriangle(left, leftCell, right, rightCell, boundary, boundaryColor)
+        } else {
+            this.addTriangle(left, right, boundary)
+            this.addTriangleColor(leftCell.color, rightCell.color, boundaryColor)
+        }
+    }
+
+    private triangulateBoundaryTriangle(begin: THREE.Vector3, beginCell: HexCell,
+                                        left: THREE.Vector3, leftCell: HexCell,
+                                        boundary: THREE.Vector3, boundaryColor: Color) {
+        let v2 = HexMetrics.terraceLerp(begin, left, 1)
+        let c2 = HexMetrics.terraceLerpColor(beginCell.color, leftCell.color, 1)
+
+        this.addTriangle(begin, v2, boundary)
+        this.addTriangleColor(beginCell.color, c2, boundaryColor)
+
+        for (let i = 2; i < HexMetrics.terraceSteps; i++) {
+            const v1 = v2;
+            const c1 = c2;
+            v2 = HexMetrics.terraceLerp(begin, left, i);
+            c2 = HexMetrics.terraceLerpColor(beginCell.color, leftCell.color, i);
+            this.addTriangle(v1, v2, boundary);
+            this.addTriangleColor(c1, c2, boundaryColor);
+        }
+
+        this.addTriangle(v2, left, boundary);
+        this.addTriangleColor(c2, leftCell.color, boundaryColor);
     }
 
     triangulateEdgeTerraces(beginLeft: THREE.Vector3, beginRight: THREE.Vector3, beginCell: HexCell,

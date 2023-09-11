@@ -4,31 +4,29 @@ import * as THREE from "three";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {HexCell} from "../HexCell";
 import {ColorUtils} from "../../lib/ColorUtils";
+import {Font, FontLoader} from "three/examples/jsm/loaders/FontLoader";
 
 export class HexMapScene extends FullScreenScene {
 
     private hexGrid!: HexGrid;
     raycaster = new THREE.Raycaster()
+    private loadingManager = new THREE.LoadingManager()
+    private fontLoader: FontLoader = new FontLoader(this.loadingManager)
+    private textureLoader: THREE.TextureLoader = new THREE.TextureLoader(this.loadingManager)
 
-    private colors: Array<THREE.Color> = new Array<THREE.Color>(ColorUtils.red, ColorUtils.green, ColorUtils.blue,)
+    private colors: Array<THREE.Color> = new Array<THREE.Color>(ColorUtils.red, ColorUtils.green, new THREE.Color(0x548af9),)
     private activeColor: THREE.Color = new THREE.Color(0, 1, 0)
     private activeElevation = 3
 
     onInit() {
-        // SceneUtils.addDefaultCube(this)
-        this.hexGrid = new HexGrid(this, this.gui, mesh => {
-            const boundingBox = mesh.geometry.boundingBox!;
-            const center = boundingBox.getCenter(new THREE.Vector3());
-
-            const orbitControls = new OrbitControls(this.mainCamera, this.canvas);
-            orbitControls.target = center
-
-            this.mainCamera.position.set(center.x, 120, center.z)
-            this.mainCamera.lookAt(center)
-            this.addLighting(center);
+        this.loadingManager.onLoad = () => {
+            console.log("ALL DONE")
+        }
+        this.getNoiseTexture();
+        this.fontLoader.load('/fonts/roboto.json', (font) => {
+            console.log("FONT DONE")
+            this.onLoadingFinished(font)
         })
-
-        this.handleMouseClicks(this.hexGrid)
 
         const folder = this.gui.addFolder("Colors");
         this.colors.forEach((_, idx) => {
@@ -36,6 +34,55 @@ export class HexMapScene extends FullScreenScene {
         })
         folder.add(this, 'selectTestColor')
         this.gui.add(this, 'activeElevation').min(0).max(6).step(1)
+    }
+
+    private getNoiseTexture() {
+        this.textureLoader.load('/textures/noise.png', (tex) => {
+            console.log("TEX DONE")
+
+            tex.generateMipmaps = false
+            tex.minFilter = THREE.LinearFilter
+            tex.magFilter = THREE.LinearFilter
+            tex.colorSpace = "srgb-linear"
+            tex.needsUpdate = true // TODO do we need this?
+
+            const canvas = document.createElement('canvas');
+            document.body.appendChild(canvas)
+            canvas.width = tex.image.width;
+            canvas.height = tex.image.height;
+
+            const context = canvas.getContext('2d');
+            context.drawImage(tex.image, 0, 0);
+
+            const data = context.getImageData(0, 0, canvas.width, canvas.height).data;
+
+            const colors: THREE.Color[] = [];
+
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i] / 255;
+                const g = data[i + 1] / 255;
+                const b = data[i + 2] / 255;
+
+                colors.push(new THREE.Color(r, g, b));
+            }
+            document.body.removeChild(canvas)
+            console.log(colors.length)
+        })
+    }
+
+    private onLoadingFinished(font: Font) {
+        this.hexGrid = new HexGrid(this, font, this.gui)
+        const boundingBox = this.hexGrid.hexMesh.geometry.boundingBox!;
+        const center = boundingBox.getCenter(new THREE.Vector3());
+
+        const orbitControls = new OrbitControls(this.mainCamera, this.canvas);
+        orbitControls.target = center
+
+        this.mainCamera.position.set(center.x, 120, center.z)
+        this.mainCamera.lookAt(center)
+        this.addLighting(center);
+
+        this.handleMouseClicks(this.hexGrid)
     }
 
     private addLighting(center: THREE.Vector3) {
