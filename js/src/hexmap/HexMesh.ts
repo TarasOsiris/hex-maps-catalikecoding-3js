@@ -260,7 +260,7 @@ export class HexMesh extends THREE.Mesh {
 
     addTriangle(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3) {
         const vertexIndex = this.meshVertices.length / 3;
-        this.addVertices(v1, v2, v3)
+        this.addVertices(this.perturb(v1), this.perturb(v2), this.perturb(v3))
         this.meshTriangles.push(vertexIndex);
         this.meshTriangles.push(vertexIndex + 1);
         this.meshTriangles.push(vertexIndex + 2);
@@ -268,7 +268,7 @@ export class HexMesh extends THREE.Mesh {
 
     addQuad(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3, v4: THREE.Vector3) {
         const vertexIndex = this.meshVertices.length / 3;
-        this.addVertices(v1, v2, v3, v4)
+        this.addVertices(this.perturb(v1), this.perturb(v2), this.perturb(v3), this.perturb(v4))
         this.meshTriangles.push(vertexIndex);
         this.meshTriangles.push(vertexIndex + 2);
         this.meshTriangles.push(vertexIndex + 1);
@@ -301,5 +301,14 @@ export class HexMesh extends THREE.Mesh {
 
     addVertices(...vertices: Array<THREE.Vector3>) {
         vertices.forEach(v => this.addVertex(v))
+    }
+
+    perturb(position: THREE.Vector3) {
+        const result = position.clone()
+        const sample = HexMetrics.sampleNoise(position)
+        result.x += (sample.x * 2 - 1) * HexMetrics.cellPerturbStrength
+        // result.y += (sample.y * 2 - 1) * HexMetrics.cellPerturbStrength
+        result.z += (sample.z * 2 - 1) * HexMetrics.cellPerturbStrength
+        return result
     }
 }

@@ -5,6 +5,8 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {HexCell} from "../HexCell";
 import {ColorUtils} from "../../lib/ColorUtils";
 import {Font, FontLoader} from "three/examples/jsm/loaders/FontLoader";
+import {Texture} from "three";
+import {HexMetrics} from "../HexMetrics";
 
 export class HexMapScene extends FullScreenScene {
 
@@ -14,18 +16,23 @@ export class HexMapScene extends FullScreenScene {
     private fontLoader: FontLoader = new FontLoader(this.loadingManager)
     private textureLoader: THREE.TextureLoader = new THREE.TextureLoader(this.loadingManager)
 
+    private font!: Font
+    private noiseTexture!: Texture
+
     private colors: Array<THREE.Color> = new Array<THREE.Color>(ColorUtils.red, ColorUtils.green, new THREE.Color(0x548af9),)
     private activeColor: THREE.Color = new THREE.Color(0, 1, 0)
     private activeElevation = 3
 
     onInit() {
         this.loadingManager.onLoad = () => {
+            this.onLoadingFinished()
             console.log("ALL DONE")
         }
-        this.getNoiseTexture();
+        this.textureLoader.load('/textures/noise.png', (tex) => {
+            this.noiseTexture = tex
+        })
         this.fontLoader.load('/fonts/roboto.json', (font) => {
-            console.log("FONT DONE")
-            this.onLoadingFinished(font)
+            this.font = font
         })
 
         const folder = this.gui.addFolder("Colors");
@@ -36,42 +43,41 @@ export class HexMapScene extends FullScreenScene {
         this.gui.add(this, 'activeElevation').min(0).max(6).step(1)
     }
 
-    private getNoiseTexture() {
-        this.textureLoader.load('/textures/noise.png', (tex) => {
-            console.log("TEX DONE")
+    private processNoiseTexture() {
+        this.noiseTexture.generateMipmaps = false
+        this.noiseTexture.minFilter = THREE.LinearFilter
+        this.noiseTexture.magFilter = THREE.LinearFilter
+        this.noiseTexture.colorSpace = "srgb-linear"
+        this.noiseTexture.needsUpdate = true // TODO do we need this?
 
-            tex.generateMipmaps = false
-            tex.minFilter = THREE.LinearFilter
-            tex.magFilter = THREE.LinearFilter
-            tex.colorSpace = "srgb-linear"
-            tex.needsUpdate = true // TODO do we need this?
+        const canvas = document.createElement('canvas');
+        document.body.appendChild(canvas)
+        canvas.width = this.noiseTexture.image.width;
+        canvas.height = this.noiseTexture.image.height;
 
-            const canvas = document.createElement('canvas');
-            document.body.appendChild(canvas)
-            canvas.width = tex.image.width;
-            canvas.height = tex.image.height;
+        const context = canvas.getContext('2d')!;
+        context.drawImage(this.noiseTexture.image, 0, 0);
 
-            const context = canvas.getContext('2d');
-            context.drawImage(tex.image, 0, 0);
+        const data = context.getImageData(0, 0, canvas.width, canvas.height).data;
 
-            const data = context.getImageData(0, 0, canvas.width, canvas.height).data;
+        const colors: THREE.Color[] = [];
 
-            const colors: THREE.Color[] = [];
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i] / 255;
+            const g = data[i + 1] / 255;
+            const b = data[i + 2] / 255;
 
-            for (let i = 0; i < data.length; i += 4) {
-                const r = data[i] / 255;
-                const g = data[i + 1] / 255;
-                const b = data[i + 2] / 255;
+            colors.push(new THREE.Color(r, g, b));
+        }
+        document.body.removeChild(canvas)
 
-                colors.push(new THREE.Color(r, g, b));
-            }
-            document.body.removeChild(canvas)
-            console.log(colors.length)
-        })
+        HexMetrics.noise = colors
     }
 
-    private onLoadingFinished(font: Font) {
-        this.hexGrid = new HexGrid(this, font, this.gui)
+    private onLoadingFinished() {
+        this.processNoiseTexture();
+
+        this.hexGrid = new HexGrid(this, this.font, this.gui)
         const boundingBox = this.hexGrid.hexMesh.geometry.boundingBox!;
         const center = boundingBox.getCenter(new THREE.Vector3());
 

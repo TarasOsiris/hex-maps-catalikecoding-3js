@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import {HexDirection} from "./HexDirection";
 import {HexEdgeType} from "./HexEdgeType";
+import {MathUtils} from "three";
 
 export class HexMetrics {
     static readonly outerRadius = 10;
@@ -13,6 +14,9 @@ export class HexMetrics {
     static readonly terraceSteps = HexMetrics.terracesPerSlope * 2 + 1
 
     private static invZ = -1;
+
+    static readonly cellPerturbStrength = 5
+    static noise: THREE.Color[]
 
     private static corners = [
         new THREE.Vector3(0, 0, HexMetrics.invZ * this.outerRadius),
@@ -75,7 +79,27 @@ export class HexMetrics {
         return HexEdgeType.Cliff
     }
 
+    public static noiseScale = 0.003;
+    public static noiseTextureSize = 512;
+
     public static sampleNoise(position: THREE.Vector3): THREE.Vector4 {
-        return new THREE.Vector4()
+        const x = position.x * this.noiseScale
+        const z = -position.z * this.noiseScale
+        const wrappedUVs = this.wrapToUV(new THREE.Vector2(x, z))
+
+        const xInd = Math.floor(MathUtils.lerp(0, this.noiseTextureSize, wrappedUVs.x))
+        const zInd = Math.floor(MathUtils.lerp(0, this.noiseTextureSize, wrappedUVs.y))
+
+        let color = this.sample(xInd, zInd);
+        return new THREE.Vector4(color.r, color.g, color.b, 0)
+    }
+
+    private static wrapToUV(texCoord: THREE.Vector2) {
+        let flooredTexCoord = new THREE.Vector2(Math.floor(texCoord.x), Math.floor(texCoord.y));
+        return texCoord.clone().sub(flooredTexCoord)
+    }
+
+    private static sample(x: number, y: number): THREE.Color {
+        return this.noise[x * this.noiseTextureSize + y]
     }
 }
