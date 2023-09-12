@@ -4,6 +4,7 @@ import {HexCell} from "./HexCell";
 import {HexMetrics} from "./HexMetrics";
 import {HexDirection, HexDirectionUtils} from "./HexDirection";
 import {HexEdgeType} from "./HexEdgeType";
+import {EdgeVertices} from "./EdgeVertices";
 
 export class HexMesh extends THREE.Mesh {
 
@@ -48,53 +49,76 @@ export class HexMesh extends THREE.Mesh {
     }
 
     private triangulateSector(direction: HexDirection, cell: HexCell) {
-        const center = cell.position.clone()
-        const v1 = center.clone().add(HexMetrics.getFirstSolidCorner(direction));
-        const v2 = center.clone().add(HexMetrics.getSecondSolidCorner(direction));
+        const center = cell.cellPosition.clone()
+        const e = new EdgeVertices(
+            center.clone().add(HexMetrics.getFirstSolidCorner(direction)),
+            center.clone().add(HexMetrics.getSecondSolidCorner(direction))
+        )
 
-        this.addTriangle(center, v1, v2)
-        this.addTriangleColor(cell.color.clone(), cell.color.clone(), cell.color.clone())
+        this.triangulateEdgeFan(center, e, cell.color.clone())
 
         if (direction <= HexDirection.SE) {
             const neighbor = cell.getNeighbor(direction)
             if (neighbor == null) {
                 return
             }
-            this.triangulateConnection(direction, cell, v1, v2);
+            this.triangulateConnection(direction, cell, e);
         }
     }
 
-    private triangulateConnection(direction: HexDirection, cell: HexCell, v1: THREE.Vector3, v2: THREE.Vector3) {
+    private triangulateEdgeFan(center: THREE.Vector3, edge: EdgeVertices, color: Color) {
+        this.addTriangle(center, edge.v1, edge.v2);
+        this.addTriangleColorSingle(color);
+        this.addTriangle(center, edge.v2, edge.v3);
+        this.addTriangleColorSingle(color);
+        this.addTriangle(center, edge.v3, edge.v4);
+        this.addTriangleColorSingle(color);
+    }
+
+    triangulateEdgeStrip(
+        e1: EdgeVertices, c1: THREE.Color,
+        e2: EdgeVertices, c2: THREE.Color
+    ) {
+        this.addQuad(e1.v1, e1.v2, e2.v1, e2.v2);
+        this.addQuadColor2v(c1, c2);
+        this.addQuad(e1.v2, e1.v3, e2.v2, e2.v3);
+        this.addQuadColor2v(c1, c2);
+        this.addQuad(e1.v3, e1.v4, e2.v3, e2.v4);
+        this.addQuadColor2v(c1, c2);
+    }
+
+    private triangulateConnection(direction: HexDirection, cell: HexCell, e1: EdgeVertices) {
         const neighbor = cell.getNeighbor(direction) ?? cell;
 
         const bridge = HexMetrics.getBridge(direction);
-        const v3 = v1.clone().add(bridge);
-        const v4 = v2.clone().add(bridge);
-        v3.y = v4.y = neighbor.elevation * HexMetrics.elevationStep
+        bridge.y = neighbor.position.y - cell.position.y
+        const e2 = new EdgeVertices(
+            e1.v1.clone().add(bridge),
+            e1.v4.clone().add(bridge)
+        )
 
         if (cell.getEdgeType(direction) == HexEdgeType.Slope) {
-            this.triangulateEdgeTerraces(v1, v2, cell, v3, v4, neighbor)
+            this.triangulateEdgeTerraces(e1.v1, e1.v4, cell, e2.v1, e2.v4, neighbor)
         } else {
-            this.addQuad(v1, v2, v3, v4)
-            this.addQuadColor2v(cell.color.clone(), neighbor.color.clone())
+            this.triangulateEdgeStrip(e1, cell.color, e2, neighbor.color);
         }
 
         const nextDirection = HexDirectionUtils.next(direction);
         const nextNeighbor = cell.getNeighbor(nextDirection)
         if (direction <= HexDirection.E && nextNeighbor != null) {
-            const v5 = v2.clone().add(HexMetrics.getBridge(nextDirection))
-            v5.y = nextNeighbor.elevation * HexMetrics.elevationStep
+            const v5 = e1.v4.clone().add(HexMetrics.getBridge(nextDirection))
+            v5.y = nextNeighbor.cellPosition.y
 
             if (cell.elevation <= neighbor.elevation) {
                 if (cell.elevation <= nextNeighbor.elevation) {
-                    this.triangulateCorner(v2, cell, v4, neighbor, v5, nextNeighbor)
+                    this.triangulateCorner(e1.v4, cell, e2.v4, neighbor, v5, nextNeighbor)
                 } else {
-                    this.triangulateCorner(v5, nextNeighbor, v2, cell, v4, neighbor)
+                    this.triangulateCorner(v5, nextNeighbor, e1.v4, cell, e2.v4, neighbor)
                 }
             } else if (neighbor.elevation <= nextNeighbor.elevation) {
-                this.triangulateCorner(v4, neighbor, v5, nextNeighbor, v2, cell)
+                this.triangulateCorner(e2.v4, neighbor, v5, nextNeighbor, e1.v4, cell)
             } else {
-                this.triangulateCorner(v5, nextNeighbor, v2, cell, v4, neighbor)
+                this.triangulateCorner(v5, nextNeighbor, e1.v4, cell, e2.v4, neighbor)
             }
         }
     }
@@ -256,6 +280,10 @@ export class HexMesh extends THREE.Mesh {
         this.addColor(c1);
         this.addColor(c2);
         this.addColor(c3);
+    }
+
+    private addTriangleColorSingle(color: THREE.Color) {
+        this.addTriangleColor(color, color, color)
     }
 
     addTriangle(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3) {

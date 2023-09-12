@@ -18,7 +18,7 @@ export class HexGrid {
     private cells: Array<HexCell> = [];
     hexMesh: HexMesh
 
-    private fontMat = new THREE.MeshBasicMaterial({color: 0x000000, wireframe: true});
+    private fontMat = new THREE.MeshBasicMaterial({color: 0x000000, wireframe: false});
     private readonly font!: Font;
 
     private defaultColor: THREE.Color = new THREE.Color(1, 1, 1)
@@ -67,7 +67,9 @@ export class HexGrid {
         cell.color = this.defaultColor
 
         cell.textMesh = this.createDebugText(cell, position)
-        cell.textMesh.visible = false
+        // cell.textMesh.visible = false
+
+        cell.elevation = 0
 
         this.setNeighbors(cell, x, z, i);
     }

@@ -3,6 +3,7 @@ import {HexCoordinates} from "./HexCoordinates";
 import {HexDirection, HexDirectionUtils} from "./HexDirection";
 import {HexMetrics} from "./HexMetrics";
 import {HexEdgeType} from "./HexEdgeType";
+import {HexMesh} from "./HexMesh";
 
 export class HexCell extends THREE.Object3D {
     coordinates: HexCoordinates;
@@ -18,12 +19,19 @@ export class HexCell extends THREE.Object3D {
 
     set elevation(value: number) {
         this._elevation = value;
-        this.position.set(this.position.x, value * HexMetrics.elevationStep, this.position.z)
-        this.textMesh.position.set(this.textMesh.position.x, this._elevation * HexMetrics.elevationStep, this.textMesh.position.z)
+        const position = this.position.clone()
+        position.y = value * HexMetrics.elevationStep
+        position.y += (HexMetrics.sampleNoise(position).y * 2 - 1) * HexMetrics.elevationPerturbStrength
+        this.position.set(position.x, position.y, position.z)
+        this.textMesh.position.set(this.textMesh.position.x, position.y, this.textMesh.position.z)
     }
 
     get elevation(): number {
         return this._elevation;
+    }
+
+    get cellPosition(): THREE.Vector3 {
+        return this.position
     }
 
     public getNeighbor(direction: HexDirection) {

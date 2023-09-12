@@ -16,6 +16,7 @@ export class HexMetrics {
     private static invZ = -1;
 
     static readonly cellPerturbStrength = 5
+    static readonly elevationPerturbStrength = 1.5
     static noise: THREE.Color[]
 
     private static corners = [
@@ -29,11 +30,11 @@ export class HexMetrics {
     ];
 
     public static getFirstCorner(direction: HexDirection): THREE.Vector3 {
-        return HexMetrics.corners[direction];
+        return HexMetrics.corners[direction].clone();
     }
 
     public static getSecondCorner(direction: HexDirection): THREE.Vector3 {
-        return HexMetrics.corners[direction + 1];
+        return HexMetrics.corners[direction + 1].clone();
     }
 
     public static getFirstSolidCorner(direction: HexDirection): THREE.Vector3 {
@@ -45,8 +46,8 @@ export class HexMetrics {
     }
 
     public static getBridge(direction: HexDirection) {
-        const corner1 = this.getFirstCorner(direction).clone();
-        const corner2 = this.getSecondCorner(direction).clone();
+        const corner1 = this.getFirstCorner(direction);
+        const corner2 = this.getSecondCorner(direction);
         return corner1.add(corner2).multiplyScalar(this.blendFactor)
     }
 
@@ -90,12 +91,12 @@ export class HexMetrics {
         const xInd = Math.round(MathUtils.lerp(0, this.noiseTextureSize, wrappedUVs.x))
         const zInd = Math.round(MathUtils.lerp(0, this.noiseTextureSize, wrappedUVs.y))
 
-        let color = this.sample(xInd, zInd);
+        const color = this.sample(xInd, zInd);
         return new THREE.Vector4(color.r, color.g, color.b, 0)
     }
 
     private static wrapToUV(texCoord: THREE.Vector2) {
-        let integerPart = new THREE.Vector2(Math.floor(texCoord.x), Math.floor(texCoord.y));
+        const integerPart = new THREE.Vector2(Math.floor(texCoord.x), Math.floor(texCoord.y));
         return texCoord.clone().sub(integerPart)
     }
 
