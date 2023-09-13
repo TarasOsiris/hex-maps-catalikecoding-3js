@@ -3,20 +3,22 @@ import * as THREE from "three";
 import {HexMetrics} from "./HexMetrics";
 import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry";
 import {Font} from "three/examples/jsm/loaders/FontLoader";
-import {HexMesh} from "./HexMesh";
 import GUI from "lil-gui";
 import {HexCoordinates} from "./HexCoordinates";
 import {HexMapScene} from "./scenes/HexMapScene";
 import {HexDirection} from "./HexDirection";
+import {HexGridChunk} from "./HexGridChunk";
 
 export class HexGrid {
-    width: number = 6;
-    height: number = 6;
+    chunkCountX = 3
+    chunkCountZ = 4
+    cellCountX = this.chunkCountX * HexMetrics.chunkSizeX;
+    cellCountZ = this.chunkCountZ * HexMetrics.chunkSizeZ;
 
-    private readonly cellsGroup: THREE.Group = new THREE.Group()
+    private readonly chunksGroup = new THREE.Group()
 
     private cells: Array<HexCell> = [];
-    hexMesh: HexMesh
+    private chunks: Array<HexGridChunk> = [];
 
     private fontMat = new THREE.MeshBasicMaterial({color: 0x000000, wireframe: false});
     private readonly font!: Font;
@@ -25,33 +27,45 @@ export class HexGrid {
 
     constructor(scene: HexMapScene, font: Font, gui: GUI) {
         this.font = font
-        this.hexMesh = new HexMesh()
-        this.initCells(scene)
-        scene.add(this.cellsGroup)
-        gui.addFolder("HexMesh").add(this.hexMesh.material, 'wireframe')
+
+        this.createChunks()
+        this.createCells()
+        this.refreshDirty();
+
+        scene.add(this.chunksGroup)
     }
 
-    initCells(scene: HexMapScene) {
-        this.cells = new Array<HexCell>(this.width * this.height)
-        for (let z = 0, i = 0; z < this.height; z++) {
-            for (let x = 0; x < this.width; x++) {
+    refreshDirty() {
+        this.chunks.forEach(ch => {
+            if (ch.dirty) {
+                ch.refresh();
+            }
+        })
+    }
+
+    createCells() {
+        this.cells = new Array<HexCell>(this.cellCountX * this.cellCountZ)
+        for (let z = 0, i = 0; z < this.cellCountZ; z++) {
+            for (let x = 0; x < this.cellCountX; x++) {
                 this.createCell(x, z, i++);
             }
         }
+    }
 
-        this.hexMesh.triangulate(this.cells)
-        scene.add(this.hexMesh)
+    createChunks() {
+        this.chunks = new Array<HexGridChunk>(this.chunkCountX * this.chunkCountZ)
+        for (let z = 0, i = 0; z < this.chunkCountZ; z++) {
+            for (let x = 0; x < this.chunkCountX; x++) {
+                const chunk = this.chunks[i++] = new HexGridChunk()
+                this.chunksGroup.add(chunk)
+            }
+        }
     }
 
     getCell(position: THREE.Vector3) {
-        position = this.cellsGroup.worldToLocal(position)
         const coordinates = HexCoordinates.fromPosition(position)
-        const index = coordinates.x + coordinates.z * this.width + Math.floor(coordinates.z / 2);
+        const index = coordinates.x + coordinates.z * this.cellCountX + Math.floor(coordinates.z / 2);
         return this.cells[index]
-    }
-
-    refresh() {
-        this.hexMesh.triangulate(this.cells)
     }
 
     private createCell(x: number, z: number, i: number) {
@@ -62,32 +76,41 @@ export class HexGrid {
         position.z = invertedZ * (HexMetrics.outerRadius * 1.5)
 
         const cell = this.cells[i] = new HexCell(HexCoordinates.fromOffsetCoordinates(x, z))
-        this.cellsGroup.add(cell)
+        this.setNeighbors(cell, x, z, i);
         cell.position.set(position.x, position.y, position.z)
         cell.color = this.defaultColor
-
         cell.textMesh = this.createDebugText(cell, position)
-        // cell.textMesh.visible = false
-
         cell.elevation = 0
 
-        this.setNeighbors(cell, x, z, i);
+        this.addCellToChunk(x, z, cell)
+    }
+
+    addCellToChunk(x: number, z: number, cell: HexCell) {
+        const chunkX = Math.floor(x / HexMetrics.chunkSizeX)
+        const chunkZ = Math.floor(z / HexMetrics.chunkSizeZ)
+        const chunkIndex = chunkX + chunkZ * this.chunkCountX;
+        const chunk = this.chunks[chunkIndex]!
+
+        const localX = x - chunkX * HexMetrics.chunkSizeX
+        const localZ = z - chunkZ * HexMetrics.chunkSizeZ
+        const localIndex = localX + localZ * HexMetrics.chunkSizeX;
+        chunk.addCell(localIndex, cell)
     }
 
     private setNeighbors(cell: HexCell, x: number, z: number, i: number) {
         if (x > 0) {
-            cell.setNeighbor(HexDirection.W, this.cells[i - 1])
+            cell.setNeighbor(HexDirection.W, this.cells[i - 1]!)
         }
         if (z > 0) {
             if ((z & 1) == 0) {
-                cell.setNeighbor(HexDirection.SE, this.cells[i - this.width])
+                cell.setNeighbor(HexDirection.SE, this.cells[i - this.cellCountX]!)
                 if (x > 0) {
-                    cell.setNeighbor(HexDirection.SW, this.cells[i - this.width - 1])
+                    cell.setNeighbor(HexDirection.SW, this.cells[i - this.cellCountX - 1]!)
                 }
             } else {
-                cell.setNeighbor(HexDirection.SW, this.cells[i - this.width])
-                if (x < this.width - 1) {
-                    cell.setNeighbor(HexDirection.SE, this.cells[i - this.width + 1]);
+                cell.setNeighbor(HexDirection.SW, this.cells[i - this.cellCountX]!)
+                if (x < this.cellCountX - 1) {
+                    cell.setNeighbor(HexDirection.SE, this.cells[i - this.cellCountX + 1]!);
                 }
             }
         }
@@ -99,12 +122,9 @@ export class HexGrid {
             font: this.font,
             size: 2,
             height: 0.2,
-        });
-        textGeometry.center()
+        }).center().rotateX(-Math.PI / 2);
         const textMesh = new THREE.Mesh(textGeometry, this.fontMat);
         textMesh.position.set(position.x, position.y + 0.05, position.z)
-        textMesh.rotateX(-Math.PI / 2)
-        this.cellsGroup.add(textMesh);
         return textMesh
     }
 }

@@ -8,13 +8,13 @@ import {EdgeVertices} from "./EdgeVertices";
 
 export class HexMesh extends THREE.Mesh {
 
-    meshVertices: Array<number> = new Array<number>()
-    meshTriangles: Array<number> = new Array<number>()
-    meshColors: Array<number> = new Array<number>()
+    static meshVertices: Array<number> = new Array<number>()
+    static meshTriangles: Array<number> = new Array<number>()
+    static meshColors: Array<number> = new Array<number>()
 
     constructor() {
         const geometry = new THREE.BufferGeometry()
-        const material = new THREE.MeshStandardMaterial({wireframe: false, vertexColors: true})
+        const material = new THREE.MeshStandardMaterial({wireframe: false, vertexColors: true}) // TODO extract-optimize
         material.side = THREE.BackSide
         super(geometry, material);
         this.name = "Hex mesh"
@@ -23,11 +23,12 @@ export class HexMesh extends THREE.Mesh {
     }
 
     triangulate(cells: Array<HexCell>) {
-        this.meshVertices = []
-        this.meshTriangles = []
-        this.meshColors = []
+        HexMesh.meshVertices = []
+        HexMesh.meshTriangles = []
+        HexMesh.meshColors = []
         for (let i = 0; i < cells.length; i++) {
-            this.triangulateCell(cells[i])
+            const cell = cells[i]!;
+            this.triangulateCell(cell)
         }
         this.geometry = this.createGeometry()
         this.geometry.computeBoundingBox()
@@ -35,9 +36,9 @@ export class HexMesh extends THREE.Mesh {
 
     private createGeometry() {
         const meshGeometry = new THREE.BufferGeometry()
-        meshGeometry.setIndex(this.meshTriangles)
-        meshGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(this.meshVertices), 3));
-        meshGeometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(this.meshColors), 3))
+        meshGeometry.setIndex(HexMesh.meshTriangles)
+        meshGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(HexMesh.meshVertices), 3));
+        meshGeometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(HexMesh.meshColors), 3))
         meshGeometry.computeVertexNormals()
         return meshGeometry
     }
@@ -98,7 +99,7 @@ export class HexMesh extends THREE.Mesh {
         )
 
         if (cell.getEdgeType(direction) == HexEdgeType.Slope) {
-            this.triangulateEdgeTerraces(e1.v1, e1.v4, cell, e2.v1, e2.v4, neighbor)
+            this.triangulateEdgeTerraces(e1, cell, e2, neighbor)
         } else {
             this.triangulateEdgeStrip(e1, cell.color, e2, neighbor.color);
         }
@@ -195,7 +196,8 @@ export class HexMesh extends THREE.Mesh {
             b = -b
         }
 
-        const boundary = new THREE.Vector3().copy(begin).lerp(right, b)
+        const boundary = new THREE.Vector3().copy(this.perturb(begin))
+            .lerp(this.perturb(right), b)
         const boundaryColor = new Color().copy(beginCell.color).lerp(rightCell.color, b)
 
         this.triangulateBoundaryTriangle(begin, beginCell, left, leftCell, boundary, boundaryColor);
@@ -203,7 +205,7 @@ export class HexMesh extends THREE.Mesh {
         if (leftCell.getEdgeTypeWithOtherCell(rightCell) == HexEdgeType.Slope) {
             this.triangulateBoundaryTriangle(left, leftCell, right, rightCell, boundary, boundaryColor)
         } else {
-            this.addTriangle(left, right, boundary)
+            this.addTriangleUnperturbed(this.perturb(left), this.perturb(right), boundary)
             this.addTriangleColor(leftCell.color, rightCell.color, boundaryColor)
         }
     }
@@ -217,7 +219,8 @@ export class HexMesh extends THREE.Mesh {
         if (b < 0) {
             b = -b
         }
-        const boundary = new THREE.Vector3().copy(begin).lerp(left, b)
+        const boundary = new THREE.Vector3().copy(this.perturb(begin))
+            .lerp(this.perturb(left), b)
         const boundaryColor = new Color().copy(beginCell.color).lerp(leftCell.color, b)
 
         this.triangulateBoundaryTriangle(right, rightCell, begin, beginCell, boundary, boundaryColor);
@@ -225,7 +228,7 @@ export class HexMesh extends THREE.Mesh {
         if (leftCell.getEdgeTypeWithOtherCell(rightCell) == HexEdgeType.Slope) {
             this.triangulateBoundaryTriangle(left, leftCell, right, rightCell, boundary, boundaryColor)
         } else {
-            this.addTriangle(left, right, boundary)
+            this.addTriangleUnperturbed(this.perturb(left), this.perturb(right), boundary)
             this.addTriangleColor(leftCell.color, rightCell.color, boundaryColor)
         }
     }
@@ -233,47 +236,41 @@ export class HexMesh extends THREE.Mesh {
     private triangulateBoundaryTriangle(begin: THREE.Vector3, beginCell: HexCell,
                                         left: THREE.Vector3, leftCell: HexCell,
                                         boundary: THREE.Vector3, boundaryColor: Color) {
-        let v2 = HexMetrics.terraceLerp(begin, left, 1)
+        let v2 = this.perturb(HexMetrics.terraceLerp(begin, left, 1))
         let c2 = HexMetrics.terraceLerpColor(beginCell.color, leftCell.color, 1)
 
-        this.addTriangle(begin, v2, boundary)
+        this.addTriangleUnperturbed(this.perturb(begin), v2, boundary)
         this.addTriangleColor(beginCell.color, c2, boundaryColor)
 
         for (let i = 2; i < HexMetrics.terraceSteps; i++) {
             const v1 = v2;
             const c1 = c2;
-            v2 = HexMetrics.terraceLerp(begin, left, i);
-            c2 = HexMetrics.terraceLerpColor(beginCell.color, leftCell.color, i);
-            this.addTriangle(v1, v2, boundary);
+            v2 = this.perturb(HexMetrics.terraceLerp(begin, left, i))
+            c2 = HexMetrics.terraceLerpColor(beginCell.color, leftCell.color, i)
+            this.addTriangleUnperturbed(v1, v2, boundary)
             this.addTriangleColor(c1, c2, boundaryColor);
         }
 
-        this.addTriangle(v2, left, boundary);
+        this.addTriangleUnperturbed(v2, this.perturb(left), boundary);
         this.addTriangleColor(c2, leftCell.color, boundaryColor);
     }
 
-    triangulateEdgeTerraces(beginLeft: THREE.Vector3, beginRight: THREE.Vector3, beginCell: HexCell,
-                            endLeft: THREE.Vector3, endRight: THREE.Vector3, endCell: HexCell) {
-        let v3 = HexMetrics.terraceLerp(beginLeft, endLeft, 1)
-        let v4 = HexMetrics.terraceLerp(beginRight, endRight, 1)
+    triangulateEdgeTerraces(begin: EdgeVertices, beginCell: HexCell,
+                            end: EdgeVertices, endCell: HexCell) {
+        let e2 = EdgeVertices.terraceLerp(begin, end, 1)
         let c2 = HexMetrics.terraceLerpColor(beginCell.color, endCell.color, 1)
 
-        this.addQuad(beginLeft, beginRight, v3, v4);
-        this.addQuadColor2v(beginCell.color, c2);
+        this.triangulateEdgeStrip(begin, beginCell.color, e2, c2)
 
         for (let i = 2; i < HexMetrics.terraceSteps; i++) {
-            const v1 = v3;
-            const v2 = v4;
-            const c1 = c2;
-            v3 = HexMetrics.terraceLerp(beginLeft, endLeft, i);
-            v4 = HexMetrics.terraceLerp(beginRight, endRight, i);
-            c2 = HexMetrics.terraceLerpColor(beginCell.color, endCell.color, i);
-            this.addQuad(v1, v2, v3, v4);
-            this.addQuadColor2v(c1, c2);
+            const e1 = e2.clone()
+            const c1 = c2
+            e2 = EdgeVertices.terraceLerp(begin, end, i)
+            c2 = HexMetrics.terraceLerpColor(beginCell.color.clone(), endCell.color.clone(), i)
+            this.triangulateEdgeStrip(e1, c1, e2, c2)
         }
 
-        this.addQuad(v3, v4, endLeft, endRight);
-        this.addQuadColor2v(c2, endCell.color);
+        this.triangulateEdgeStrip(e2, c2, end, endCell.color)
     }
 
     private addTriangleColor(c1: THREE.Color, c2: THREE.Color, c3: THREE.Color) {
@@ -287,22 +284,30 @@ export class HexMesh extends THREE.Mesh {
     }
 
     addTriangle(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3) {
-        const vertexIndex = this.meshVertices.length / 3;
+        const vertexIndex = HexMesh.meshVertices.length / 3;
         this.addVertices(this.perturb(v1), this.perturb(v2), this.perturb(v3))
-        this.meshTriangles.push(vertexIndex);
-        this.meshTriangles.push(vertexIndex + 1);
-        this.meshTriangles.push(vertexIndex + 2);
+        HexMesh.meshTriangles.push(vertexIndex);
+        HexMesh.meshTriangles.push(vertexIndex + 1);
+        HexMesh.meshTriangles.push(vertexIndex + 2);
+    }
+
+    addTriangleUnperturbed(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3) {
+        const vertexIndex = HexMesh.meshVertices.length / 3;
+        this.addVertices(v1, v2, v3)
+        HexMesh.meshTriangles.push(vertexIndex);
+        HexMesh.meshTriangles.push(vertexIndex + 1);
+        HexMesh.meshTriangles.push(vertexIndex + 2);
     }
 
     addQuad(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3, v4: THREE.Vector3) {
-        const vertexIndex = this.meshVertices.length / 3;
+        const vertexIndex = HexMesh.meshVertices.length / 3;
         this.addVertices(this.perturb(v1), this.perturb(v2), this.perturb(v3), this.perturb(v4))
-        this.meshTriangles.push(vertexIndex);
-        this.meshTriangles.push(vertexIndex + 2);
-        this.meshTriangles.push(vertexIndex + 1);
-        this.meshTriangles.push(vertexIndex + 1);
-        this.meshTriangles.push(vertexIndex + 2);
-        this.meshTriangles.push(vertexIndex + 3);
+        HexMesh.meshTriangles.push(vertexIndex);
+        HexMesh.meshTriangles.push(vertexIndex + 2);
+        HexMesh.meshTriangles.push(vertexIndex + 1);
+        HexMesh.meshTriangles.push(vertexIndex + 1);
+        HexMesh.meshTriangles.push(vertexIndex + 2);
+        HexMesh.meshTriangles.push(vertexIndex + 3);
     }
 
     addQuadColor4v(c1: THREE.Color, c2: THREE.Color, c3: THREE.Color, c4: THREE.Color) {
@@ -320,11 +325,11 @@ export class HexMesh extends THREE.Mesh {
     }
 
     private addColor(color1: THREE.Color) {
-        this.meshColors.push(color1.r, color1.g, color1.b)
+        HexMesh.meshColors.push(color1.r, color1.g, color1.b)
     }
 
     addVertex(v: THREE.Vector3) {
-        this.meshVertices.push(v.x, v.y, v.z);
+        HexMesh.meshVertices.push(v.x, v.y, v.z);
     }
 
     addVertices(...vertices: Array<THREE.Vector3>) {

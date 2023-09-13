@@ -6,18 +6,21 @@ import {HexEdgeType} from "./HexEdgeType";
 export class HexMetrics {
     static readonly outerRadius = 10;
     static readonly innerRadius = this.outerRadius * 0.866025404;
-    static readonly solidFactor = 0.75
+    static readonly solidFactor = 0.8
     static readonly blendFactor = 1 - this.solidFactor
 
-    static readonly elevationStep = 5
+    static readonly elevationStep = 3
     static readonly terracesPerSlope = 2
     static readonly terraceSteps = HexMetrics.terracesPerSlope * 2 + 1
 
     private static invZ = -1;
 
-    static readonly cellPerturbStrength = 5
+    static readonly cellPerturbStrength = 4
     static readonly elevationPerturbStrength = 1.5
     static noise: THREE.Color[]
+
+    static readonly chunkSizeX = 5
+    static readonly chunkSizeZ = 5
 
     private static corners = [
         new THREE.Vector3(0, 0, HexMetrics.invZ * this.outerRadius),
@@ -30,19 +33,19 @@ export class HexMetrics {
     ];
 
     public static getFirstCorner(direction: HexDirection): THREE.Vector3 {
-        return HexMetrics.corners[direction].clone();
+        return HexMetrics.corners[direction]!.clone();
     }
 
     public static getSecondCorner(direction: HexDirection): THREE.Vector3 {
-        return HexMetrics.corners[direction + 1].clone();
+        return HexMetrics.corners[direction + 1]!.clone();
     }
 
     public static getFirstSolidCorner(direction: HexDirection): THREE.Vector3 {
-        return HexMetrics.corners[direction].clone().multiplyScalar(this.solidFactor);
+        return HexMetrics.corners[direction]!.clone().multiplyScalar(this.solidFactor);
     }
 
     public static getSecondSolidCorner(direction: HexDirection): THREE.Vector3 {
-        return HexMetrics.corners[direction + 1].clone().multiplyScalar(this.solidFactor);
+        return HexMetrics.corners[direction + 1]!.clone().multiplyScalar(this.solidFactor);
     }
 
     public static getBridge(direction: HexDirection) {
@@ -88,8 +91,8 @@ export class HexMetrics {
         const z = -position.z * this.noiseScale
         const wrappedUVs = this.wrapToUV(new THREE.Vector2(x, z))
 
-        const xInd = Math.round(MathUtils.lerp(0, this.noiseTextureSize, wrappedUVs.x))
-        const zInd = Math.round(MathUtils.lerp(0, this.noiseTextureSize, wrappedUVs.y))
+        const xInd = Math.floor(MathUtils.lerp(0, this.noiseTextureSize, wrappedUVs.x))
+        const zInd = Math.floor(MathUtils.lerp(0, this.noiseTextureSize, wrappedUVs.y))
 
         const color = this.sample(xInd, zInd);
         return new THREE.Vector4(color.r, color.g, color.b, 0)
@@ -101,6 +104,6 @@ export class HexMetrics {
     }
 
     private static sample(x: number, y: number): THREE.Color {
-        return this.noise[x * this.noiseTextureSize + y]
+        return this.noise[x * this.noiseTextureSize + y]!
     }
 }

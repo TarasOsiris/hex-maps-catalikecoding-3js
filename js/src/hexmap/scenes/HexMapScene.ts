@@ -78,15 +78,14 @@ export class HexMapScene extends FullScreenScene {
         this.processNoiseTexture();
 
         this.hexGrid = new HexGrid(this, this.font, this.gui)
-        const boundingBox = this.hexGrid.hexMesh.geometry.boundingBox!;
-        const center = boundingBox.getCenter(new THREE.Vector3());
+        // const boundingBox = this.hexGrid.hexMesh.geometry.boundingBox!;
+        // const center = boundingBox.getCenter(new THREE.Vector3());
 
         const orbitControls = new OrbitControls(this.mainCamera, this.canvas);
-        orbitControls.target = center
 
-        this.mainCamera.position.set(center.x, 120, center.z)
-        this.mainCamera.lookAt(center)
-        this.addLighting(center);
+        this.mainCamera.position.set(0, 120, 0)
+        this.mainCamera.lookAt(new THREE.Vector3())
+        this.addLighting(new THREE.Vector3());
 
         this.handleMouseClicks(this.hexGrid)
     }
@@ -108,8 +107,8 @@ export class HexMapScene extends FullScreenScene {
         directionalLight.shadow.camera.lookAt(center)
         // this.add(new CameraHelper(directionalLight.shadow.camera))
         this.add(directionalLight)
-        // let directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 10, 0xff0000);
-        // this.add(directionalLightHelper)
+        const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 10, 0xff0000);
+        this.add(directionalLightHelper)
     }
 
     private handleMouseClicks(grid: HexGrid) {
@@ -117,10 +116,12 @@ export class HexMapScene extends FullScreenScene {
             this.raycaster.setFromCamera(mouseCoordinate, this.mainCamera)
             const intersects = this.raycaster.intersectObjects(this.children)
             if (intersects.length > 0) {
-                if (intersects[0].object.type != 'Mesh' /* Can also use name */) {
+                if (intersects[0]!.object.type != 'Mesh' /* Can also use name */) {
                     return
                 }
-                this.editCell(grid.getCell(intersects[0].point));
+                const cell = grid.getCell(intersects[0].point);
+                this.editCell(cell);
+                this.hexGrid.refreshDirty()
             }
         })
     }
@@ -128,7 +129,6 @@ export class HexMapScene extends FullScreenScene {
     editCell(cell: HexCell) {
         cell.color = this.activeColor.clone()
         cell.elevation = this.activeElevation
-        this.hexGrid.refresh()
     }
 
     selectTestColor() {
