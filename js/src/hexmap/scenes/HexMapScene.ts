@@ -5,8 +5,10 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {HexCell} from "../HexCell";
 import {ColorUtils} from "../../lib/ColorUtils";
 import {Font, FontLoader} from "three/examples/jsm/loaders/FontLoader";
-import {Texture} from "three";
+import {MathUtils, Texture} from "three";
 import {HexMetrics} from "../HexMetrics";
+import {MathUtil} from "../../lib/math/MathUtil";
+import {HexMapCamera} from "../HexMapCamera";
 
 export class HexMapScene extends FullScreenScene {
 
@@ -22,6 +24,8 @@ export class HexMapScene extends FullScreenScene {
     private colors: Array<THREE.Color> = new Array<THREE.Color>(ColorUtils.red, ColorUtils.green, new THREE.Color(0x548af9),)
     private activeColor: THREE.Color = new THREE.Color(0, 1, 0)
     private activeElevation = 3
+
+    hexMapCamera!: HexMapCamera
 
     onInit() {
         this.loadingManager.onLoad = () => {
@@ -81,13 +85,32 @@ export class HexMapScene extends FullScreenScene {
         // const boundingBox = this.hexGrid.hexMesh.geometry.boundingBox!;
         // const center = boundingBox.getCenter(new THREE.Vector3());
 
-        const orbitControls = new OrbitControls(this.mainCamera, this.canvas);
+        // const orbitControls = new OrbitControls(this.mainCamera, this.canvas);
 
-        this.mainCamera.position.set(0, 120, 0)
-        this.mainCamera.lookAt(new THREE.Vector3())
+        this.mainCamera.near = 0.3
+        this.mainCamera.far = 1000
+        this.mainCamera.fov = 60
+
+        // TODO refactor this nicely
+        this.hexMapCamera = new HexMapCamera(this.mainCamera)
+        // hexMapCamera.name = "Hex Map Camera"
+        //
+        // const swivel = new THREE.Object3D()
+        // swivel.name = "Swivel"
+        //
+        // this.stick = new THREE.Object3D()
+        // this.stick.name = "Stick"
+        //
+        // hexMapCamera.add(swivel)
+        // swivel.rotation.set(-Math.PI / 4 /*45 deg*/, 0, 0)
+        // swivel.add(this.stick)
+        // this.stick.position.z = 45
+        // this.stick.add(this.mainCamera)
+
+        this.add(this.hexMapCamera)
+
         this.addLighting(new THREE.Vector3());
-
-        this.handleMouseClicks(this.hexGrid)
+        this.handleMouseInput(this.hexGrid)
     }
 
     private addLighting(center: THREE.Vector3) {
@@ -107,11 +130,11 @@ export class HexMapScene extends FullScreenScene {
         directionalLight.shadow.camera.lookAt(center)
         // this.add(new CameraHelper(directionalLight.shadow.camera))
         this.add(directionalLight)
-        const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 10, 0xff0000);
-        this.add(directionalLightHelper)
+        // const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 10, 0xff0000);
+        // this.add(directionalLightHelper)
     }
 
-    private handleMouseClicks(grid: HexGrid) {
+    private handleMouseInput(grid: HexGrid) {
         this.setOnMouseDownListener(mouseCoordinate => {
             this.raycaster.setFromCamera(mouseCoordinate, this.mainCamera)
             const intersects = this.raycaster.intersectObjects(this.children)
@@ -123,6 +146,9 @@ export class HexMapScene extends FullScreenScene {
                 this.editCell(cell);
                 this.hexGrid.refreshDirty()
             }
+        })
+        this.setOnMouseScrollListener(zoomDelta => {
+            this.hexMapCamera.adjustZoom(zoomDelta)
         })
     }
 

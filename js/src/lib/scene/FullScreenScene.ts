@@ -14,6 +14,7 @@ export abstract class FullScreenScene extends THREE.Scene {
         axesSize: 15,
     }
     private mouseDownListener?: (mouseCoordinate: THREE.Vector2) => void;
+    private mouseWheelListener?: (delta: number) => void;
 
     init(debug: boolean = false) {
         this.canvas = document.querySelector<HTMLCanvasElement>('canvas.webgl')!
@@ -35,6 +36,28 @@ export abstract class FullScreenScene extends THREE.Scene {
             normalizedMouseCoordinates.y = -(event.clientY / window.innerHeight) * 2 + 1;
             this.mouseDownListener(normalizedMouseCoordinates)
         })
+        window.addEventListener('wheel', event => {
+            if (!this.mouseWheelListener) return
+            this.mouseWheelListener(event.deltaY)
+        })
+        window.addEventListener('keydown', event => {
+            const key = event.key;
+            switch (key) {
+                case 'w':
+                case 'ArrowUp':
+                    break;
+                case 'a':
+                case 'ArrowLeft':
+                    break;
+                case 's':
+                case 'ArrowDown':
+                    break;
+                case 'd':
+                case 'ArrowRight':
+                    break;
+            }
+            console.log(key)
+        })
 
         Helpers.addFullScreenToggle(this.canvas)
         this.createMainCamera(size);
@@ -55,10 +78,13 @@ export abstract class FullScreenScene extends THREE.Scene {
         this.mouseDownListener = mouseDownListener;
     }
 
+    setOnMouseScrollListener(mouseScrollListener: (delta: number) => void) {
+        this.mouseWheelListener = mouseScrollListener
+    }
+
     private createMainCamera(size: THREE.Vector2) {
         this.mainCamera = new THREE.PerspectiveCamera(75, size.width / size.height, 0.1, 500)
         this.mainCamera.position.z = 3
-        this.add(this.mainCamera)
     }
 
     abstract onInit();
@@ -68,7 +94,7 @@ export abstract class FullScreenScene extends THREE.Scene {
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     }
 
-    update() {
+    update(dt: number) {
         this.mainCamera.updateProjectionMatrix();
         this.renderer.render(this, this.mainCamera);
     }
@@ -77,7 +103,7 @@ export abstract class FullScreenScene extends THREE.Scene {
         this.axesHelper = new THREE.AxesHelper(this.debugControls.axesSize)
         this.add(this.axesHelper)
 
-        const folder = this.gui.addFolder("Axes");
+        const folder = this.gui.addFolder("Axes").close();
         folder.add(this.debugControls, 'axesVisible').name("Is Visible")
             .onChange(() => {
                 this.axesHelper.visible = !this.axesHelper.visible

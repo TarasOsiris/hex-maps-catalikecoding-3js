@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'lil-gui'
 import {HexMapScene} from "./hexmap/scenes/HexMapScene";
 
@@ -148,10 +148,12 @@ import {HexMapScene} from "./hexmap/scenes/HexMapScene";
 //
 // tick()
 
-let scene = new HexMapScene()
+const scene = new HexMapScene()
 scene.init(true)
+
+const clock = new THREE.Clock(true)
 const tick = () => {
-    scene.update()
+    scene.update(clock.getDelta())
     // scene.orbitals.update()
     window.requestAnimationFrame(tick)
 }
