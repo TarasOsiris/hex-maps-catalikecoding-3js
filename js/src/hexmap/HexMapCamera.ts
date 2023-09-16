@@ -2,6 +2,7 @@ import * as THREE from "three";
 import {MathUtil} from "../lib/math/MathUtil";
 import {MathUtils, PerspectiveCamera} from "three";
 import {HexGrid} from "./HexGrid";
+import {HexMetrics} from "./HexMetrics";
 
 export class HexMapCamera extends THREE.Object3D {
     scrollSensitivity = 0.001
@@ -58,6 +59,12 @@ export class HexMapCamera extends THREE.Object3D {
     }
 
     clampPosition(position: THREE.Vector3) {
+        const xMax = (this._grid.chunkCountX * HexMetrics.chunkSizeX - 1) * (2 * HexMetrics.innerRadius)
+        position.x = MathUtil.clamp(position.x, 0, xMax)
+
+        const zMax = (this._grid.chunkCountZ * HexMetrics.chunkSizeZ - 1) * (1.5 * HexMetrics.outerRadius)
+        position.z = MathUtil.clamp(position.z, -zMax, 0)
+
         return position
     }
 }

@@ -29,11 +29,12 @@ export class HexMapScene extends FullScreenScene {
     hexMapCamera!: HexMapCamera
 
     private moveInput: { xDelta: number, zDelta: number } = {xDelta: 0, zDelta: 0}
+    private _isReady: boolean = false;
 
     onInit() {
         this.loadingManager.onLoad = () => {
             this.onLoadingFinished()
-            console.log("ALL DONE")
+            this._isReady = true
         }
         this.textureLoader.load('/textures/noise.png', (tex) => {
             this.noiseTexture = tex
@@ -51,6 +52,7 @@ export class HexMapScene extends FullScreenScene {
     }
 
     update(dt: number) {
+        if (!this._isReady) return
         if (this.hexMapCamera) {
             if (this.moveInput.xDelta != 0 || this.moveInput.zDelta != null) {
                 this.hexMapCamera.adjustPosition(this.moveInput.xDelta, this.moveInput.zDelta, dt)
@@ -106,7 +108,7 @@ export class HexMapScene extends FullScreenScene {
         this.mainCamera.far = 1000
         this.mainCamera.fov = 60
 
-        this.hexMapCamera = new HexMapCamera(this.mainCamera)
+        this.hexMapCamera = new HexMapCamera(this.mainCamera, this.hexGrid)
         this.add(this.hexMapCamera)
 
         this.addLighting(new THREE.Vector3());
