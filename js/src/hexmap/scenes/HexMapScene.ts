@@ -25,7 +25,7 @@ export class HexMapScene extends FullScreenScene {
 
     hexMapCamera!: HexMapCamera
 
-    private moveInput: { xDelta: number, zDelta: number } = {xDelta: 0, zDelta: 0}
+    private input = {xDelta: 0, zDelta: 0, rotationDelta: 0}
     private _isReady: boolean = false;
 
     onInit() {
@@ -52,10 +52,11 @@ export class HexMapScene extends FullScreenScene {
 
     update(dt: number) {
         if (!this._isReady) return
-        if (this.hexMapCamera) {
-            if (this.moveInput.xDelta != 0 || this.moveInput.zDelta != null) {
-                this.hexMapCamera.adjustPosition(this.moveInput.xDelta, this.moveInput.zDelta, dt)
-            }
+        if (this.input.xDelta != 0 || this.input.zDelta != null) {
+            this.hexMapCamera.adjustPosition(this.input.xDelta, this.input.zDelta, dt)
+        }
+        if (this.input.rotationDelta != 0) {
+            this.hexMapCamera.adjustRotation(this.input.rotationDelta, dt)
         }
 
         super.update(dt);
@@ -149,9 +150,10 @@ export class HexMapScene extends FullScreenScene {
             }
         }
         this.mouseWheelListener = zoomDelta => this.hexMapCamera.adjustZoom(zoomDelta)
-        this.arrowKeysListener = (deltaX, deltaZ) => {
-            this.moveInput.xDelta = deltaX
-            this.moveInput.zDelta = deltaZ
+        this.keysListener = (deltaX, deltaZ, deltaRotation) => {
+            this.input.xDelta = deltaX
+            this.input.zDelta = deltaZ
+            this.input.rotationDelta = deltaRotation
         }
     }
 
@@ -163,9 +165,11 @@ export class HexMapScene extends FullScreenScene {
     selectTestColor1() {
         this.selectColor(0)
     }
+
     selectTestColor2() {
         this.selectColor(1)
     }
+
     selectTestColor3() {
         this.selectColor(2)
     }

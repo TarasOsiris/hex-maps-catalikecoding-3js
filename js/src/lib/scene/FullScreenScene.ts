@@ -15,7 +15,7 @@ export abstract class FullScreenScene extends THREE.Scene {
     }
     private _mouseDownListener?: (mouseCoordinate: THREE.Vector2) => void;
     private _mouseWheelListener?: (delta: number) => void;
-    private _arrowKeysListener?: (deltaX: number, deltaZ: number) => void;
+    private _keysListener?: (deltaX: number, deltaZ: number, deltaRotation: number) => void;
 
     private arrowKeysPressed = new Set<string>()
     private rotateKeysPressed = new Set<string>()
@@ -64,7 +64,7 @@ export abstract class FullScreenScene extends THREE.Scene {
                     this.rotateKeysPressed.add(event.key)
                     break;
             }
-            this.updateMovement()
+            this.updateKeysInput()
         })
         window.addEventListener('keyup', event => {
             if (this.arrowKeysPressed.has(event.key)) {
@@ -73,7 +73,7 @@ export abstract class FullScreenScene extends THREE.Scene {
             if (this.rotateKeysPressed.has(event.key)) {
                 this.rotateKeysPressed.delete(event.key)
             }
-            this.updateMovement()
+            this.updateKeysInput()
         })
 
         Helpers.addFullScreenToggle(this.canvas)
@@ -91,7 +91,7 @@ export abstract class FullScreenScene extends THREE.Scene {
         this.updateRenderer(size)
     }
 
-    private updateMovement() {
+    private updateKeysInput() {
         let xDelta = 0
         let zDelta = 0
 
@@ -105,8 +105,16 @@ export abstract class FullScreenScene extends THREE.Scene {
         } else if (this.arrowKeysPressed.has('d') || this.arrowKeysPressed.has('ArrowRight')) {
             xDelta = 1
         }
-        if (this._arrowKeysListener) {
-            this._arrowKeysListener(xDelta, zDelta)
+
+        let rotationDelta = 0
+        if (this.rotateKeysPressed.has('q') || this.rotateKeysPressed.has(',')) {
+            rotationDelta = -1
+        } else if (this.rotateKeysPressed.has('e') || this.rotateKeysPressed.has('.')) {
+            rotationDelta = 1
+        }
+
+        if (this._keysListener) {
+            this._keysListener(xDelta, zDelta, rotationDelta)
         }
     }
 
@@ -118,8 +126,8 @@ export abstract class FullScreenScene extends THREE.Scene {
         this._mouseDownListener = value;
     }
 
-    set arrowKeysListener(value: (deltaX: number, deltaZ: number) => void) {
-        this._arrowKeysListener = value;
+    set keysListener(value: (deltaX: number, deltaZ: number, deltaRotation: number) => void) {
+        this._keysListener = value;
     }
 
     private createMainCamera(size: THREE.Vector2) {

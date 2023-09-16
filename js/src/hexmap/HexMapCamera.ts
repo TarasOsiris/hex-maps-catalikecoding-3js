@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import {MathUtil} from "../lib/math/MathUtil";
 import {MathUtils, PerspectiveCamera} from "three";
+import {MathUtil} from "../lib/math/MathUtil";
 import {HexGrid} from "./HexGrid";
 import {HexMetrics} from "./HexMetrics";
 
@@ -13,10 +13,12 @@ export class HexMapCamera extends THREE.Object3D {
     swivelMaxZoom = 45
     moveSpeedMinZoom = 400
     moveSpeedMaxZoom = 100
+    rotationSpeed = 180
 
     swivel: THREE.Object3D
     stick: THREE.Object3D
     private _grid: HexGrid;
+    private rotationAngle = 0
 
     constructor(mainCamera: PerspectiveCamera, grid: HexGrid) {
         super();
@@ -53,8 +55,9 @@ export class HexMapCamera extends THREE.Object3D {
         const damping = Math.max(Math.abs(xDelta), Math.abs(zDelta)); // TODO currently it does nothing, delta is always in range [-1;1] implement Unity axis system?
         const distance = MathUtils.lerp(this.moveSpeedMinZoom, this.moveSpeedMaxZoom, this.zoom) * dt * damping
         const direction = new THREE.Vector3(xDelta, 0, zDelta).normalize();
-        let vector3 = direction.multiplyScalar(distance);
-        const newPosition = this.clampPosition(this.position.clone().add(vector3));
+        direction.applyEuler(this.rotation) // In Unity this is done as Vector3 direction = transform.localRotation * new Vector3(xDelta, 0f, zDelta).normalized;
+        const positionDelta = direction.multiplyScalar(distance);
+        const newPosition = this.clampPosition(this.position.clone().add(positionDelta));
         this.position.set(newPosition.x, newPosition.y, newPosition.z)
     }
 
@@ -66,5 +69,15 @@ export class HexMapCamera extends THREE.Object3D {
         position.z = MathUtil.clamp(position.z, -zMax, 0)
 
         return position
+    }
+
+    adjustRotation(rotationDelta: number, dt: number) {
+        this.rotationAngle += rotationDelta * this.rotationSpeed * dt
+        if (this.rotationAngle < 0) {
+            this.rotationAngle += 360;
+        } else if (this.rotationAngle >= 360) {
+            this.rotationAngle -= 360;
+        }
+        this.rotation.set(0, MathUtils.degToRad(this.rotationAngle), 0)
     }
 }
