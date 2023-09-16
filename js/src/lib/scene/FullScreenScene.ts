@@ -17,7 +17,8 @@ export abstract class FullScreenScene extends THREE.Scene {
     private _mouseWheelListener?: (delta: number) => void;
     private _arrowKeysListener?: (deltaX: number, deltaZ: number) => void;
 
-    private keysPressed: Map<string, boolean> = new Map<string, boolean>()
+    private arrowKeysPressed = new Set<string>()
+    private rotateKeysPressed = new Set<string>()
 
     init(debug: boolean = false) {
         this.canvas = document.querySelector<HTMLCanvasElement>('canvas.webgl')!
@@ -54,14 +55,23 @@ export abstract class FullScreenScene extends THREE.Scene {
                 case 'ArrowDown':
                 case 'd':
                 case 'ArrowRight':
-                    this.keysPressed.set(event.key, true)
+                    this.arrowKeysPressed.add(event.key)
+                    break;
+                case 'q':
+                case 'e':
+                case '.':
+                case ',':
+                    this.rotateKeysPressed.add(event.key)
                     break;
             }
             this.updateMovement()
         })
         window.addEventListener('keyup', event => {
-            if (this.keysPressed.has(event.key)) {
-                this.keysPressed.delete(event.key)
+            if (this.arrowKeysPressed.has(event.key)) {
+                this.arrowKeysPressed.delete(event.key)
+            }
+            if (this.rotateKeysPressed.has(event.key)) {
+                this.rotateKeysPressed.delete(event.key)
             }
             this.updateMovement()
         })
@@ -85,14 +95,14 @@ export abstract class FullScreenScene extends THREE.Scene {
         let xDelta = 0
         let zDelta = 0
 
-        if (this.keysPressed.has('w') || this.keysPressed.has('ArrowUp')) {
+        if (this.arrowKeysPressed.has('w') || this.arrowKeysPressed.has('ArrowUp')) {
             zDelta = -1
-        } else if (this.keysPressed.has('s') || this.keysPressed.has('ArrowDown')) {
+        } else if (this.arrowKeysPressed.has('s') || this.arrowKeysPressed.has('ArrowDown')) {
             zDelta = 1
         }
-        if (this.keysPressed.has('a') || this.keysPressed.has('ArrowLeft')) {
+        if (this.arrowKeysPressed.has('a') || this.arrowKeysPressed.has('ArrowLeft')) {
             xDelta = -1
-        } else if (this.keysPressed.has('d') || this.keysPressed.has('ArrowRight')) {
+        } else if (this.arrowKeysPressed.has('d') || this.arrowKeysPressed.has('ArrowRight')) {
             xDelta = 1
         }
         if (this._arrowKeysListener) {
