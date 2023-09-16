@@ -41,10 +41,12 @@ export class HexMapScene extends FullScreenScene {
         })
 
         const folder = this.gui.addFolder("Colors");
-        this.colors.forEach((_, idx) => {
-            folder.addColor(this.colors, idx.toString())
-        })
-        folder.add(this, 'selectTestColor')
+        // this.colors.forEach((_, idx) => {
+        //     folder.addColor(this.colors, idx.toString())
+        // })
+        folder.add(this, 'selectTestColor1').name('Red')
+        folder.add(this, 'selectTestColor2').name('Green')
+        folder.add(this, 'selectTestColor3').name('Blue')
         this.gui.add(this, 'activeElevation').name('Cell elevation').min(0).max(6).step(1)
     }
 
@@ -158,7 +160,13 @@ export class HexMapScene extends FullScreenScene {
         cell.elevation = this.activeElevation
     }
 
-    selectTestColor() {
+    selectTestColor1() {
+        this.selectColor(0)
+    }
+    selectTestColor2() {
+        this.selectColor(1)
+    }
+    selectTestColor3() {
         this.selectColor(2)
     }
 
