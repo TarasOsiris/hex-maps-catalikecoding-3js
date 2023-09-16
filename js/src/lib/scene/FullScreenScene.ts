@@ -57,27 +57,13 @@ export abstract class FullScreenScene extends THREE.Scene {
                     this.keysPressed.set(event.key, true)
                     break;
             }
-
-            const xDelta = 0
-            let zDelta = 0
-
-            if (this.keysPressed.has('w') || this.keysPressed.has('ArrowUp')) {
-                zDelta = -1
-            } else if (this.keysPressed.has('d') || this.keysPressed.has('ArrowDown')) {
-                zDelta = 1
-            }
-
-            console.log(xDelta, zDelta)
-            if (xDelta != 0 || zDelta != 0) {
-                if (this._arrowKeysListener) {
-                    this._arrowKeysListener(xDelta, zDelta)
-                }
-            }
+            this.updateMovement()
         })
         window.addEventListener('keyup', event => {
             if (this.keysPressed.has(event.key)) {
                 this.keysPressed.delete(event.key)
             }
+            this.updateMovement()
         })
 
         Helpers.addFullScreenToggle(this.canvas)
@@ -93,6 +79,25 @@ export abstract class FullScreenScene extends THREE.Scene {
         this.renderer.shadowMap.enabled = true
         this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
         this.updateRenderer(size)
+    }
+
+    private updateMovement() {
+        let xDelta = 0
+        let zDelta = 0
+
+        if (this.keysPressed.has('w') || this.keysPressed.has('ArrowUp')) {
+            zDelta = -1
+        } else if (this.keysPressed.has('s') || this.keysPressed.has('ArrowDown')) {
+            zDelta = 1
+        }
+        if (this.keysPressed.has('a') || this.keysPressed.has('ArrowLeft')) {
+            xDelta = -1
+        } else if (this.keysPressed.has('d') || this.keysPressed.has('ArrowRight')) {
+            xDelta = 1
+        }
+        if (this._arrowKeysListener) {
+            this._arrowKeysListener(xDelta, zDelta)
+        }
     }
 
     set mouseWheelListener(value: (delta: number) => void) {

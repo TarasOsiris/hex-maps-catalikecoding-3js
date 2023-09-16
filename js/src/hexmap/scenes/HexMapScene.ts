@@ -9,6 +9,7 @@ import {MathUtils, Texture} from "three";
 import {HexMetrics} from "../HexMetrics";
 import {MathUtil} from "../../lib/math/MathUtil";
 import {HexMapCamera} from "../HexMapCamera";
+import {context} from "three/examples/jsm/nodes/shadernode/ShaderNodeBaseElements";
 
 export class HexMapScene extends FullScreenScene {
 
@@ -27,6 +28,8 @@ export class HexMapScene extends FullScreenScene {
 
     hexMapCamera!: HexMapCamera
 
+    private moveInput: { xDelta: number, zDelta: number } = {xDelta: 0, zDelta: 0}
+
     onInit() {
         this.loadingManager.onLoad = () => {
             this.onLoadingFinished()
@@ -44,10 +47,21 @@ export class HexMapScene extends FullScreenScene {
             folder.addColor(this.colors, idx.toString())
         })
         folder.add(this, 'selectTestColor')
-        this.gui.add(this, 'activeElevation').min(0).max(6).step(1)
+        this.gui.add(this, 'activeElevation').name('Cell elevation').min(0).max(6).step(1)
+    }
+
+    update(dt: number) {
+        if (this.hexMapCamera) {
+            if (this.moveInput.xDelta != 0 || this.moveInput.zDelta != null) {
+                this.hexMapCamera.adjustPosition(this.moveInput.xDelta, this.moveInput.zDelta, dt)
+            }
+        }
+
+        super.update(dt);
     }
 
     private processNoiseTexture() {
+        // TODO refactor
         this.noiseTexture.generateMipmaps = false
         this.noiseTexture.minFilter = THREE.LinearFilter
         this.noiseTexture.magFilter = THREE.LinearFilter
@@ -73,6 +87,7 @@ export class HexMapScene extends FullScreenScene {
 
             colors.push(new THREE.Color(r, g, b));
         }
+        // TODO make sure it's correctly disposed
         document.body.removeChild(canvas)
 
         HexMetrics.noise = colors
@@ -91,22 +106,7 @@ export class HexMapScene extends FullScreenScene {
         this.mainCamera.far = 1000
         this.mainCamera.fov = 60
 
-        // TODO refactor this nicely
         this.hexMapCamera = new HexMapCamera(this.mainCamera)
-        // hexMapCamera.name = "Hex Map Camera"
-        //
-        // const swivel = new THREE.Object3D()
-        // swivel.name = "Swivel"
-        //
-        // this.stick = new THREE.Object3D()
-        // this.stick.name = "Stick"
-        //
-        // hexMapCamera.add(swivel)
-        // swivel.rotation.set(-Math.PI / 4 /*45 deg*/, 0, 0)
-        // swivel.add(this.stick)
-        // this.stick.position.z = 45
-        // this.stick.add(this.mainCamera)
-
         this.add(this.hexMapCamera)
 
         this.addLighting(new THREE.Vector3());
@@ -149,7 +149,8 @@ export class HexMapScene extends FullScreenScene {
         }
         this.mouseWheelListener = zoomDelta => this.hexMapCamera.adjustZoom(zoomDelta)
         this.arrowKeysListener = (deltaX, deltaZ) => {
-            this.hexMapCamera.adjustPosition(deltaX, deltaZ)
+            this.moveInput.xDelta = deltaX
+            this.moveInput.zDelta = deltaZ
         }
     }
 

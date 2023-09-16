@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import {MathUtil} from "../lib/math/MathUtil";
-import {PerspectiveCamera} from "three";
+import {MathUtils, PerspectiveCamera} from "three";
+import {HexGrid} from "./HexGrid";
 
 export class HexMapCamera extends THREE.Object3D {
     scrollSensitivity = 0.001
@@ -9,12 +10,16 @@ export class HexMapCamera extends THREE.Object3D {
     stickMaxZoom = -45
     swivelMinZoom = 90
     swivelMaxZoom = 45
+    moveSpeedMinZoom = 400
+    moveSpeedMaxZoom = 100
 
     swivel: THREE.Object3D
     stick: THREE.Object3D
+    private _grid: HexGrid;
 
-    constructor(mainCamera: PerspectiveCamera) {
+    constructor(mainCamera: PerspectiveCamera, grid: HexGrid) {
         super();
+        this._grid = grid;
         this.name = "Hex Map Camera"
 
         this.swivel = new THREE.Object3D()
@@ -43,7 +48,16 @@ export class HexMapCamera extends THREE.Object3D {
         this.swivel.rotation.set(-MathUtil.degToRad(angle), 0, 0)
     }
 
-    adjustPosition(xDelta: number, zDelta: number) {
-        this.position.add(new THREE.Vector3(xDelta, 0, zDelta))
+    adjustPosition(xDelta: number, zDelta: number, dt: number) {
+        const damping = Math.max(Math.abs(xDelta), Math.abs(zDelta)); // TODO currently it does nothing, delta is always in range [-1;1] implement Unity axis system?
+        const distance = MathUtils.lerp(this.moveSpeedMinZoom, this.moveSpeedMaxZoom, this.zoom) * dt * damping
+        const direction = new THREE.Vector3(xDelta, 0, zDelta).normalize();
+        let vector3 = direction.multiplyScalar(distance);
+        const newPosition = this.clampPosition(this.position.clone().add(vector3));
+        this.position.set(newPosition.x, newPosition.y, newPosition.z)
+    }
+
+    clampPosition(position: THREE.Vector3) {
+        return position
     }
 }
