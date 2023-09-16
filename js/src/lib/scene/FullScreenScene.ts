@@ -13,8 +13,11 @@ export abstract class FullScreenScene extends THREE.Scene {
         axesVisible: true,
         axesSize: 15,
     }
-    private mouseDownListener?: (mouseCoordinate: THREE.Vector2) => void;
-    private mouseWheelListener?: (delta: number) => void;
+    private _mouseDownListener?: (mouseCoordinate: THREE.Vector2) => void;
+    private _mouseWheelListener?: (delta: number) => void;
+    private _arrowKeysListener?: (deltaX: number, deltaZ: number) => void;
+
+    private keysPressed: Map<string, boolean> = new Map<string, boolean>()
 
     init(debug: boolean = false) {
         this.canvas = document.querySelector<HTMLCanvasElement>('canvas.webgl')!
@@ -29,34 +32,52 @@ export abstract class FullScreenScene extends THREE.Scene {
         })
 
         window.addEventListener('mousedown', event => {
-            if (!this.mouseDownListener) return
+            if (!this._mouseDownListener) return
             // Calculate normalized mouse coordinates (-1 to 1) based on canvas size
             const normalizedMouseCoordinates = new THREE.Vector2()
             normalizedMouseCoordinates.x = (event.clientX / window.innerWidth) * 2 - 1;
             normalizedMouseCoordinates.y = -(event.clientY / window.innerHeight) * 2 + 1;
-            this.mouseDownListener(normalizedMouseCoordinates)
+            this._mouseDownListener(normalizedMouseCoordinates)
         })
         window.addEventListener('wheel', event => {
-            if (!this.mouseWheelListener) return
-            this.mouseWheelListener(event.deltaY)
+            if (!this._mouseWheelListener) return
+            this._mouseWheelListener(event.deltaY)
         })
         window.addEventListener('keydown', event => {
             const key = event.key;
             switch (key) {
                 case 'w':
                 case 'ArrowUp':
-                    break;
                 case 'a':
                 case 'ArrowLeft':
-                    break;
                 case 's':
                 case 'ArrowDown':
-                    break;
                 case 'd':
                 case 'ArrowRight':
+                    this.keysPressed.set(event.key, true)
                     break;
             }
-            console.log(key)
+
+            const xDelta = 0
+            let zDelta = 0
+
+            if (this.keysPressed.has('w') || this.keysPressed.has('ArrowUp')) {
+                zDelta = -1
+            } else if (this.keysPressed.has('d') || this.keysPressed.has('ArrowDown')) {
+                zDelta = 1
+            }
+
+            console.log(xDelta, zDelta)
+            if (xDelta != 0 || zDelta != 0) {
+                if (this._arrowKeysListener) {
+                    this._arrowKeysListener(xDelta, zDelta)
+                }
+            }
+        })
+        window.addEventListener('keyup', event => {
+            if (this.keysPressed.has(event.key)) {
+                this.keysPressed.delete(event.key)
+            }
         })
 
         Helpers.addFullScreenToggle(this.canvas)
@@ -74,12 +95,16 @@ export abstract class FullScreenScene extends THREE.Scene {
         this.updateRenderer(size)
     }
 
-    setOnMouseDownListener(mouseDownListener: (mouseCoordinate: THREE.Vector2) => void) {
-        this.mouseDownListener = mouseDownListener;
+    set mouseWheelListener(value: (delta: number) => void) {
+        this._mouseWheelListener = value;
     }
 
-    setOnMouseScrollListener(mouseScrollListener: (delta: number) => void) {
-        this.mouseWheelListener = mouseScrollListener
+    set mouseDownListener(value: (mouseCoordinate: THREE.Vector2) => void) {
+        this._mouseDownListener = value;
+    }
+
+    set arrowKeysListener(value: (deltaX: number, deltaZ: number) => void) {
+        this._arrowKeysListener = value;
     }
 
     private createMainCamera(size: THREE.Vector2) {

@@ -42,4 +42,8 @@ export class HexMapCamera extends THREE.Object3D {
         const angle = THREE.MathUtils.lerp(this.swivelMinZoom, this.swivelMaxZoom, this.zoom)
         this.swivel.rotation.set(-MathUtil.degToRad(angle), 0, 0)
     }
+
+    adjustPosition(xDelta: number, zDelta: number) {
+        this.position.add(new THREE.Vector3(xDelta, 0, zDelta))
+    }
 }

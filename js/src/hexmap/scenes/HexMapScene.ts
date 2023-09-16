@@ -110,7 +110,7 @@ export class HexMapScene extends FullScreenScene {
         this.add(this.hexMapCamera)
 
         this.addLighting(new THREE.Vector3());
-        this.handleMouseInput(this.hexGrid)
+        this.handleInput(this.hexGrid)
     }
 
     private addLighting(center: THREE.Vector3) {
@@ -134,8 +134,8 @@ export class HexMapScene extends FullScreenScene {
         // this.add(directionalLightHelper)
     }
 
-    private handleMouseInput(grid: HexGrid) {
-        this.setOnMouseDownListener(mouseCoordinate => {
+    private handleInput(grid: HexGrid) {
+        this.mouseDownListener = mouseCoordinate => {
             this.raycaster.setFromCamera(mouseCoordinate, this.mainCamera)
             const intersects = this.raycaster.intersectObjects(this.children)
             if (intersects.length > 0) {
@@ -146,10 +146,11 @@ export class HexMapScene extends FullScreenScene {
                 this.editCell(cell);
                 this.hexGrid.refreshDirty()
             }
-        })
-        this.setOnMouseScrollListener(zoomDelta => {
-            this.hexMapCamera.adjustZoom(zoomDelta)
-        })
+        }
+        this.mouseWheelListener = zoomDelta => this.hexMapCamera.adjustZoom(zoomDelta)
+        this.arrowKeysListener = (deltaX, deltaZ) => {
+            this.hexMapCamera.adjustPosition(deltaX, deltaZ)
+        }
     }
 
     editCell(cell: HexCell) {
