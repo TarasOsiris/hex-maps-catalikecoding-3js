@@ -124,7 +124,7 @@ export abstract class FullScreenScene extends THREE.Scene {
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     }
 
-    update(dt: number) {
+    update(_dt: number) {
         this.mainCamera.updateProjectionMatrix();
         this.renderer.render(this, this.mainCamera);
     }

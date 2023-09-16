@@ -1,15 +1,12 @@
 import {FullScreenScene} from "../../lib/scene/FullScreenScene";
 import {HexGrid} from "../HexGrid";
 import * as THREE from "three";
-import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {HexCell} from "../HexCell";
 import {ColorUtils} from "../../lib/ColorUtils";
 import {Font, FontLoader} from "three/examples/jsm/loaders/FontLoader";
-import {MathUtils, Texture} from "three";
+import {Texture} from "three";
 import {HexMetrics} from "../HexMetrics";
-import {MathUtil} from "../../lib/math/MathUtil";
 import {HexMapCamera} from "../HexMapCamera";
-import {context} from "three/examples/jsm/nodes/shadernode/ShaderNodeBaseElements";
 
 export class HexMapScene extends FullScreenScene {
 
