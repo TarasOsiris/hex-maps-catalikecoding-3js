@@ -95,7 +95,7 @@ export class HexMapScene extends FullScreenScene {
     private onLoadingFinished() {
         this.processNoiseTexture();
 
-        this.hexGrid = new HexGrid(this, this.font, this.gui)
+        this.hexGrid = new HexGrid(this, this.font)
         // const boundingBox = this.hexGrid.hexMesh.geometry.boundingBox!;
         // const center = boundingBox.getCenter(new THREE.Vector3());
 

@@ -3,7 +3,6 @@ import * as THREE from "three";
 import {HexMetrics} from "./HexMetrics";
 import {TextGeometry} from "three/examples/jsm/geometries/TextGeometry";
 import {Font} from "three/examples/jsm/loaders/FontLoader";
-import GUI from "lil-gui";
 import {HexCoordinates} from "./HexCoordinates";
 import {HexMapScene} from "./scenes/HexMapScene";
 import {HexDirection} from "./HexDirection";
@@ -25,7 +24,7 @@ export class HexGrid {
 
     private defaultColor: THREE.Color = new THREE.Color(1, 1, 1)
 
-    constructor(scene: HexMapScene, font: Font, gui: GUI) {
+    constructor(scene: HexMapScene, font: Font) {
         this.font = font
 
         this.createChunks()
