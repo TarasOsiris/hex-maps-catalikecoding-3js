@@ -19,9 +19,14 @@ export class HexMapScene extends FullScreenScene {
     private font!: Font
     private noiseTexture!: Texture
 
+    private inspectorControls = {
+        selectedColorIndex: 0,
+        applyElevation: true,
+        activeElevation: 3,
+        brushSize: 0
+    }
+
     private colors: Array<THREE.Color> = new Array<THREE.Color>(ColorUtils.red, ColorUtils.green, new THREE.Color(0x548af9),)
-    private activeColor: THREE.Color = new THREE.Color(0, 1, 0)
-    private activeElevation = 3
 
     hexMapCamera!: HexMapCamera
 
@@ -41,13 +46,13 @@ export class HexMapScene extends FullScreenScene {
         })
 
         const folder = this.gui.addFolder("Colors");
-        // this.colors.forEach((_, idx) => {
-        //     folder.addColor(this.colors, idx.toString())
-        // })
+        folder.add(this, 'clearColor').name('Clear')
         folder.add(this, 'selectTestColor1').name('Red')
         folder.add(this, 'selectTestColor2').name('Green')
         folder.add(this, 'selectTestColor3').name('Blue')
-        this.gui.add(this, 'activeElevation').name('Cell elevation').min(0).max(6).step(1)
+        this.gui.add(this.inspectorControls, 'activeElevation').name('Cell elevation').min(0).max(6).step(1)
+        this.gui.add(this.inspectorControls, 'applyElevation').name('Apply elevation?')
+        this.gui.add(this.inspectorControls, 'brushSize').name('Brush Size').min(0).max(4).step(1)
     }
 
     update(dt: number) {
@@ -158,23 +163,29 @@ export class HexMapScene extends FullScreenScene {
     }
 
     editCell(cell: HexCell) {
-        cell.color = this.activeColor.clone()
-        cell.elevation = this.activeElevation
+        const applyColor = this.inspectorControls.selectedColorIndex >= 0
+        if (applyColor) {
+            cell.color = this.colors[this.inspectorControls.selectedColorIndex].clone()
+        }
+        if (this.inspectorControls.applyElevation) {
+            cell.elevation = this.inspectorControls.activeElevation
+        }
+    }
+
+    clearColor() {
+        this.inspectorControls.selectedColorIndex = -1
     }
 
     selectTestColor1() {
-        this.selectColor(0)
+        this.inspectorControls.selectedColorIndex = 0
+        console.log(this.inspectorControls.selectedColorIndex)
     }
 
     selectTestColor2() {
-        this.selectColor(1)
+        this.inspectorControls.selectedColorIndex = 1
     }
 
     selectTestColor3() {
-        this.selectColor(2)
-    }
-
-    selectColor(index: number) {
-        this.activeColor = this.colors[index]
+        this.inspectorControls.selectedColorIndex = 2
     }
 }
