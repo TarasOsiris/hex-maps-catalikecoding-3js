@@ -10,15 +10,15 @@ import {Nullable} from "../lib/types/Types";
 export class HexCell extends THREE.Object3D {
     coordinates: HexCoordinates;
     private _elevation: number = Number.MIN_SAFE_INTEGER;
-    private _color = new THREE.Color()
-    neighbors: Array<HexCell> = new Array<HexCell>(6)
+    private _color = new THREE.Color();
+    neighbors: Array<HexCell> = new Array<HexCell>(6);
     textMesh!: THREE.Mesh;
-    chunk!: HexGridChunk
+    chunk!: HexGridChunk;
 
-    private _hasIncomingRiver: boolean = false
-    private _hasOutgoingRiver: boolean = false
-    private _incomingRiver: Nullable<HexDirection> = null
-    private _outgoingRiver: Nullable<HexDirection> = null
+    private _hasIncomingRiver: boolean = false;
+    private _hasOutgoingRiver: boolean = false;
+    private _incomingRiver: Nullable<HexDirection> = null;
+    private _outgoingRiver: Nullable<HexDirection> = null;
 
     constructor(coordinates: HexCoordinates) {
         super();
@@ -42,20 +42,28 @@ export class HexCell extends THREE.Object3D {
     }
 
     get hasRiver(): boolean {
-        return this._hasIncomingRiver || this._hasOutgoingRiver
+        return this._hasIncomingRiver || this._hasOutgoingRiver;
+    }
+
+    get hasRiverBeginOrEnd() {
+        return this._hasIncomingRiver != this._hasOutgoingRiver;
+    }
+
+    hasRiverThroughEdge(direction: HexDirection) {
+        return (this._hasIncomingRiver && this.incomingRiver == direction) || (this._hasOutgoingRiver && this.outgoingRiver == direction);
     }
 
     set elevation(value: number) {
         if (this._elevation == value) {
-            return
+            return;
         }
         this._elevation = value;
-        const position = this.position.clone()
-        position.y = value * HexMetrics.elevationStep
-        position.y += (HexMetrics.sampleNoise(position).y * 2 - 1) * HexMetrics.elevationPerturbStrength
-        this.position.set(position.x, position.y, position.z)
-        this.textMesh.position.set(this.textMesh.position.x, position.y, this.textMesh.position.z)
-        this.refresh()
+        const position = this.position.clone();
+        position.y = value * HexMetrics.elevationStep;
+        position.y += (HexMetrics.sampleNoise(position).y * 2 - 1) * HexMetrics.elevationPerturbStrength;
+        this.position.set(position.x, position.y, position.z);
+        this.textMesh.position.set(this.textMesh.position.x, position.y, this.textMesh.position.z);
+        this.refresh();
     }
 
     get elevation(): number {
@@ -68,36 +76,36 @@ export class HexCell extends THREE.Object3D {
 
     set color(value: Color) {
         if (this.color.equals(value)) {
-            return
+            return;
         }
         this._color = value;
-        this.refresh()
+        this.refresh();
     }
 
     get cellPosition(): THREE.Vector3 {
-        return this.position
+        return this.position;
     }
 
     public getNeighbor(direction: HexDirection) {
-        return this.neighbors[direction as number]
+        return this.neighbors[direction as number];
     }
 
     public setNeighbor(direction: HexDirection, cell: HexCell) {
-        this.neighbors[direction as number] = cell
-        cell.neighbors[HexDirectionUtils.opposite(direction) as number] = this
+        this.neighbors[direction as number] = cell;
+        cell.neighbors[HexDirectionUtils.opposite(direction) as number] = this;
     }
 
     getEdgeType(direction: HexDirection): HexEdgeType {
-        return HexMetrics.getEdgeType(this.elevation, this.neighbors[direction as number]!.elevation)
+        return HexMetrics.getEdgeType(this.elevation, this.neighbors[direction as number]!.elevation);
     }
 
     getEdgeTypeWithOtherCell(otherCell: HexCell): HexEdgeType {
-        return HexMetrics.getEdgeType(this.elevation, otherCell.elevation)
+        return HexMetrics.getEdgeType(this.elevation, otherCell.elevation);
     }
 
     refresh() {
         if (this.chunk) {
-            this.chunk.markDirty()
+            this.chunk.markDirty();
             for (let i = 0; i < this.neighbors.length; i++) {
                 const neighbor = this.neighbors[i];
                 if (neighbor != null && neighbor.chunk != this.chunk) {

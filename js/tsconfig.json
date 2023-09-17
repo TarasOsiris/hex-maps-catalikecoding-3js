@@ -20,7 +20,7 @@
     "noImplicitThis": false,
     "strictNullChecks": true,
     "outDir": "./build",
-    "baseUrl": "."
+    "baseUrl": ".",
   },
   "include": [
     "src/**/*",

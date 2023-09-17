@@ -14,15 +14,15 @@ export class SimpleMeshDataScene extends THREE.Scene {
         const sizes = {
             width: 800,
             height: 600
-        }
+        };
 
-        const canvas = document.querySelector<HTMLCanvasElement>('canvas.webgl')!
+        const canvas = document.querySelector<HTMLCanvasElement>('canvas.webgl')!;
 
-        const scene = new THREE.Scene()
+        const scene = new THREE.Scene();
 
-        this.camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height)
+        this.camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height);
 
-        scene.add(this.camera)
+        scene.add(this.camera);
 
         const axesHelper = new THREE.AxesHelper(2);
         this.add(axesHelper);
@@ -32,7 +32,7 @@ export class SimpleMeshDataScene extends THREE.Scene {
         const textureLoader = new THREE.TextureLoader();
         const texture = textureLoader.load('base-map.png');
         const normalMap = textureLoader.load('normal-map.png');
-        console.log(texture)
+        console.log(texture);
 
         const material = new THREE.MeshPhongMaterial({
             polygonOffset: true,
@@ -68,10 +68,10 @@ export class SimpleMeshDataScene extends THREE.Scene {
 
         geometry.setIndex(triangles);
         geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-        geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3))
-        geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2))
-        geometry.setAttribute('tangent', new THREE.BufferAttribute(tangents, 4))
-        const mesh = new THREE.Mesh(geometry, material)
+        geometry.setAttribute('normal', new THREE.BufferAttribute(normals, 3));
+        geometry.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+        geometry.setAttribute('tangent', new THREE.BufferAttribute(tangents, 4));
+        const mesh = new THREE.Mesh(geometry, material);
 
 // wireframe
         const wireframeMaterial = new THREE.MeshBasicMaterial({color: 0xffffff, wireframe: true});
@@ -84,7 +84,7 @@ export class SimpleMeshDataScene extends THREE.Scene {
 // cube.position.set(0, 1, 0)
 // this.add(cube);
 
-        this.add(mesh)
+        this.add(mesh);
 
         const helper = new VertexNormalsHelper(mesh, 0.2, 0xff0000);
         this.add(helper);
@@ -99,20 +99,20 @@ export class SimpleMeshDataScene extends THREE.Scene {
         this.add(lightTarget);
         const directionalLight = new THREE.DirectionalLight(0xffffff, 1); // Color, Intensity
         directionalLight.position.set(1, 1, 1);
-        directionalLight.target = lightTarget
-        this.add(directionalLight)
+        directionalLight.target = lightTarget;
+        this.add(directionalLight);
 // const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 1);
 // this.add(directionalLightHelper);
 
         if (debug) {
-            const gui = new dat.GUI()
-            gui.add(mesh.position, 'y', -3, 3, 0.01)
+            const gui = new dat.GUI();
+            gui.add(mesh.position, 'y', -3, 3, 0.01);
             gui.add(mesh.material, 'wireframe').listen();
         }
 
-        this.orbitals = new OrbitControls(this.camera, canvas)
+        this.orbitals = new OrbitControls(this.camera, canvas);
 
-        this.renderer = new THREE.WebGLRenderer({canvas: canvas})
-        this.renderer.setSize(sizes.width, sizes.height)
+        this.renderer = new THREE.WebGLRenderer({canvas: canvas});
+        this.renderer.setSize(sizes.width, sizes.height);
     }
 }

@@ -1,11 +1,11 @@
 import {HexMetrics} from "./HexMetrics";
 
 export class HexCoordinates {
-    x: number
-    z: number
+    x: number;
+    z: number;
 
     public get y() {
-        return -this.x - this.z
+        return -this.x - this.z;
     }
 
     constructor(x: number, z: number) {
@@ -14,7 +14,7 @@ export class HexCoordinates {
     }
 
     public static fromOffsetCoordinates(x: number, z: number) {
-        return new HexCoordinates(x - Math.floor(z / 2), z)
+        return new HexCoordinates(x - Math.floor(z / 2), z);
     }
 
     toString(): string {
@@ -26,10 +26,10 @@ export class HexCoordinates {
     }
 
     static fromPosition(position: THREE.Vector3): HexCoordinates {
-        let x = position.x / (HexMetrics.innerRadius * 2)
+        let x = position.x / (HexMetrics.innerRadius * 2);
         let y = -x;
 
-        const invertedZ = -1
+        const invertedZ = -1;
         const offset = (invertedZ * position.z) / (HexMetrics.outerRadius * 3);
         x -= offset;
         y -= offset;
