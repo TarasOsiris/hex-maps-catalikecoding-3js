@@ -139,4 +139,8 @@ export class HexGrid {
         const index = x + z * this.cellCountX;
         return this.cells[index];
     }
+
+    showLabels(show: boolean) {
+        this.cells.forEach(cell => cell.textMesh.visible = show)
+    }
 }

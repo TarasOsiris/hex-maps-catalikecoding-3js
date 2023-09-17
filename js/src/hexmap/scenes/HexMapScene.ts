@@ -24,7 +24,8 @@ export class HexMapScene extends FullScreenScene {
         selectedColorIndex: 0,
         applyElevation: true,
         activeElevation: 3,
-        brushSize: 2
+        brushSize: 2,
+        showUI: true
     }
 
     private colors: Array<THREE.Color> = new Array<THREE.Color>(ColorUtils.red, ColorUtils.green, new THREE.Color(0x548af9),)
@@ -54,6 +55,9 @@ export class HexMapScene extends FullScreenScene {
         this.gui.add(this.inspectorControls, 'activeElevation').name('Cell elevation').min(0).max(6).step(1)
         this.gui.add(this.inspectorControls, 'applyElevation').name('Apply elevation?')
         this.gui.add(this.inspectorControls, 'brushSize').name('Brush Size').min(0).max(4).step(1)
+        this.gui.add(this.inspectorControls, 'showUI').name('Labels').onChange(() => {
+            this.hexGrid.showLabels(this.inspectorControls.showUI)
+        })
     }
 
     update(dt: number) {
