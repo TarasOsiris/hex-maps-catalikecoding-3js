@@ -5,6 +5,7 @@ import {HexMetrics} from "./HexMetrics";
 import {HexEdgeType} from "./HexEdgeType";
 import {HexGridChunk} from "./HexGridChunk";
 import {Color} from "three";
+import {Nullable} from "../lib/types/Types";
 
 export class HexCell extends THREE.Object3D {
     coordinates: HexCoordinates;
@@ -14,9 +15,34 @@ export class HexCell extends THREE.Object3D {
     textMesh!: THREE.Mesh;
     chunk!: HexGridChunk
 
+    private _hasIncomingRiver: boolean = false
+    private _hasOutgoingRiver: boolean = false
+    private _incomingRiver: Nullable<HexDirection> = null
+    private _outgoingRiver: Nullable<HexDirection> = null
+
     constructor(coordinates: HexCoordinates) {
         super();
         this.coordinates = coordinates;
+    }
+
+    get hasIncomingRiver(): boolean {
+        return this._hasIncomingRiver;
+    }
+
+    get hasOutgoingRiver(): boolean {
+        return this._hasOutgoingRiver;
+    }
+
+    get incomingRiver(): HexDirection {
+        return <HexDirection>this._incomingRiver;
+    }
+
+    get outgoingRiver(): HexDirection {
+        return <HexDirection>this._outgoingRiver;
+    }
+
+    get hasRiver(): boolean {
+        return this._hasIncomingRiver || this._hasOutgoingRiver
     }
 
     set elevation(value: number) {
