@@ -7,6 +7,7 @@ import {Font, FontLoader} from "three/examples/jsm/loaders/FontLoader";
 import {Texture} from "three";
 import {HexMetrics} from "../HexMetrics";
 import {HexMapCamera} from "../HexMapCamera";
+import {HexCoordinates} from "../HexCoordinates";
 
 export class HexMapScene extends FullScreenScene {
 
@@ -23,7 +24,7 @@ export class HexMapScene extends FullScreenScene {
         selectedColorIndex: 0,
         applyElevation: true,
         activeElevation: 3,
-        brushSize: 0
+        brushSize: 2
     }
 
     private colors: Array<THREE.Color> = new Array<THREE.Color>(ColorUtils.red, ColorUtils.green, new THREE.Color(0x548af9),)
@@ -150,7 +151,7 @@ export class HexMapScene extends FullScreenScene {
                     return
                 }
                 const cell = grid.getCell(intersects[0].point);
-                this.editCell(cell);
+                this.editCells(cell);
                 this.hexGrid.refreshDirty()
             }
         }
@@ -162,13 +163,32 @@ export class HexMapScene extends FullScreenScene {
         }
     }
 
-    editCell(cell: HexCell) {
-        const applyColor = this.inspectorControls.selectedColorIndex >= 0
-        if (applyColor) {
-            cell.color = this.colors[this.inspectorControls.selectedColorIndex].clone()
+    editCells(center: HexCell) {
+        const centerX = center.coordinates.x
+        const centerZ = center.coordinates.z
+
+        const brushSize = this.inspectorControls.brushSize;
+        for (let r = 0, z = centerZ - brushSize; z <= centerZ; z++, r++) {
+            for (let x = centerX - r; x <= centerX + brushSize; x++) {
+                this.editCell(this.hexGrid.getCellByCoords(new HexCoordinates(x, z)));
+            }
         }
-        if (this.inspectorControls.applyElevation) {
-            cell.elevation = this.inspectorControls.activeElevation
+        for (let r = 0, z = centerZ + brushSize; z > centerZ; z--, r++) {
+            for (let x = centerX - brushSize; x <= centerX + r; x++) {
+                this.editCell(this.hexGrid.getCellByCoords(new HexCoordinates(x, z)));
+            }
+        }
+    }
+
+    editCell(cell: null | HexCell) {
+        if (cell) {
+            const applyColor = this.inspectorControls.selectedColorIndex >= 0
+            if (applyColor) {
+                cell.color = this.colors[this.inspectorControls.selectedColorIndex].clone()
+            }
+            if (this.inspectorControls.applyElevation) {
+                cell.elevation = this.inspectorControls.activeElevation
+            }
         }
     }
 

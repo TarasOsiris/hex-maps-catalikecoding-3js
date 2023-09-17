@@ -126,4 +126,17 @@ export class HexGrid {
         textMesh.position.set(position.x, position.y + 0.05, position.z)
         return textMesh
     }
+
+    getCellByCoords(coordinates: HexCoordinates) {
+        const z = coordinates.z;
+        if (z < 0 || z >= this.cellCountZ) {
+            return null;
+        }
+        const x = Math.floor(coordinates.x + z / 2);
+        if (x < 0 || x >= this.cellCountX) {
+            return null;
+        }
+        const index = x + z * this.cellCountX;
+        return this.cells[index];
+    }
 }
