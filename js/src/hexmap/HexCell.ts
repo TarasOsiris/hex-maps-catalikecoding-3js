@@ -63,6 +63,14 @@ export class HexCell extends THREE.Object3D {
         position.y += (HexMetrics.sampleNoise(position).y * 2 - 1) * HexMetrics.elevationPerturbStrength;
         this.position.set(position.x, position.y, position.z);
         this.textMesh.position.set(this.textMesh.position.x, position.y, this.textMesh.position.z);
+
+        if (this._hasOutgoingRiver && this.elevation < this.getNeighbor(this._outgoingRiver!).elevation) {
+            this.removeOutgoingRiver();
+        }
+        if (this._hasIncomingRiver && this.elevation > this.getNeighbor(this._incomingRiver!).elevation) {
+            this.removeIncomingRiver();
+        }
+
         this.refresh();
     }
 
@@ -113,5 +121,65 @@ export class HexCell extends THREE.Object3D {
                 }
             }
         }
+    }
+
+    refreshSelfOnly() {
+        this.chunk.markDirty();
+    }
+
+    removeOutgoingRiver() {
+        if (!this._hasOutgoingRiver) {
+            return;
+        }
+
+        this._hasOutgoingRiver = false;
+        this.refreshSelfOnly();
+
+        const neighbor = this.getNeighbor(this._outgoingRiver!);
+        neighbor._hasIncomingRiver = false;
+        neighbor.refreshSelfOnly();
+    }
+
+    removeIncomingRiver() {
+        if (!this._hasIncomingRiver) {
+            return;
+        }
+
+        this._hasIncomingRiver = false;
+        this.refreshSelfOnly();
+
+        const neighbor = this.getNeighbor(this.incomingRiver!);
+        neighbor._hasOutgoingRiver = false;
+        neighbor.refreshSelfOnly();
+    }
+
+    removeRiver() {
+        this.removeIncomingRiver();
+        this.removeOutgoingRiver();
+    }
+
+    setOutgoingRiver(direction: HexDirection) {
+        if (this._hasOutgoingRiver && this._outgoingRiver == direction) {
+            return;
+        }
+
+        const neighbor = this.getNeighbor(direction);
+        if (!neighbor || this._elevation < neighbor.elevation) {
+            return;
+        }
+
+        this.removeOutgoingRiver();
+        if (this._hasIncomingRiver && this._incomingRiver == direction) {
+            this.removeIncomingRiver();
+        }
+
+        this._hasOutgoingRiver = true;
+        this._outgoingRiver = direction;
+        this.refreshSelfOnly();
+
+        neighbor.removeIncomingRiver();
+        neighbor._hasIncomingRiver = true;
+        neighbor._incomingRiver = HexDirectionUtils.opposite(direction);
+        neighbor.refreshSelfOnly();
     }
 }
