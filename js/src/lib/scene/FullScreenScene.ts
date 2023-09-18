@@ -14,11 +14,13 @@ export abstract class FullScreenScene extends THREE.Scene {
         axesSize: 15,
     }
     private _mouseDownListener?: (mouseCoordinate: THREE.Vector2) => void;
+    private _mouseDragListener?: (mouseCoordinate: THREE.Vector2) => void;
     private _mouseWheelListener?: (delta: number) => void;
     private _keysListener?: (deltaX: number, deltaZ: number, deltaRotation: number) => void;
 
     private arrowKeysPressed = new Set<string>()
     private rotateKeysPressed = new Set<string>()
+    private isMousePressed = false
 
     init(debug: boolean = false) {
         this.canvas = document.querySelector<HTMLCanvasElement>('canvas.webgl')!
@@ -34,11 +36,17 @@ export abstract class FullScreenScene extends THREE.Scene {
 
         window.addEventListener('mousedown', event => {
             if (!this._mouseDownListener) return
-            // Calculate normalized mouse coordinates (-1 to 1) based on canvas size
-            const normalizedMouseCoordinates = new THREE.Vector2()
-            normalizedMouseCoordinates.x = (event.clientX / window.innerWidth) * 2 - 1;
-            normalizedMouseCoordinates.y = -(event.clientY / window.innerHeight) * 2 + 1;
-            this._mouseDownListener(normalizedMouseCoordinates)
+
+            this.isMousePressed = true
+            this._mouseDownListener(this.calculateNormalizedCoordinates(event))
+        })
+        window.addEventListener('mouseup', () => {
+            this.isMousePressed = false;
+        })
+        window.addEventListener('mousemove', event => {
+            if (this._mouseDragListener != null && this.isMousePressed) {
+                this._mouseDragListener(this.calculateNormalizedCoordinates(event))
+            }
         })
         window.addEventListener('wheel', event => {
             if (!this._mouseWheelListener) return
@@ -91,6 +99,14 @@ export abstract class FullScreenScene extends THREE.Scene {
         this.updateRenderer(size)
     }
 
+    private calculateNormalizedCoordinates(event: MouseEvent) {
+        // Calculate normalized mouse coordinates (-1 to 1) based on canvas size
+        const normalizedMouseCoordinates = new THREE.Vector2()
+        normalizedMouseCoordinates.x = (event.clientX / window.innerWidth) * 2 - 1;
+        normalizedMouseCoordinates.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        return normalizedMouseCoordinates;
+    }
+
     private updateKeysInput() {
         let xDelta = 0
         let zDelta = 0
@@ -124,6 +140,10 @@ export abstract class FullScreenScene extends THREE.Scene {
 
     set mouseDownListener(value: (mouseCoordinate: THREE.Vector2) => void) {
         this._mouseDownListener = value;
+    }
+
+    set mouseDragListener(value: (mouseCoordinate: THREE.Vector2) => void) {
+        this._mouseDragListener = value;
     }
 
     set keysListener(value: (deltaX: number, deltaZ: number, deltaRotation: number) => void) {

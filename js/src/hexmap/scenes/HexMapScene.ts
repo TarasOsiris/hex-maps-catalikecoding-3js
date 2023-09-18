@@ -4,28 +4,28 @@ import * as THREE from "three";
 import {HexCell} from "../HexCell";
 import {ColorUtils} from "../../lib/ColorUtils";
 import {Font, FontLoader} from "three/examples/jsm/loaders/FontLoader";
-import {Texture} from "three";
-import {HexMetrics} from "../HexMetrics";
 import {HexMapCamera} from "../HexMapCamera";
 import {HexCoordinates} from "../HexCoordinates";
+import {HexSceneUtils} from "../util/HexSceneUtils";
+import {OptionalToggle} from "../util/OptionalToggle";
 
 export class HexMapScene extends FullScreenScene {
 
     private hexGrid!: HexGrid;
-    raycaster = new THREE.Raycaster();
+    private raycaster = new THREE.Raycaster();
     private loadingManager = new THREE.LoadingManager();
-    private fontLoader: FontLoader = new FontLoader(this.loadingManager);
-    private textureLoader: THREE.TextureLoader = new THREE.TextureLoader(this.loadingManager);
+    private fontLoader = new FontLoader(this.loadingManager);
+    private textureLoader = new THREE.TextureLoader(this.loadingManager);
 
     private font!: Font;
-    private noiseTexture!: Texture;
 
     private inspectorControls = {
-        selectedColorIndex: 0,
+        selectedColorIndex: 2,
         applyElevation: true,
         activeElevation: 3,
         brushSize: 2,
-        showUI: true
+        showUI: true,
+        riverMode: OptionalToggle.Ignore.valueOf()
     };
 
     private colors: Array<THREE.Color> = new Array<THREE.Color>(ColorUtils.red, ColorUtils.green, new THREE.Color(0x548af9),);
@@ -41,7 +41,7 @@ export class HexMapScene extends FullScreenScene {
             this._isReady = true;
         };
         this.textureLoader.load('/textures/noise.png', (tex) => {
-            this.noiseTexture = tex;
+            HexSceneUtils.processNoiseTexture(tex)
         });
         this.fontLoader.load('/fonts/roboto.json', (font) => {
             this.font = font;
@@ -58,6 +58,11 @@ export class HexMapScene extends FullScreenScene {
         this.gui.add(this.inspectorControls, 'showUI').name('Labels').onChange(() => {
             this.hexGrid.showLabels(this.inspectorControls.showUI);
         });
+        this.gui.add(this.inspectorControls, 'riverMode', {
+            "Ignore": OptionalToggle.Ignore.valueOf(),
+            "Yes": OptionalToggle.Yes.valueOf(),
+            "No": OptionalToggle.No.valueOf()
+        }).name('River')
     }
 
     update(dt: number) {
@@ -72,52 +77,11 @@ export class HexMapScene extends FullScreenScene {
         super.update(dt);
     }
 
-    private processNoiseTexture() {
-        // TODO refactor
-        this.noiseTexture.generateMipmaps = false;
-        this.noiseTexture.minFilter = THREE.LinearFilter;
-        this.noiseTexture.magFilter = THREE.LinearFilter;
-        this.noiseTexture.colorSpace = "srgb-linear";
-        this.noiseTexture.needsUpdate = true; // TODO do we need this?
-
-        const canvas = document.createElement('canvas');
-        document.body.appendChild(canvas);
-        canvas.width = this.noiseTexture.image.width;
-        canvas.height = this.noiseTexture.image.height;
-
-        const context = canvas.getContext('2d')!;
-        context.drawImage(this.noiseTexture.image, 0, 0);
-
-        const data = context.getImageData(0, 0, canvas.width, canvas.height).data;
-
-        const colors: THREE.Color[] = [];
-
-        for (let i = 0; i < data.length; i += 4) {
-            const r = data[i] / 255;
-            const g = data[i + 1] / 255;
-            const b = data[i + 2] / 255;
-
-            colors.push(new THREE.Color(r, g, b));
-        }
-        // TODO make sure it's correctly disposed
-        document.body.removeChild(canvas);
-
-        HexMetrics.noise = colors;
-    }
 
     private onLoadingFinished() {
-        this.processNoiseTexture();
-
         this.hexGrid = new HexGrid(this, this.font);
-        // const boundingBox = this.hexGrid.hexMesh.geometry.boundingBox!;
-        // const center = boundingBox.getCenter(new THREE.Vector3());
 
-        // const orbitControls = new OrbitControls(this.mainCamera, this.canvas);
-
-        this.mainCamera.near = 0.3;
-        this.mainCamera.far = 1000;
-        this.mainCamera.fov = 60;
-
+        this.mainCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 1000)
         this.hexMapCamera = new HexMapCamera(this.mainCamera, this.hexGrid);
         this.add(this.hexMapCamera);
 
@@ -126,7 +90,7 @@ export class HexMapScene extends FullScreenScene {
     }
 
     private addLighting(center: THREE.Vector3) {
-        const ambientLight = new THREE.AmbientLight(ColorUtils.white, 1);
+        const ambientLight = new THREE.AmbientLight(ColorUtils.white, 2);
         this.add(ambientLight);
         const directionalLight = new THREE.DirectionalLight(ColorUtils.white, 1.5);
         directionalLight.position.set(0, 25, 25);
@@ -147,7 +111,7 @@ export class HexMapScene extends FullScreenScene {
     }
 
     private handleInput(grid: HexGrid) {
-        this.mouseDownListener = mouseCoordinate => {
+        const mouseListener = (mouseCoordinate: THREE.Vector2) => {
             this.raycaster.setFromCamera(mouseCoordinate, this.mainCamera);
             const intersects = this.raycaster.intersectObjects(this.children);
             if (intersects.length > 0) {
@@ -159,6 +123,8 @@ export class HexMapScene extends FullScreenScene {
                 this.hexGrid.refreshDirty();
             }
         };
+        this.mouseDownListener = mouseListener;
+        this.mouseDragListener = mouseListener;
         this.mouseWheelListener = zoomDelta => this.hexMapCamera.adjustZoom(zoomDelta);
         this.keysListener = (deltaX, deltaZ, deltaRotation) => {
             this.input.xDelta = deltaX;
