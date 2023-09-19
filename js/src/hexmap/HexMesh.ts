@@ -333,11 +333,12 @@ export class HexMesh extends THREE.Mesh {
         this.addColor(c4);
     }
 
+    addQuadColor1v(c: THREE.Color) {
+        this.addQuadColor2v(c, c);
+    }
+
     addQuadColor2v(c1: THREE.Color, c2: THREE.Color) {
-        this.addColor(c1);
-        this.addColor(c1);
-        this.addColor(c2);
-        this.addColor(c2);
+        this.addQuadColor4v(c1, c1, c2, c2);
     }
 
     private addColor(color1: THREE.Color) {
@@ -368,9 +369,23 @@ export class HexMesh extends THREE.Mesh {
         const m = new EdgeVertices(
             new THREE.Vector3().lerpVectors(centerL, e.v1, 0.5),
             new THREE.Vector3().lerpVectors(centerR, e.v5, 0.5),
+            1 / 6
         );
+        m.v3.y = center.y = e.v3.y;
 
-        console.log(m, e);
         this.triangulateEdgeStrip(m, cell.color, e, cell.color);
+
+        this.addTriangle(centerL, m.v1, m.v2);
+        this.addTriangleColorSingle(cell.color);
+
+        this.addQuad(centerL, center, m.v2, m.v3);
+        this.addQuadColor1v(cell.color);
+        this.addQuad(center, centerR, m.v3, m.v4);
+        this.addQuadColor1v(cell.color);
+
+        this.addTriangle(centerR, m.v4, m.v5);
+        this.addTriangleColorSingle(cell.color);
+
+
     }
 }

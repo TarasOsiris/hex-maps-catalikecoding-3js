@@ -9,11 +9,11 @@ export class EdgeVertices {
     v4: THREE.Vector3;
     v5: THREE.Vector3;
 
-    constructor(corner1: THREE.Vector3, corner2: THREE.Vector3) {
+    constructor(corner1: THREE.Vector3, corner2: THREE.Vector3, outerStep: number = 0.25) {
         this.v1 = corner1.clone();
-        this.v2 = corner1.clone().lerp(corner2, 0.25);
+        this.v2 = corner1.clone().lerp(corner2, outerStep);
         this.v3 = corner1.clone().lerp(corner2, 0.5);
-        this.v4 = corner1.clone().lerp(corner2, 0.75);
+        this.v4 = corner1.clone().lerp(corner2, 1 - outerStep);
         this.v5 = corner2.clone();
     }
 
