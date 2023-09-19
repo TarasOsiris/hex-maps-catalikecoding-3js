@@ -361,12 +361,10 @@ export class HexMesh extends THREE.Mesh {
     }
 
     private triangulateWithRiver(direction: HexDirection, cell: HexCell, center: THREE.Vector3, e: EdgeVertices) {
-        const centerL = center.clone()
-            .add(HexMetrics.getFirstSolidCorner(HexDirectionUtils.previous(direction)))
-            .multiplyScalar(0.25);
-        const centerR = center.clone()
-            .add(HexMetrics.getSecondSolidCorner(HexDirectionUtils.next(direction)))
-            .multiplyScalar(0.25);
+        const offsetL = HexMetrics.getFirstSolidCorner(HexDirectionUtils.previous(direction)).multiplyScalar(0.25);
+        const centerL = center.clone().add(offsetL);
+        const offsetR = HexMetrics.getSecondSolidCorner(HexDirectionUtils.next(direction)).multiplyScalar(0.25);
+        const centerR = center.clone().add(offsetR);
         const m = new EdgeVertices(
             new THREE.Vector3().lerpVectors(centerL, e.v1, 0.5),
             new THREE.Vector3().lerpVectors(centerR, e.v5, 0.5),
