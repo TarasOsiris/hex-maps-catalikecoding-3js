@@ -6,11 +6,12 @@ import {HexMetrics} from "./HexMetrics";
 export class HexGridChunk extends THREE.Object3D {
     readonly cells: Array<HexCell> = [];
 
-    hexMesh = new HexMesh();
+    hexMesh: HexMesh;
     dirty = true;
 
-    constructor() {
+    constructor(material: THREE.Material) {
         super();
+        this.hexMesh = new HexMesh(material);
         this.add(this.hexMesh);
         this.cells = new Array<HexCell>(HexMetrics.chunkSizeX * HexMetrics.chunkSizeZ);
     }

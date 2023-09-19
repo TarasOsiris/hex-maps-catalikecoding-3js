@@ -8,6 +8,8 @@ import {HexMapCamera} from "../HexMapCamera";
 import {HexCoordinates} from "../HexCoordinates";
 import {HexSceneUtils} from "../util/HexSceneUtils";
 import {OptionalToggle} from "../util/OptionalToggle";
+import {Nullable} from "../../lib/types/Types";
+import {HexDirection} from "../HexDirection";
 
 export class HexMapScene extends FullScreenScene {
 
@@ -35,13 +37,17 @@ export class HexMapScene extends FullScreenScene {
     private input = {xDelta: 0, zDelta: 0, rotationDelta: 0};
     private _isReady: boolean = false;
 
+    private _isDrag = false;
+    private _dragDirection: Nullable<HexDirection> = null;
+    private _previousCell: Nullable<HexCell> = null;
+
     onInit() {
         this.loadingManager.onLoad = () => {
             this.onLoadingFinished();
             this._isReady = true;
         };
         this.textureLoader.load('/textures/noise.png', (tex) => {
-            HexSceneUtils.processNoiseTexture(tex)
+            HexSceneUtils.processNoiseTexture(tex);
         });
         this.fontLoader.load('/fonts/roboto.json', (font) => {
             this.font = font;
@@ -62,7 +68,7 @@ export class HexMapScene extends FullScreenScene {
             "Ignore": OptionalToggle.Ignore.valueOf(),
             "Yes": OptionalToggle.Yes.valueOf(),
             "No": OptionalToggle.No.valueOf()
-        }).name('River')
+        }).name('River');
     }
 
     update(dt: number) {
@@ -74,14 +80,18 @@ export class HexMapScene extends FullScreenScene {
             this.hexMapCamera.adjustRotation(this.input.rotationDelta, dt);
         }
 
+        if (!this.isMousePressed) {
+            this._previousCell = null;
+        }
+
         super.update(dt);
     }
 
 
     private onLoadingFinished() {
-        this.hexGrid = new HexGrid(this, this.font);
+        this.hexGrid = new HexGrid(this, this.font, this.gui);
 
-        this.mainCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 1000)
+        this.mainCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 1000);
         this.hexMapCamera = new HexMapCamera(this.mainCamera, this.hexGrid);
         this.add(this.hexMapCamera);
 
@@ -114,13 +124,19 @@ export class HexMapScene extends FullScreenScene {
         const mouseListener = (mouseCoordinate: THREE.Vector2) => {
             this.raycaster.setFromCamera(mouseCoordinate, this.mainCamera);
             const intersects = this.raycaster.intersectObjects(this.children);
-            if (intersects.length > 0) {
-                if (intersects[0]!.object.type != 'Mesh' /* Can also use name */) {
-                    return;
+            if (intersects.length > 0 && intersects[0]!.object.type == 'Mesh') {
+                const currentCell = grid.getCell(intersects[0].point);
+                console.log(currentCell);
+                if (this._previousCell && this._previousCell != currentCell) {
+                    this.validateDrag(currentCell);
+                } else {
+                    this._isDrag = false;
                 }
-                const cell = grid.getCell(intersects[0].point);
-                this.editCells(cell);
+                this.editCells(currentCell);
                 this.hexGrid.refreshDirty();
+                this._previousCell = currentCell;
+            } else {
+                this._previousCell = null;
             }
         };
         this.mouseDownListener = mouseListener;
@@ -159,6 +175,11 @@ export class HexMapScene extends FullScreenScene {
             if (this.inspectorControls.applyElevation) {
                 cell.elevation = this.inspectorControls.activeElevation;
             }
+            if (this.inspectorControls.riverMode == OptionalToggle.No) {
+                cell.removeRiver();
+            } else if (this._isDrag && this.inspectorControls.riverMode == OptionalToggle.Yes) {
+                this._previousCell!.setOutgoingRiver(this._dragDirection!);
+            }
         }
     }
 
@@ -177,5 +198,15 @@ export class HexMapScene extends FullScreenScene {
 
     selectTestColor3() {
         this.inspectorControls.selectedColorIndex = 2;
+    }
+
+    private validateDrag(currentCell: HexCell) {
+        for (this._dragDirection = HexDirection.NE; this._dragDirection <= HexDirection.NW; this._dragDirection++) {
+            if (this._previousCell!.getNeighbor(this._dragDirection) == currentCell) {
+                this._isDrag = true;
+                return;
+            }
+        }
+        this._isDrag = false;
     }
 }

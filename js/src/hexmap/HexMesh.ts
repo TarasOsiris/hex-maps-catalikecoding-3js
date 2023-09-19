@@ -12,9 +12,8 @@ export class HexMesh extends THREE.Mesh {
     static meshTriangles: Array<number> = new Array<number>();
     static meshColors: Array<number> = new Array<number>();
 
-    constructor() {
+    constructor(material: THREE.Material) {
         const geometry = new THREE.BufferGeometry();
-        const material = new THREE.MeshStandardMaterial({wireframe: false, vertexColors: true}); // TODO extract-optimize
         material.side = THREE.BackSide;
         super(geometry, material);
         this.name = "Hex mesh";
@@ -74,6 +73,8 @@ export class HexMesh extends THREE.Mesh {
         this.addTriangleColorSingle(color);
         this.addTriangle(center, edge.v3, edge.v4);
         this.addTriangleColorSingle(color);
+        this.addTriangle(center, edge.v4, edge.v5);
+        this.addTriangleColorSingle(color);
     }
 
     triangulateEdgeStrip(
@@ -86,6 +87,8 @@ export class HexMesh extends THREE.Mesh {
         this.addQuadColor2v(c1, c2);
         this.addQuad(e1.v3, e1.v4, e2.v3, e2.v4);
         this.addQuadColor2v(c1, c2);
+        this.addQuad(e1.v4, e1.v5, e2.v4, e2.v5);
+        this.addQuadColor2v(c1, c2);
     }
 
     private triangulateConnection(direction: HexDirection, cell: HexCell, e1: EdgeVertices) {
@@ -95,7 +98,7 @@ export class HexMesh extends THREE.Mesh {
         bridge.y = neighbor.position.y - cell.position.y;
         const e2 = new EdgeVertices(
             e1.v1.clone().add(bridge),
-            e1.v4.clone().add(bridge)
+            e1.v5.clone().add(bridge)
         );
 
         if (cell.getEdgeType(direction) == HexEdgeType.Slope) {
@@ -107,19 +110,19 @@ export class HexMesh extends THREE.Mesh {
         const nextDirection = HexDirectionUtils.next(direction);
         const nextNeighbor = cell.getNeighbor(nextDirection);
         if (direction <= HexDirection.E && nextNeighbor != null) {
-            const v5 = e1.v4.clone().add(HexMetrics.getBridge(nextDirection));
+            const v5 = e1.v5.clone().add(HexMetrics.getBridge(nextDirection));
             v5.y = nextNeighbor.cellPosition.y;
 
             if (cell.elevation <= neighbor.elevation) {
                 if (cell.elevation <= nextNeighbor.elevation) {
-                    this.triangulateCorner(e1.v4, cell, e2.v4, neighbor, v5, nextNeighbor);
+                    this.triangulateCorner(e1.v5, cell, e2.v5, neighbor, v5, nextNeighbor);
                 } else {
-                    this.triangulateCorner(v5, nextNeighbor, e1.v4, cell, e2.v4, neighbor);
+                    this.triangulateCorner(v5, nextNeighbor, e1.v5, cell, e2.v5, neighbor);
                 }
             } else if (neighbor.elevation <= nextNeighbor.elevation) {
-                this.triangulateCorner(e2.v4, neighbor, v5, nextNeighbor, e1.v4, cell);
+                this.triangulateCorner(e2.v5, neighbor, v5, nextNeighbor, e1.v5, cell);
             } else {
-                this.triangulateCorner(v5, nextNeighbor, e1.v4, cell, e2.v4, neighbor);
+                this.triangulateCorner(v5, nextNeighbor, e1.v5, cell, e2.v5, neighbor);
             }
         }
     }

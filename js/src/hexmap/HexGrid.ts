@@ -7,6 +7,7 @@ import {HexCoordinates} from "./HexCoordinates";
 import {HexMapScene} from "./scenes/HexMapScene";
 import {HexDirection} from "./HexDirection";
 import {HexGridChunk} from "./HexGridChunk";
+import GUI from "lil-gui";
 
 export class HexGrid {
     chunkCountX = 3;
@@ -20,11 +21,12 @@ export class HexGrid {
     private chunks: Array<HexGridChunk> = [];
 
     private fontMat = new THREE.MeshBasicMaterial({color: 0x000000, wireframe: false});
+    private meshMat = new THREE.MeshStandardMaterial({wireframe: false, vertexColors: true}); // TODO extract-optimize
     private readonly font!: Font;
 
     private defaultColor: THREE.Color = new THREE.Color(1, 1, 1);
 
-    constructor(scene: HexMapScene, font: Font) {
+    constructor(scene: HexMapScene, font: Font, gui: GUI) {
         this.font = font;
 
         this.createChunks();
@@ -32,6 +34,8 @@ export class HexGrid {
         this.refreshDirty();
 
         scene.add(this.chunksGroup);
+
+        gui.add(this.meshMat, 'wireframe');
     }
 
     refreshDirty() {
@@ -53,9 +57,10 @@ export class HexGrid {
 
     createChunks() {
         this.chunks = new Array<HexGridChunk>(this.chunkCountX * this.chunkCountZ);
+
         for (let z = 0, i = 0; z < this.chunkCountZ; z++) {
             for (let x = 0; x < this.chunkCountX; x++) {
-                const chunk = this.chunks[i++] = new HexGridChunk();
+                const chunk = this.chunks[i++] = new HexGridChunk(this.meshMat);
                 this.chunksGroup.add(chunk);
             }
         }
