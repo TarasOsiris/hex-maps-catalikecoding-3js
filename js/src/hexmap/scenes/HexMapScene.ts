@@ -9,7 +9,7 @@ import {HexCoordinates} from "../HexCoordinates";
 import {HexSceneUtils} from "../util/HexSceneUtils";
 import {OptionalToggle} from "../util/OptionalToggle";
 import {Nullable} from "../../lib/types/Types";
-import {HexDirection} from "../HexDirection";
+import {HexDirection, HexDirectionUtils} from "../HexDirection";
 
 export class HexMapScene extends FullScreenScene {
 
@@ -178,7 +178,10 @@ export class HexMapScene extends FullScreenScene {
             if (this.inspectorControls.riverMode == OptionalToggle.No) {
                 cell.removeRiver();
             } else if (this._isDrag && this.inspectorControls.riverMode == OptionalToggle.Yes) {
-                this._previousCell!.setOutgoingRiver(this._dragDirection!);
+                const otherCell = cell.getNeighbor(HexDirectionUtils.opposite(this._dragDirection!));
+                if (otherCell) {
+                    otherCell.setOutgoingRiver(this._dragDirection!);
+                }
             }
         }
     }
