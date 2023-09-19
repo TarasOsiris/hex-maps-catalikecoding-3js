@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import {HexMetrics} from "./HexMetrics";
-import {Vector3} from "../lib/math/Vector3";
+import {Vec3} from "../lib/math/Vec3";
 
 export class EdgeVertices {
     v1: THREE.Vector3;
@@ -18,7 +18,7 @@ export class EdgeVertices {
     }
 
     public static terraceLerp(a: EdgeVertices, b: EdgeVertices, step: number): EdgeVertices {
-        const result = new EdgeVertices(Vector3.zero, Vector3.zero);
+        const result = new EdgeVertices(Vec3.zero, Vec3.zero);
         result.v1 = HexMetrics.terraceLerp(a.v1, b.v1, step);
         result.v2 = HexMetrics.terraceLerp(a.v2, b.v2, step);
         result.v3 = HexMetrics.terraceLerp(a.v3, b.v3, step);
@@ -28,7 +28,7 @@ export class EdgeVertices {
     }
 
     clone() {
-        const result = new EdgeVertices(Vector3.zero, Vector3.zero);
+        const result = new EdgeVertices(Vec3.zero, Vec3.zero);
         result.v1 = this.v1.clone();
         result.v2 = this.v2.clone();
         result.v3 = this.v3.clone();

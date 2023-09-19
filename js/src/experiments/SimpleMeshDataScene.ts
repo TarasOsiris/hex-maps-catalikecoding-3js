@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import {Vector3} from "../lib/math/Vector3";
-import {Vector2} from "../lib/math/Vector2";
+import {Vec3} from "../lib/math/Vec3";
+import {Vec2} from "../lib/math/Vec2";
 import {VertexNormalsHelper} from "three/examples/jsm/helpers/VertexNormalsHelper";
 import * as dat from "lil-gui";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
@@ -43,7 +43,7 @@ export class SimpleMeshDataScene extends THREE.Scene {
         });
 // const material = new THREE.MeshBasicMaterial({color: 0xff0000});
         const vertices = new Float32Array([
-            ...Vector3.zero, ...Vector3.right, ...Vector3.up, ...new THREE.Vector3(1, 1, 0)
+            ...Vec3.zero, ...Vec3.right, ...Vec3.up, ...new THREE.Vector3(1, 1, 0)
         ]);
 
         const triangles = [
@@ -52,11 +52,11 @@ export class SimpleMeshDataScene extends THREE.Scene {
         ];
 
         const normals = new Float32Array([
-            ...Vector3.forward, ...Vector3.forward, ...Vector3.forward, ...Vector3.forward
+            ...Vec3.forward, ...Vec3.forward, ...Vec3.forward, ...Vec3.forward
         ]);
 
         const uvs = new Float32Array([
-            ...Vector2.zero, ...Vector2.right, ...Vector2.up, ...Vector2.one
+            ...Vec2.zero, ...Vec2.right, ...Vec2.up, ...Vec2.one
         ]);
 
         const tangents = new Float32Array([

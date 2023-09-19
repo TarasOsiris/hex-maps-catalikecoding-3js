@@ -5,6 +5,7 @@ import {HexMetrics} from "./HexMetrics";
 import {HexDirection, HexDirectionUtils} from "./HexDirection";
 import {HexEdgeType} from "./HexEdgeType";
 import {EdgeVertices} from "./EdgeVertices";
+import {Vec3} from "../lib/math/Vec3";
 
 export class HexMesh extends THREE.Mesh {
 
@@ -59,8 +60,11 @@ export class HexMesh extends THREE.Mesh {
         if (cell.hasRiver) {
             if (cell.hasRiverThroughEdge(direction)) {
                 e.v3.y = cell.streamBedY;
-                console.log("RIVER", direction);
-                this.triangulateWithRiver(direction, cell, center, e);
+                if (cell.hasRiverBeginOrEnd) {
+                    this.triangulateWithRiverBeginOrEnd(direction, cell, center, e);
+                } else {
+                    this.triangulateWithRiver(direction, cell, center, e);
+                }
             }
         } else {
             this.triangulateEdgeFan(center, e, cell.color.clone());
@@ -367,8 +371,8 @@ export class HexMesh extends THREE.Mesh {
         const offsetR = HexMetrics.getSecondSolidCorner(HexDirectionUtils.next(direction)).multiplyScalar(0.25);
         const centerR = center.clone().add(offsetR);
         const m = new EdgeVertices(
-            new THREE.Vector3().lerpVectors(centerL, e.v1, 0.5),
-            new THREE.Vector3().lerpVectors(centerR, e.v5, 0.5),
+            Vec3.lerp(centerL, e.v1, 0.5),
+            Vec3.lerp(centerR, e.v5, 0.5),
             1 / 6
         );
         m.v3.y = center.y = e.v3.y;
@@ -385,7 +389,9 @@ export class HexMesh extends THREE.Mesh {
 
         this.addTriangle(centerR, m.v4, m.v5);
         this.addTriangleColorSingle(cell.color);
+    }
 
+    private triangulateWithRiverBeginOrEnd(direction: HexDirection, cell: HexCell, center: THREE.Vector3, e: EdgeVertices) {
 
     }
 }
