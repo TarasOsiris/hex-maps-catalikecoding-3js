@@ -11,9 +11,9 @@ export class EdgeVertices {
 
     constructor(corner1: THREE.Vector3, corner2: THREE.Vector3) {
         this.v1 = corner1.clone();
-        this.v2 = corner1.clone().lerp(corner2, 1 / 4);
-        this.v3 = corner1.clone().lerp(corner2, 2 / 4);
-        this.v4 = corner1.clone().lerp(corner2, 3 / 4);
+        this.v2 = corner1.clone().lerp(corner2, 0.25);
+        this.v3 = corner1.clone().lerp(corner2, 0.5);
+        this.v4 = corner1.clone().lerp(corner2, 0.75);
         this.v5 = corner2.clone();
     }
 
@@ -31,6 +31,7 @@ export class EdgeVertices {
         const result = new EdgeVertices(Vector3.zero, Vector3.zero);
         result.v1 = this.v1.clone();
         result.v2 = this.v2.clone();
+        result.v3 = this.v3.clone();
         result.v4 = this.v4.clone();
         result.v5 = this.v5.clone();
         return result;

@@ -55,7 +55,15 @@ export class HexMesh extends THREE.Mesh {
             center.clone().add(HexMetrics.getSecondSolidCorner(direction))
         );
 
-        this.triangulateEdgeFan(center, e, cell.color.clone());
+
+        if (cell.hasRiver) {
+            if (cell.hasRiverThroughEdge(direction)) {
+                e.v3.y = cell.streamBedY;
+                this.triangulateWithRiver(direction, cell, center, e);
+            }
+        } else {
+            this.triangulateEdgeFan(center, e, cell.color.clone());
+        }
 
         if (direction <= HexDirection.SE) {
             const neighbor = cell.getNeighbor(direction);
@@ -100,6 +108,10 @@ export class HexMesh extends THREE.Mesh {
             e1.v1.clone().add(bridge),
             e1.v5.clone().add(bridge)
         );
+
+        if (cell.hasRiverThroughEdge(direction)) {
+            e2.v3.y = neighbor.streamBedY;
+        }
 
         if (cell.getEdgeType(direction) == HexEdgeType.Slope) {
             this.triangulateEdgeTerraces(e1, cell, e2, neighbor);
@@ -345,5 +357,9 @@ export class HexMesh extends THREE.Mesh {
         result.x += (sample.x * 2 - 1) * HexMetrics.cellPerturbStrength;
         result.z += (sample.z * 2 - 1) * HexMetrics.cellPerturbStrength;
         return result;
+    }
+
+    private triangulateWithRiver(direction: HexDirection, cell: HexCell, center: THREE.Vector3, e: EdgeVertices) {
+
     }
 }

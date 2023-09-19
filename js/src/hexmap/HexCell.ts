@@ -49,6 +49,10 @@ export class HexCell extends THREE.Object3D {
         return this._hasIncomingRiver != this._hasOutgoingRiver;
     }
 
+    get streamBedY() {
+        return (this._elevation + HexMetrics.streamBedElevationOffset) * HexMetrics.elevationStep;
+    }
+
     hasRiverThroughEdge(direction: HexDirection) {
         return (this._hasIncomingRiver && this.incomingRiver == direction) || (this._hasOutgoingRiver && this.outgoingRiver == direction);
     }

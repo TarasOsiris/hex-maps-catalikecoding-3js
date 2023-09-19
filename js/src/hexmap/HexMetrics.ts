@@ -15,12 +15,14 @@ export class HexMetrics {
 
     private static invZ = -1;
 
-    static readonly cellPerturbStrength = 4;
+    static readonly cellPerturbStrength = 0; // 4
     static readonly elevationPerturbStrength = 1.5;
     static noise: THREE.Color[];
 
     static readonly chunkSizeX = 5;
     static readonly chunkSizeZ = 5;
+
+    static readonly streamBedElevationOffset = -1;
 
     private static corners = [
         new THREE.Vector3(0, 0, HexMetrics.invZ * this.outerRadius),
