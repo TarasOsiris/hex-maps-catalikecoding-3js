@@ -24,10 +24,10 @@ export class HexMapScene extends FullScreenScene {
     private inspectorControls = {
         selectedColorIndex: 2,
         applyElevation: true,
-        activeElevation: 3,
-        brushSize: 2,
+        activeElevation: 0,
+        brushSize: 0,
         showUI: true,
-        riverMode: OptionalToggle.Ignore.valueOf()
+        riverMode: OptionalToggle.Yes.valueOf()
     };
 
     private colors: Array<THREE.Color> = new Array<THREE.Color>(ColorUtils.red, ColorUtils.green, new THREE.Color(0x548af9),);
@@ -126,7 +126,6 @@ export class HexMapScene extends FullScreenScene {
             const intersects = this.raycaster.intersectObjects(this.children);
             if (intersects.length > 0 && intersects[0]!.object.type == 'Mesh') {
                 const currentCell = grid.getCell(intersects[0].point);
-                console.log(currentCell);
                 if (this._previousCell && this._previousCell != currentCell) {
                     this.validateDrag(currentCell);
                 } else {

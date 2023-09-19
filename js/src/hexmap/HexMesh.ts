@@ -59,6 +59,7 @@ export class HexMesh extends THREE.Mesh {
         if (cell.hasRiver) {
             if (cell.hasRiverThroughEdge(direction)) {
                 e.v3.y = cell.streamBedY;
+                console.log("RIVER", direction);
                 this.triangulateWithRiver(direction, cell, center, e);
             }
         } else {
@@ -360,6 +361,18 @@ export class HexMesh extends THREE.Mesh {
     }
 
     private triangulateWithRiver(direction: HexDirection, cell: HexCell, center: THREE.Vector3, e: EdgeVertices) {
+        const centerL = center.clone()
+            .add(HexMetrics.getFirstSolidCorner(HexDirectionUtils.previous(direction)))
+            .multiplyScalar(0.25);
+        const centerR = center.clone()
+            .add(HexMetrics.getSecondSolidCorner(HexDirectionUtils.next(direction)))
+            .multiplyScalar(0.25);
+        const m = new EdgeVertices(
+            new THREE.Vector3().lerpVectors(centerL, e.v1, 0.5),
+            new THREE.Vector3().lerpVectors(centerR, e.v5, 0.5),
+        );
 
+        console.log(m, e);
+        this.triangulateEdgeStrip(m, cell.color, e, cell.color);
     }
 }
