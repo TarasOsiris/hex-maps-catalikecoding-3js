@@ -7,7 +7,6 @@ import {HexCoordinates} from "./HexCoordinates";
 import {HexMapScene} from "./scenes/HexMapScene";
 import {HexDirection} from "./HexDirection";
 import {HexGridChunk} from "./HexGridChunk";
-import GUI from "lil-gui";
 
 export class HexGrid {
     chunkCountX = 3;
@@ -18,7 +17,7 @@ export class HexGrid {
     private readonly chunksGroup = new THREE.Group();
 
     private cells: Array<HexCell> = [];
-    chunks: Array<HexGridChunk> = [];
+    private chunks: Array<HexGridChunk> = [];
 
     private fontMat = new THREE.MeshBasicMaterial({color: 0x000000});
     private meshMat = new THREE.MeshStandardMaterial({
@@ -151,5 +150,9 @@ export class HexGrid {
 
     showLabels(show: boolean) {
         this.cells.forEach(cell => cell.textMesh.visible = show);
+    }
+
+    showWireframe(show: boolean) {
+        this.chunks.forEach(chunk => chunk.hexMeshWireframe.visible = show);
     }
 }

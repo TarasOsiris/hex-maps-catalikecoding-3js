@@ -72,7 +72,7 @@ export class HexMapScene extends FullScreenScene {
         }).name('River');
 
         this.gui.add(this.inspectorControls, 'wireframe').onChange(value => {
-            this.hexGrid.chunks.forEach(chunk => chunk.hexMeshWireframe.visible = value);
+            this.hexGrid.showWireframe(value);
         });
     }
 
@@ -111,6 +111,7 @@ export class HexMapScene extends FullScreenScene {
 
     private setInspectorDefaults() {
         this.showLabels(this.inspectorControls.showLabels);
+        this.hexGrid.showWireframe(this.inspectorControls.wireframe);
     }
 
     private addLighting(center: THREE.Vector3) {

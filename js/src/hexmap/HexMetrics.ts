@@ -5,7 +5,9 @@ import {HexEdgeType} from "./HexEdgeType";
 
 export class HexMetrics {
     static readonly outerRadius = 10;
-    static readonly innerRadius = this.outerRadius * 0.866025404;
+    static readonly outerToInner = 0.866025404;
+    static readonly innerToOuter = 1 / this.outerToInner;
+    static readonly innerRadius = this.outerRadius * this.outerToInner;
     static readonly solidFactor = 0.8;
     static readonly blendFactor = 1 - this.solidFactor;
 
@@ -48,6 +50,11 @@ export class HexMetrics {
 
     public static getSecondSolidCorner(direction: HexDirection): THREE.Vector3 {
         return HexMetrics.corners[direction + 1]!.clone().multiplyScalar(this.solidFactor);
+    }
+
+    public static getSolidEdgeMiddle(direction: HexDirection): THREE.Vector3 {
+        const cornersSum = this.corners[direction].clone().add(this.corners[direction + 1]);
+        return cornersSum.multiplyScalar(0.5 * this.solidFactor);
     }
 
     public static getBridge(direction: HexDirection) {

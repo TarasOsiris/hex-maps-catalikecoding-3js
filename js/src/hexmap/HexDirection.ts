@@ -14,4 +14,14 @@ export class HexDirectionUtils {
     static next(direction: HexDirection): HexDirection {
         return direction == HexDirection.NW ? HexDirection.NE : (direction + 1);
     }
+
+    static previous2(direction: HexDirection): HexDirection {
+        direction -= 2;
+        return direction >= HexDirection.NE ? direction : (direction + 6);
+    }
+
+    static next2(direction: HexDirection): HexDirection {
+        direction += 2;
+        return direction <= HexDirection.NW ? direction : (direction - 6);
+    }
 }

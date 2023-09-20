@@ -383,8 +383,14 @@ export class HexMesh extends THREE.Mesh {
         } else if (cell.hasRiverThroughEdge(HexDirectionUtils.previous(direction))) {
             centerL = Vec3.lerp(center, e.v1, 2 / 3);
             centerR = center;
+        } else if (cell.hasRiverThroughEdge(HexDirectionUtils.next2(direction))) {
+            centerL = center;
+            const offsetR = HexMetrics.getSolidEdgeMiddle(HexDirectionUtils.next(direction)).multiplyScalar(0.5 * HexMetrics.innerToOuter);
+            centerR = center.clone().add(offsetR);
         } else {
-            centerL = centerR = center;
+            const offsetL = HexMetrics.getSolidEdgeMiddle(HexDirectionUtils.previous(direction)).multiplyScalar(0.5 * HexMetrics.innerToOuter);
+            centerL = center.clone().add(offsetL);
+            centerR = center;
         }
         center = Vec3.lerp(centerL, centerR, 0.5);
         const m = new EdgeVertices(
