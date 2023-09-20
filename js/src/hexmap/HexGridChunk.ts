@@ -7,17 +7,21 @@ export class HexGridChunk extends THREE.Object3D {
     readonly cells: Array<HexCell> = [];
 
     hexMesh: HexMesh;
+    hexMeshWireframe: HexMesh;
     dirty = true;
 
-    constructor(material: THREE.Material) {
+    constructor(material: THREE.Material, wireframeMaterial: THREE.Material) {
         super();
         this.hexMesh = new HexMesh(material);
+        this.hexMeshWireframe = new HexMesh(wireframeMaterial, true);
         this.add(this.hexMesh);
+        this.add(this.hexMeshWireframe);
         this.cells = new Array<HexCell>(HexMetrics.chunkSizeX * HexMetrics.chunkSizeZ);
     }
 
     refresh() {
         this.hexMesh.triangulate(this.cells);
+        this.hexMeshWireframe.triangulate(this.cells);
         this.dirty = false;
     }
 

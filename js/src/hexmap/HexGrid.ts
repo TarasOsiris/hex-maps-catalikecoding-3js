@@ -18,15 +18,21 @@ export class HexGrid {
     private readonly chunksGroup = new THREE.Group();
 
     private cells: Array<HexCell> = [];
-    private chunks: Array<HexGridChunk> = [];
+    chunks: Array<HexGridChunk> = [];
 
-    private fontMat = new THREE.MeshBasicMaterial({color: 0x000000, wireframe: false});
-    private meshMat = new THREE.MeshStandardMaterial({wireframe: false, vertexColors: true}); // TODO extract-optimize
+    private fontMat = new THREE.MeshBasicMaterial({color: 0x000000});
+    private meshMat = new THREE.MeshStandardMaterial({
+        vertexColors: true,
+        polygonOffset: true,
+        polygonOffsetFactor: 1,
+        polygonOffsetUnits: 1
+    });
+    private meshWireframeMat = new THREE.MeshBasicMaterial({wireframe: true, color: 0x000000});
     private readonly font!: Font;
 
     private defaultColor: THREE.Color = new THREE.Color(1, 1, 1);
 
-    constructor(scene: HexMapScene, font: Font, gui: GUI) {
+    constructor(scene: HexMapScene, font: Font) {
         this.font = font;
 
         this.createChunks();
@@ -34,8 +40,6 @@ export class HexGrid {
         this.refreshDirty();
 
         scene.add(this.chunksGroup);
-
-        gui.add(this.meshMat, 'wireframe');
     }
 
     refreshDirty() {
@@ -60,7 +64,7 @@ export class HexGrid {
 
         for (let z = 0, i = 0; z < this.chunkCountZ; z++) {
             for (let x = 0; x < this.chunkCountX; x++) {
-                const chunk = this.chunks[i++] = new HexGridChunk(this.meshMat);
+                const chunk = this.chunks[i++] = new HexGridChunk(this.meshMat, this.meshWireframeMat);
                 this.chunksGroup.add(chunk);
             }
         }

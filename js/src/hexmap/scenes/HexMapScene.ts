@@ -26,8 +26,9 @@ export class HexMapScene extends FullScreenScene {
         applyElevation: true,
         activeElevation: 0,
         brushSize: 0,
-        showUI: true,
-        riverMode: OptionalToggle.Yes.valueOf()
+        showLabels: false, // TODO make scene reflect this default value
+        riverMode: OptionalToggle.Yes.valueOf(),
+        wireframe: true // TODO make scene reflect this default value
     };
 
     private colors: Array<THREE.Color> = new Array<THREE.Color>(ColorUtils.red, ColorUtils.green, new THREE.Color(0x548af9),);
@@ -61,14 +62,22 @@ export class HexMapScene extends FullScreenScene {
         this.gui.add(this.inspectorControls, 'activeElevation').name('Cell elevation').min(0).max(6).step(1);
         this.gui.add(this.inspectorControls, 'applyElevation').name('Apply elevation?');
         this.gui.add(this.inspectorControls, 'brushSize').name('Brush Size').min(0).max(4).step(1);
-        this.gui.add(this.inspectorControls, 'showUI').name('Labels').onChange(() => {
-            this.hexGrid.showLabels(this.inspectorControls.showUI);
+        this.gui.add(this.inspectorControls, 'showLabels').name('Labels').onChange(() => {
+            this.showLabels(this.inspectorControls.showLabels);
         });
         this.gui.add(this.inspectorControls, 'riverMode', {
             "Ignore": OptionalToggle.Ignore.valueOf(),
             "Yes": OptionalToggle.Yes.valueOf(),
             "No": OptionalToggle.No.valueOf()
         }).name('River');
+
+        this.gui.add(this.inspectorControls, 'wireframe').onChange(value => {
+            this.hexGrid.chunks.forEach(chunk => chunk.hexMeshWireframe.visible = value);
+        });
+    }
+
+    private showLabels(show: boolean) {
+        this.hexGrid.showLabels(show);
     }
 
     update(dt: number) {
@@ -89,7 +98,8 @@ export class HexMapScene extends FullScreenScene {
 
 
     private onLoadingFinished() {
-        this.hexGrid = new HexGrid(this, this.font, this.gui);
+        this.hexGrid = new HexGrid(this, this.font);
+        this.setInspectorDefaults();
 
         this.mainCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 1000);
         this.hexMapCamera = new HexMapCamera(this.mainCamera, this.hexGrid);
@@ -97,6 +107,10 @@ export class HexMapScene extends FullScreenScene {
 
         this.addLighting(new THREE.Vector3());
         this.handleInput(this.hexGrid);
+    }
+
+    private setInspectorDefaults() {
+        this.showLabels(this.inspectorControls.showLabels);
     }
 
     private addLighting(center: THREE.Vector3) {

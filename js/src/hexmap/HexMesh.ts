@@ -13,13 +13,17 @@ export class HexMesh extends THREE.Mesh {
     static meshTriangles: Array<number> = new Array<number>();
     static meshColors: Array<number> = new Array<number>();
 
-    constructor(material: THREE.Material) {
+    constructor(material: THREE.Material, wireframe: boolean = false) {
         const geometry = new THREE.BufferGeometry();
         material.side = THREE.BackSide;
         super(geometry, material);
         this.name = "Hex mesh";
-        this.receiveShadow = true;
-        this.castShadow = true;
+        if (wireframe) {
+            this.visible = false;
+        } else {
+            this.receiveShadow = true;
+            this.castShadow = true;
+        }
     }
 
     triangulate(cells: Array<HexCell>) {
@@ -366,10 +370,23 @@ export class HexMesh extends THREE.Mesh {
     }
 
     private triangulateWithRiver(direction: HexDirection, cell: HexCell, center: THREE.Vector3, e: EdgeVertices) {
-        const offsetL = HexMetrics.getFirstSolidCorner(HexDirectionUtils.previous(direction)).multiplyScalar(0.25);
-        const centerL = center.clone().add(offsetL);
-        const offsetR = HexMetrics.getSecondSolidCorner(HexDirectionUtils.next(direction)).multiplyScalar(0.25);
-        const centerR = center.clone().add(offsetR);
+        let centerL: THREE.Vector3;
+        let centerR: THREE.Vector3;
+        if (cell.hasRiverThroughEdge(HexDirectionUtils.opposite(direction))) {
+            const offsetL = HexMetrics.getFirstSolidCorner(HexDirectionUtils.previous(direction)).multiplyScalar(0.25);
+            centerL = center.clone().add(offsetL);
+            const offsetR = HexMetrics.getSecondSolidCorner(HexDirectionUtils.next(direction)).multiplyScalar(0.25);
+            centerR = center.clone().add(offsetR);
+        } else if (cell.hasRiverThroughEdge(HexDirectionUtils.next(direction))) {
+            centerL = center;
+            centerR = Vec3.lerp(center, e.v5, 2 / 3);
+        } else if (cell.hasRiverThroughEdge(HexDirectionUtils.previous(direction))) {
+            centerL = Vec3.lerp(center, e.v1, 2 / 3);
+            centerR = center;
+        } else {
+            centerL = centerR = center;
+        }
+        center = Vec3.lerp(centerL, centerR, 0.5);
         const m = new EdgeVertices(
             Vec3.lerp(centerL, e.v1, 0.5),
             Vec3.lerp(centerR, e.v5, 0.5),
@@ -391,7 +408,16 @@ export class HexMesh extends THREE.Mesh {
         this.addTriangleColorSingle(cell.color);
     }
 
+    // @ts-ignore
     private triangulateWithRiverBeginOrEnd(direction: HexDirection, cell: HexCell, center: THREE.Vector3, e: EdgeVertices) {
+        const m = new EdgeVertices(
+            Vec3.lerp(center, e.v1, 0.5),
+            Vec3.lerp(center, e.v5, 0.5),
+        );
 
+        m.v3.y = e.v3.y;
+
+        this.triangulateEdgeStrip(m, cell.color, e, cell.color);
+        this.triangulateEdgeFan(center, m, cell.color);
     }
 }

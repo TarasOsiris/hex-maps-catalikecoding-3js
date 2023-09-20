@@ -171,19 +171,19 @@ export abstract class FullScreenScene extends THREE.Scene {
         this.axesHelper = new THREE.AxesHelper(this.debugControls.axesSize);
         this.add(this.axesHelper);
 
-        const folder = this.gui.addFolder("Axes").close();
-        folder.add(this.debugControls, 'axesVisible').name("Is Visible")
-            .onChange(() => {
-                this.axesHelper.visible = !this.axesHelper.visible;
-            });
-        folder.add(this.debugControls, 'axesSize').name("Size")
-            .min(1).max(50).step(0.5)
-            .onFinishChange((value: number) => {
-                this.remove(this.axesHelper);
-                this.axesHelper.dispose();
-                this.axesHelper = new THREE.AxesHelper(value);
-                this.add(this.axesHelper);
-            });
+        // const folder = this.gui.addFolder("Axes").close();
+        // folder.add(this.debugControls, 'axesVisible').name("Is Visible")
+        //     .onChange(() => {
+        //         this.axesHelper.visible = !this.axesHelper.visible;
+        //     });
+        // folder.add(this.debugControls, 'axesSize').name("Size")
+        //     .min(1).max(50).step(0.5)
+        //     .onFinishChange((value: number) => {
+        //         this.remove(this.axesHelper);
+        //         this.axesHelper.dispose();
+        //         this.axesHelper = new THREE.AxesHelper(value);
+        //         this.add(this.axesHelper);
+        //     });
     }
 
     test() {
