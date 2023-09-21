@@ -8,17 +8,18 @@ export class HexMesh extends THREE.Mesh {
     static meshTriangles: Array<number> = new Array<number>();
     static meshColors: Array<number> = new Array<number>();
 
-    constructor(material: THREE.Material, wireframe: boolean = false) {
+    readonly wireframeCopy: THREE.Mesh;
+
+    constructor(material: THREE.Material, wireframeMaterial: THREE.Material, showWireframe: boolean = true) {
         const geometry = new THREE.BufferGeometry();
         material.side = THREE.BackSide;
         super(geometry, material);
         this.name = "Hex mesh";
-        if (wireframe) {
-            this.visible = false;
-        } else {
-            this.receiveShadow = true;
-            this.castShadow = true;
-        }
+
+        this.wireframeCopy = new THREE.Mesh(geometry, wireframeMaterial);
+        this.add(this.wireframeCopy);
+        this.wireframeCopy.name = "Wireframe mesh copy";
+        this.wireframeCopy.visible = showWireframe;
     }
 
     clearAll() {
@@ -34,6 +35,7 @@ export class HexMesh extends THREE.Mesh {
         BufferGeometryUtils.setColor(meshGeometry, HexMesh.meshColors);
         meshGeometry.computeVertexNormals();
         this.geometry = meshGeometry;
+        this.wireframeCopy.geometry = meshGeometry;
     }
 
     addTriangleColor(c1: THREE.Color, c2: THREE.Color, c3: THREE.Color) {

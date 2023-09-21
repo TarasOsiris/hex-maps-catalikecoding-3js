@@ -26,9 +26,9 @@ export class HexMapScene extends FullScreenScene {
         applyElevation: true,
         activeElevation: 0,
         brushSize: 0,
-        showLabels: false, // TODO make scene reflect this default value
+        showLabels: false,
         riverMode: OptionalToggle.Yes.valueOf(),
-        wireframe: true // TODO make scene reflect this default value
+        wireframe: true
     };
 
     private colors: Array<THREE.Color> = new Array<THREE.Color>(ColorUtils.red, ColorUtils.green, new THREE.Color(0x548af9),);

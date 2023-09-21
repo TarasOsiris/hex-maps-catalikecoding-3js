@@ -153,6 +153,6 @@ export class HexGrid {
     }
 
     showWireframe(show: boolean) {
-        this.chunks.forEach(chunk => chunk.hexMeshWireframe.visible = show);
+        this.chunks.forEach(chunk => chunk.showWireframe(show));
     }
 }

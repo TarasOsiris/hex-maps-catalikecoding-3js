@@ -12,15 +12,12 @@ export class HexGridChunk extends THREE.Object3D {
     readonly cells: Array<HexCell> = [];
 
     terrain: HexMesh;
-    hexMeshWireframe: HexMesh;
     dirty = true;
 
     constructor(material: THREE.Material, wireframeMaterial: THREE.Material) {
         super();
-        this.terrain = new HexMesh(material);
-        this.hexMeshWireframe = new HexMesh(wireframeMaterial, true);
+        this.terrain = new HexMesh(material, wireframeMaterial);
         this.add(this.terrain);
-        this.add(this.hexMeshWireframe);
         this.cells = new Array<HexCell>(HexMetrics.chunkSizeX * HexMetrics.chunkSizeZ);
     }
 
@@ -28,8 +25,6 @@ export class HexGridChunk extends THREE.Object3D {
         this.terrain.clearAll();
         this.triangulate(this.cells);
         this.terrain.apply();
-        // TODO Fix it?
-        // this.hexMeshWireframe.triangulate(this.cells);
         this.dirty = false;
     }
 
@@ -378,5 +373,9 @@ export class HexGridChunk extends THREE.Object3D {
 
         this.triangulateEdgeStrip(m, cell.color, e, cell.color);
         this.triangulateEdgeFan(center, m, cell.color);
+    }
+
+    showWireframe(show: boolean) {
+        this.terrain.wireframeCopy.visible = show;
     }
 }
