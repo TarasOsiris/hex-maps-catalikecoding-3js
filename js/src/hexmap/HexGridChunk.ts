@@ -16,7 +16,7 @@ export class HexGridChunk extends THREE.Object3D {
 
     constructor(material: THREE.Material, wireframeMaterial: THREE.Material) {
         super();
-        this.terrain = new HexMesh(material, wireframeMaterial);
+        this.terrain = new HexMesh(material, wireframeMaterial, true, true);
         this.add(this.terrain);
         this.cells = new Array<HexCell>(HexMetrics.chunkSizeX * HexMetrics.chunkSizeZ);
     }

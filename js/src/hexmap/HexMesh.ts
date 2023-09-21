@@ -2,6 +2,7 @@ import * as THREE from "three";
 import {HexMetrics} from "./HexMetrics";
 import {BufferGeometryUtils} from "../lib/BufferGeometryUtils";
 import {ListPool} from "./ListPool";
+import {ColliderLayers} from "./ColliderLayers";
 
 export class HexMesh extends THREE.Mesh {
 
@@ -14,23 +15,31 @@ export class HexMesh extends THREE.Mesh {
     static colorsPool = new ListPool<number>();
 
     readonly wireframeCopy: THREE.Mesh;
+    private readonly _useColors: boolean;
 
-    constructor(material: THREE.Material, wireframeMaterial: THREE.Material, showWireframe: boolean = true) {
+    constructor(material: THREE.Material, wireframeMaterial: THREE.Material,
+                useCollider: boolean,
+                useColors: boolean) {
         const geometry = new THREE.BufferGeometry();
         material.side = THREE.BackSide;
         super(geometry, material);
+        this._useColors = useColors;
         this.name = "Hex mesh";
+        if (useCollider) {
+            this.layers.enable(ColliderLayers.Collidable);
+        }
 
         this.wireframeCopy = new THREE.Mesh(geometry, wireframeMaterial);
         this.add(this.wireframeCopy);
         this.wireframeCopy.name = "Wireframe mesh copy";
-        this.wireframeCopy.visible = showWireframe;
     }
 
     clearAll() {
         this.meshVertices = HexMesh.verticesPool.get();
         this.meshTriangles = HexMesh.trianglesPool.get();
-        this.meshColors = HexMesh.colorsPool.get();
+        if (this._useColors) {
+            this.meshColors = HexMesh.colorsPool.get();
+        }
     }
 
     apply() {
@@ -42,8 +51,10 @@ export class HexMesh extends THREE.Mesh {
         BufferGeometryUtils.setPosition(meshGeometry, this.meshVertices);
         HexMesh.verticesPool.add(this.meshVertices);
 
-        BufferGeometryUtils.setColor(meshGeometry, this.meshColors);
-        HexMesh.colorsPool.add(this.meshColors);
+        if (this._useColors) {
+            BufferGeometryUtils.setColor(meshGeometry, this.meshColors);
+            HexMesh.colorsPool.add(this.meshColors);
+        }
 
         meshGeometry.computeVertexNormals();
         this.geometry = meshGeometry;

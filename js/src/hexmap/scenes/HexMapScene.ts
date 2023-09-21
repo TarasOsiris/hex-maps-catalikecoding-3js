@@ -10,6 +10,7 @@ import {HexSceneUtils} from "../util/HexSceneUtils";
 import {OptionalToggle} from "../util/OptionalToggle";
 import {Nullable} from "../../lib/types/Types";
 import {HexDirection, HexDirectionUtils} from "../HexDirection";
+import {ColliderLayers} from "../ColliderLayers";
 
 export class HexMapScene extends FullScreenScene {
 
@@ -137,6 +138,7 @@ export class HexMapScene extends FullScreenScene {
 
     private handleInput(grid: HexGrid) {
         const mouseListener = (mouseCoordinate: THREE.Vector2) => {
+            this.raycaster.layers.set(ColliderLayers.Collidable);
             this.raycaster.setFromCamera(mouseCoordinate, this.mainCamera);
             const intersects = this.raycaster.intersectObjects(this.children);
             if (intersects.length > 0 && intersects[0]!.object.type == 'Mesh') {
