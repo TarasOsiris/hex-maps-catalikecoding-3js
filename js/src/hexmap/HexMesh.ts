@@ -1,12 +1,17 @@
 import * as THREE from "three";
 import {HexMetrics} from "./HexMetrics";
 import {BufferGeometryUtils} from "../lib/BufferGeometryUtils";
+import {ListPool} from "./ListPool";
 
 export class HexMesh extends THREE.Mesh {
 
-    static meshVertices: Array<number> = new Array<number>();
-    static meshTriangles: Array<number> = new Array<number>();
-    static meshColors: Array<number> = new Array<number>();
+    meshVertices!: Array<number>;
+    meshTriangles!: Array<number>;
+    meshColors!: Array<number>;
+
+    static verticesPool = new ListPool<number>();
+    static trianglesPool = new ListPool<number>();
+    static colorsPool = new ListPool<number>();
 
     readonly wireframeCopy: THREE.Mesh;
 
@@ -23,16 +28,23 @@ export class HexMesh extends THREE.Mesh {
     }
 
     clearAll() {
-        HexMesh.meshVertices = [];
-        HexMesh.meshTriangles = [];
-        HexMesh.meshColors = [];
+        this.meshVertices = HexMesh.verticesPool.get();
+        this.meshTriangles = HexMesh.trianglesPool.get();
+        this.meshColors = HexMesh.colorsPool.get();
     }
 
     apply() {
         const meshGeometry = new THREE.BufferGeometry();
-        meshGeometry.setIndex(HexMesh.meshTriangles);
-        BufferGeometryUtils.setPosition(meshGeometry, HexMesh.meshVertices);
-        BufferGeometryUtils.setColor(meshGeometry, HexMesh.meshColors);
+
+        meshGeometry.setIndex(this.meshTriangles);
+        HexMesh.trianglesPool.add(this.meshTriangles);
+
+        BufferGeometryUtils.setPosition(meshGeometry, this.meshVertices);
+        HexMesh.verticesPool.add(this.meshVertices);
+
+        BufferGeometryUtils.setColor(meshGeometry, this.meshColors);
+        HexMesh.colorsPool.add(this.meshColors);
+
         meshGeometry.computeVertexNormals();
         this.geometry = meshGeometry;
         this.wireframeCopy.geometry = meshGeometry;
@@ -49,30 +61,30 @@ export class HexMesh extends THREE.Mesh {
     }
 
     addTriangle(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3) {
-        const vertexIndex = HexMesh.meshVertices.length / 3;
+        const vertexIndex = this.meshVertices.length / 3;
         this.addVertices(HexMetrics.perturb(v1), HexMetrics.perturb(v2), HexMetrics.perturb(v3));
-        HexMesh.meshTriangles.push(vertexIndex);
-        HexMesh.meshTriangles.push(vertexIndex + 1);
-        HexMesh.meshTriangles.push(vertexIndex + 2);
+        this.meshTriangles.push(vertexIndex);
+        this.meshTriangles.push(vertexIndex + 1);
+        this.meshTriangles.push(vertexIndex + 2);
     }
 
     addTriangleUnperturbed(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3) {
-        const vertexIndex = HexMesh.meshVertices.length / 3;
+        const vertexIndex = this.meshVertices.length / 3;
         this.addVertices(v1, v2, v3);
-        HexMesh.meshTriangles.push(vertexIndex);
-        HexMesh.meshTriangles.push(vertexIndex + 1);
-        HexMesh.meshTriangles.push(vertexIndex + 2);
+        this.meshTriangles.push(vertexIndex);
+        this.meshTriangles.push(vertexIndex + 1);
+        this.meshTriangles.push(vertexIndex + 2);
     }
 
     addQuad(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3, v4: THREE.Vector3) {
-        const vertexIndex = HexMesh.meshVertices.length / 3;
+        const vertexIndex = this.meshVertices.length / 3;
         this.addVertices(HexMetrics.perturb(v1), HexMetrics.perturb(v2), HexMetrics.perturb(v3), HexMetrics.perturb(v4));
-        HexMesh.meshTriangles.push(vertexIndex);
-        HexMesh.meshTriangles.push(vertexIndex + 2);
-        HexMesh.meshTriangles.push(vertexIndex + 1);
-        HexMesh.meshTriangles.push(vertexIndex + 1);
-        HexMesh.meshTriangles.push(vertexIndex + 2);
-        HexMesh.meshTriangles.push(vertexIndex + 3);
+        this.meshTriangles.push(vertexIndex);
+        this.meshTriangles.push(vertexIndex + 2);
+        this.meshTriangles.push(vertexIndex + 1);
+        this.meshTriangles.push(vertexIndex + 1);
+        this.meshTriangles.push(vertexIndex + 2);
+        this.meshTriangles.push(vertexIndex + 3);
     }
 
     addQuadColor4v(c1: THREE.Color, c2: THREE.Color, c3: THREE.Color, c4: THREE.Color) {
@@ -91,11 +103,11 @@ export class HexMesh extends THREE.Mesh {
     }
 
     addColor(color1: THREE.Color) {
-        HexMesh.meshColors.push(color1.r, color1.g, color1.b);
+        this.meshColors.push(color1.r, color1.g, color1.b);
     }
 
     addVertex(v: THREE.Vector3) {
-        HexMesh.meshVertices.push(v.x, v.y, v.z);
+        this.meshVertices.push(v.x, v.y, v.z);
     }
 
     addVertices(...vertices: Array<THREE.Vector3>) {

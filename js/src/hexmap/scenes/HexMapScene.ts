@@ -71,7 +71,7 @@ export class HexMapScene extends FullScreenScene {
             "No": OptionalToggle.No.valueOf()
         }).name('River');
 
-        this.gui.add(this.inspectorControls, 'wireframe').onChange(value => {
+        this.gui.add(this.inspectorControls, 'wireframe').onChange((value: boolean) => {
             this.hexGrid.showWireframe(value);
         });
     }
