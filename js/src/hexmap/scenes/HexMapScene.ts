@@ -115,7 +115,7 @@ export class HexMapScene extends FullScreenScene {
     }
 
     private addLighting(center: THREE.Vector3) {
-        const ambientLight = new THREE.AmbientLight(ColorUtils.white, 2);
+        const ambientLight = new THREE.AmbientLight(ColorUtils.white, 1.5);
         this.add(ambientLight);
         const directionalLight = new THREE.DirectionalLight(ColorUtils.white, 1.5);
         directionalLight.position.set(0, 25, 25);

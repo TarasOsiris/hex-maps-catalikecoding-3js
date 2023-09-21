@@ -6,6 +6,7 @@ import {HexDirection, HexDirectionUtils} from "./HexDirection";
 import {HexEdgeType} from "./HexEdgeType";
 import {EdgeVertices} from "./EdgeVertices";
 import {Vec3} from "../lib/math/Vec3";
+import {BufferGeometryUtils} from "../lib/BufferGeometryUtils";
 
 export class HexMesh extends THREE.Mesh {
 
@@ -41,8 +42,8 @@ export class HexMesh extends THREE.Mesh {
     private createGeometry() {
         const meshGeometry = new THREE.BufferGeometry();
         meshGeometry.setIndex(HexMesh.meshTriangles);
-        meshGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(HexMesh.meshVertices), 3));
-        meshGeometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(HexMesh.meshColors), 3));
+        BufferGeometryUtils.setPosition(meshGeometry, HexMesh.meshVertices);
+        BufferGeometryUtils.setColor(meshGeometry, HexMesh.meshColors);
         meshGeometry.computeVertexNormals();
         return meshGeometry;
     }
@@ -69,6 +70,8 @@ export class HexMesh extends THREE.Mesh {
                 } else {
                     this.triangulateWithRiver(direction, cell, center, e);
                 }
+            } else {
+                this.triangulateAdjacentToRiver(direction, cell, center, e);
             }
         } else {
             this.triangulateEdgeFan(center, e, cell.color.clone());
@@ -220,8 +223,8 @@ export class HexMesh extends THREE.Mesh {
             b = -b;
         }
 
-        const boundary = new THREE.Vector3().copy(this.perturb(begin))
-            .lerp(this.perturb(right), b);
+        const boundary = new THREE.Vector3().copy(HexMetrics.perturb(begin))
+            .lerp(HexMetrics.perturb(right), b);
         const boundaryColor = new Color().copy(beginCell.color).lerp(rightCell.color, b);
 
         this.triangulateBoundaryTriangle(begin, beginCell, left, leftCell, boundary, boundaryColor);
@@ -229,7 +232,7 @@ export class HexMesh extends THREE.Mesh {
         if (leftCell.getEdgeTypeWithOtherCell(rightCell) == HexEdgeType.Slope) {
             this.triangulateBoundaryTriangle(left, leftCell, right, rightCell, boundary, boundaryColor);
         } else {
-            this.addTriangleUnperturbed(this.perturb(left), this.perturb(right), boundary);
+            this.addTriangleUnperturbed(HexMetrics.perturb(left), HexMetrics.perturb(right), boundary);
             this.addTriangleColor(leftCell.color, rightCell.color, boundaryColor);
         }
     }
@@ -243,8 +246,8 @@ export class HexMesh extends THREE.Mesh {
         if (b < 0) {
             b = -b;
         }
-        const boundary = new THREE.Vector3().copy(this.perturb(begin))
-            .lerp(this.perturb(left), b);
+        const boundary = new THREE.Vector3().copy(HexMetrics.perturb(begin))
+            .lerp(HexMetrics.perturb(left), b);
         const boundaryColor = new Color().copy(beginCell.color).lerp(leftCell.color, b);
 
         this.triangulateBoundaryTriangle(right, rightCell, begin, beginCell, boundary, boundaryColor);
@@ -252,7 +255,7 @@ export class HexMesh extends THREE.Mesh {
         if (leftCell.getEdgeTypeWithOtherCell(rightCell) == HexEdgeType.Slope) {
             this.triangulateBoundaryTriangle(left, leftCell, right, rightCell, boundary, boundaryColor);
         } else {
-            this.addTriangleUnperturbed(this.perturb(left), this.perturb(right), boundary);
+            this.addTriangleUnperturbed(HexMetrics.perturb(left), HexMetrics.perturb(right), boundary);
             this.addTriangleColor(leftCell.color, rightCell.color, boundaryColor);
         }
     }
@@ -260,22 +263,22 @@ export class HexMesh extends THREE.Mesh {
     private triangulateBoundaryTriangle(begin: THREE.Vector3, beginCell: HexCell,
                                         left: THREE.Vector3, leftCell: HexCell,
                                         boundary: THREE.Vector3, boundaryColor: Color) {
-        let v2 = this.perturb(HexMetrics.terraceLerp(begin, left, 1));
+        let v2 = HexMetrics.perturb(HexMetrics.terraceLerp(begin, left, 1));
         let c2 = HexMetrics.terraceLerpColor(beginCell.color, leftCell.color, 1);
 
-        this.addTriangleUnperturbed(this.perturb(begin), v2, boundary);
+        this.addTriangleUnperturbed(HexMetrics.perturb(begin), v2, boundary);
         this.addTriangleColor(beginCell.color, c2, boundaryColor);
 
         for (let i = 2; i < HexMetrics.terraceSteps; i++) {
             const v1 = v2;
             const c1 = c2;
-            v2 = this.perturb(HexMetrics.terraceLerp(begin, left, i));
+            v2 = HexMetrics.perturb(HexMetrics.terraceLerp(begin, left, i));
             c2 = HexMetrics.terraceLerpColor(beginCell.color, leftCell.color, i);
             this.addTriangleUnperturbed(v1, v2, boundary);
             this.addTriangleColor(c1, c2, boundaryColor);
         }
 
-        this.addTriangleUnperturbed(v2, this.perturb(left), boundary);
+        this.addTriangleUnperturbed(v2, HexMetrics.perturb(left), boundary);
         this.addTriangleColor(c2, leftCell.color, boundaryColor);
     }
 
@@ -309,7 +312,7 @@ export class HexMesh extends THREE.Mesh {
 
     addTriangle(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3) {
         const vertexIndex = HexMesh.meshVertices.length / 3;
-        this.addVertices(this.perturb(v1), this.perturb(v2), this.perturb(v3));
+        this.addVertices(HexMetrics.perturb(v1), HexMetrics.perturb(v2), HexMetrics.perturb(v3));
         HexMesh.meshTriangles.push(vertexIndex);
         HexMesh.meshTriangles.push(vertexIndex + 1);
         HexMesh.meshTriangles.push(vertexIndex + 2);
@@ -325,7 +328,7 @@ export class HexMesh extends THREE.Mesh {
 
     addQuad(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3, v4: THREE.Vector3) {
         const vertexIndex = HexMesh.meshVertices.length / 3;
-        this.addVertices(this.perturb(v1), this.perturb(v2), this.perturb(v3), this.perturb(v4));
+        this.addVertices(HexMetrics.perturb(v1), HexMetrics.perturb(v2), HexMetrics.perturb(v3), HexMetrics.perturb(v4));
         HexMesh.meshTriangles.push(vertexIndex);
         HexMesh.meshTriangles.push(vertexIndex + 2);
         HexMesh.meshTriangles.push(vertexIndex + 1);
@@ -359,14 +362,6 @@ export class HexMesh extends THREE.Mesh {
 
     addVertices(...vertices: Array<THREE.Vector3>) {
         vertices.forEach(v => this.addVertex(v));
-    }
-
-    perturb(position: THREE.Vector3) {
-        const result = position.clone();
-        const sample = HexMetrics.sampleNoise(position);
-        result.x += (sample.x * 2 - 1) * HexMetrics.cellPerturbStrength;
-        result.z += (sample.z * 2 - 1) * HexMetrics.cellPerturbStrength;
-        return result;
     }
 
     private triangulateWithRiver(direction: HexDirection, cell: HexCell, center: THREE.Vector3, e: EdgeVertices) {
@@ -422,6 +417,28 @@ export class HexMesh extends THREE.Mesh {
         );
 
         m.v3.y = e.v3.y;
+
+        this.triangulateEdgeStrip(m, cell.color, e, cell.color);
+        this.triangulateEdgeFan(center, m, cell.color);
+    }
+
+    private triangulateAdjacentToRiver(direction: HexDirection, cell: HexCell, center: THREE.Vector3, e: EdgeVertices) {
+        if (cell.hasRiverThroughEdge(HexDirectionUtils.next(direction))) {
+            if (cell.hasRiverThroughEdge(HexDirectionUtils.previous(direction))) {
+                const centerOffset = HexMetrics.getSolidEdgeMiddle(direction).multiplyScalar(HexMetrics.innerToOuter * 0.5);
+                center = center.clone().add(centerOffset);
+            } else if (cell.hasRiverThroughEdge(HexDirectionUtils.previous2(direction))) {
+                const centerOffset = HexMetrics.getFirstSolidCorner(direction).multiplyScalar(0.25);
+                center = center.clone().add(centerOffset);
+            }
+        } else if (cell.hasRiverThroughEdge(HexDirectionUtils.previous(direction)) && cell.hasRiverThroughEdge(HexDirectionUtils.next2(direction))) {
+            const centerOffset = HexMetrics.getSecondSolidCorner(direction).multiplyScalar(0.25);
+            center = center.clone().add(centerOffset);
+        }
+        const m = new EdgeVertices(
+            Vec3.lerp(center, e.v1, 0.5),
+            Vec3.lerp(center, e.v5, 0.5)
+        );
 
         this.triangulateEdgeStrip(m, cell.color, e, cell.color);
         this.triangulateEdgeFan(center, m, cell.color);

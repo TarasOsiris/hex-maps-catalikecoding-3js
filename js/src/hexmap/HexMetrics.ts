@@ -115,4 +115,12 @@ export class HexMetrics {
     private static sample(x: number, y: number): THREE.Color {
         return this.noise[x * this.noiseTextureSize + y]!;
     }
+
+    static perturb(position: THREE.Vector3): THREE.Vector3 {
+        const result = position.clone();
+        const sample = HexMetrics.sampleNoise(position);
+        result.x += (sample.x * 2 - 1) * HexMetrics.cellPerturbStrength;
+        result.z += (sample.z * 2 - 1) * HexMetrics.cellPerturbStrength;
+        return result;
+    }
 }

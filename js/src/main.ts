@@ -2,6 +2,8 @@ import * as THREE from 'three';
 // import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
 // import * as dat from 'lil-gui'
 import {HexMapScene} from "./hexmap/scenes/HexMapScene";
+import Stats from 'three/examples/jsm/libs/stats.module';
+import {DebugGuiUtils} from "./lib/DebugGuiUtils";
 
 // THREE.ColorManagement.enabled = false
 //
@@ -152,8 +154,14 @@ const scene = new HexMapScene();
 scene.init(true);
 
 const clock = new THREE.Clock(true);
+
+
+DebugGuiUtils.addStats();
+
 const tick = () => {
     scene.update(clock.getDelta());
+
+    DebugGuiUtils.updateStats();
     // scene.orbitals.update()
     window.requestAnimationFrame(tick);
 };
