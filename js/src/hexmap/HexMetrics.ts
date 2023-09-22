@@ -26,6 +26,8 @@ export class HexMetrics {
 
     static readonly streamBedElevationOffset = -1;
 
+    static readonly riverSurfaceElevationOffset = -0.5;
+
     private static corners = [
         new THREE.Vector3(0, 0, HexMetrics.invZ * this.outerRadius),
         new THREE.Vector3(this.innerRadius, 0, HexMetrics.invZ * 0.5 * this.outerRadius),

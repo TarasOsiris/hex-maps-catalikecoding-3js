@@ -19,7 +19,7 @@ export class HexGrid {
     private cells: Array<HexCell> = [];
     private chunks: Array<HexGridChunk> = [];
 
-    private fontMat = new THREE.MeshBasicMaterial({color: 0x000000});
+    private fontMat = new THREE.MeshToonMaterial({color: 0x000000});
     private meshMat = new THREE.MeshStandardMaterial({
         vertexColors: true,
         polygonOffset: true,

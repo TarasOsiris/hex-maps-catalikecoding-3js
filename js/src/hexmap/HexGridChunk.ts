@@ -7,6 +7,7 @@ import {EdgeVertices} from "./EdgeVertices";
 import {Vec3} from "../lib/math/Vec3";
 import {Color} from "three";
 import {HexEdgeType} from "./HexEdgeType";
+import {VisualDebugUtils} from "../lib/VisualDebugUtils";
 
 export class HexGridChunk extends THREE.Object3D {
     readonly cells: Array<HexCell> = [];
@@ -17,9 +18,11 @@ export class HexGridChunk extends THREE.Object3D {
 
     constructor(material: THREE.Material, wireframeMaterial: THREE.Material) {
         super();
+        const riverMat = new THREE.MeshBasicMaterial({color: 0xff0000});
         this.terrain = new HexMesh(material, wireframeMaterial, true, true, false);
-        this.rivers = new HexMesh(material, wireframeMaterial, false, false, true);
+        this.rivers = new HexMesh(riverMat, wireframeMaterial, false, false, true);
         this.add(this.terrain);
+        this.add(this.rivers);
         this.cells = new Array<HexCell>(HexMetrics.chunkSizeX * HexMetrics.chunkSizeZ);
     }
 
@@ -48,6 +51,7 @@ export class HexGridChunk extends THREE.Object3D {
             this.triangulateCell(cell);
         }
     }
+
     triangulateCell(cell: HexCell) {
         for (let d = HexDirection.NE; d <= HexDirection.NW; d++) {
             this.triangulateSector(d, cell);
@@ -343,6 +347,9 @@ export class HexGridChunk extends THREE.Object3D {
 
         this.terrain.addTriangle(centerR, m.v4, m.v5);
         this.terrain.addTriangleColorSingle(cell.color);
+
+        this.triangulateRiverQuad(centerL.clone(), centerR.clone(), m.v2.clone(), m.v4.clone(), cell.riverSurfaceY);
+        this.triangulateRiverQuad(m.v2.clone(), m.v4.clone(), e.v2.clone(), e.v4.clone(), cell.riverSurfaceY);
     }
 
     private triangulateWithRiverBeginOrEnd(cell: HexCell, center: THREE.Vector3, e: EdgeVertices) {
@@ -381,5 +388,12 @@ export class HexGridChunk extends THREE.Object3D {
 
     showWireframe(show: boolean) {
         this.terrain.wireframeCopy.visible = show;
+    }
+
+    triangulateRiverQuad(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3, v4: THREE.Vector3,
+                         y: number) {
+        v1.y = v2.y = v3.y = v4.y = y;
+        this.rivers.addQuad(v1, v2, v3, v4);
+        this.rivers.addQuadUVNumbers(0, 1, 0, 1);
     }
 }
