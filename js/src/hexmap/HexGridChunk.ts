@@ -12,19 +12,23 @@ export class HexGridChunk extends THREE.Object3D {
     readonly cells: Array<HexCell> = [];
 
     terrain: HexMesh;
+    rivers: HexMesh;
     dirty = true;
 
     constructor(material: THREE.Material, wireframeMaterial: THREE.Material) {
         super();
-        this.terrain = new HexMesh(material, wireframeMaterial, true, true);
+        this.terrain = new HexMesh(material, wireframeMaterial, true, true, false);
+        this.rivers = new HexMesh(material, wireframeMaterial, false, false, true);
         this.add(this.terrain);
         this.cells = new Array<HexCell>(HexMetrics.chunkSizeX * HexMetrics.chunkSizeZ);
     }
 
     refresh() {
         this.terrain.clearAll();
+        this.rivers.clearAll();
         this.triangulate(this.cells);
         this.terrain.apply();
+        this.rivers.apply();
         this.dirty = false;
     }
 

@@ -9,21 +9,27 @@ export class HexMesh extends THREE.Mesh {
     meshVertices!: Array<number>;
     meshTriangles!: Array<number>;
     meshColors!: Array<number>;
+    meshUVs!: Array<number>;
 
     static verticesPool = new ListPool<number>();
     static trianglesPool = new ListPool<number>();
     static colorsPool = new ListPool<number>();
+    static uvsPool = new ListPool<number>();
 
     readonly wireframeCopy: THREE.Mesh;
     private readonly _useColors: boolean;
+    private readonly _useUVCoordinates: boolean;
 
     constructor(material: THREE.Material, wireframeMaterial: THREE.Material,
                 useCollider: boolean,
-                useColors: boolean) {
+                useColors: boolean,
+                useUVCoordinates: boolean) {
         const geometry = new THREE.BufferGeometry();
         material.side = THREE.BackSide;
         super(geometry, material);
         this._useColors = useColors;
+        this._useUVCoordinates = useUVCoordinates;
+
         this.name = "Hex mesh";
         if (useCollider) {
             this.layers.enable(ColliderLayers.Collidable);
@@ -40,6 +46,9 @@ export class HexMesh extends THREE.Mesh {
         if (this._useColors) {
             this.meshColors = HexMesh.colorsPool.get();
         }
+        if (this._useUVCoordinates) {
+            this.meshUVs = HexMesh.uvsPool.get();
+        }
     }
 
     apply() {
@@ -54,6 +63,11 @@ export class HexMesh extends THREE.Mesh {
         if (this._useColors) {
             BufferGeometryUtils.setColor(meshGeometry, this.meshColors);
             HexMesh.colorsPool.add(this.meshColors);
+        }
+
+        if (this._useUVCoordinates) {
+            BufferGeometryUtils.setUVs(meshGeometry, this.meshUVs);
+            HexMesh.uvsPool.add(this.meshUVs);
         }
 
         meshGeometry.computeVertexNormals();
@@ -123,5 +137,25 @@ export class HexMesh extends THREE.Mesh {
 
     addVertices(...vertices: Array<THREE.Vector3>) {
         vertices.forEach(v => this.addVertex(v));
+    }
+
+    addTriangleUV(uv1: THREE.Vector2, uv2: THREE.Vector2, uv3: THREE.Vector2) {
+        this.meshUVs.push(uv1.x, uv1.y);
+        this.meshUVs.push(uv2.x, uv2.y);
+        this.meshUVs.push(uv3.x, uv3.y);
+    }
+
+    addQuadUV(uv1: THREE.Vector2, uv2: THREE.Vector2, uv3: THREE.Vector2, uv4: THREE.Vector2) {
+        this.meshUVs.push(uv1.x, uv1.y);
+        this.meshUVs.push(uv2.x, uv2.y);
+        this.meshUVs.push(uv3.x, uv3.y);
+        this.meshUVs.push(uv4.x, uv4.y);
+    }
+
+    addQuadUVNumbers(uMin: number, uMax: number, vMin: number, vMax: number) {
+        this.meshUVs.push(uMin, vMin);
+        this.meshUVs.push(uMax, vMin);
+        this.meshUVs.push(uMin, vMax);
+        this.meshUVs.push(uMax, vMax);
     }
 }
