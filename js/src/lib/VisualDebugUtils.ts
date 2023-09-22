@@ -7,5 +7,4 @@ export class VisualDebugUtils {
         mesh.position.set(position.x, position.y, position.z);
         parent.add(mesh);
     }
-
 }

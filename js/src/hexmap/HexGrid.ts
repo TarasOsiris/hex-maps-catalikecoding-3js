@@ -7,6 +7,7 @@ import {HexCoordinates} from "./HexCoordinates";
 import {HexMapScene} from "./scenes/HexMapScene";
 import {HexDirection} from "./HexDirection";
 import {HexGridChunk} from "./HexGridChunk";
+import {HexMaterials} from "./util/HexMaterials";
 
 export class HexGrid {
     chunkCountX = 3;
@@ -19,14 +20,6 @@ export class HexGrid {
     private cells: Array<HexCell> = [];
     private chunks: Array<HexGridChunk> = [];
 
-    private fontMat = new THREE.MeshToonMaterial({color: 0x000000});
-    private meshMat = new THREE.MeshStandardMaterial({
-        vertexColors: true,
-        polygonOffset: true,
-        polygonOffsetFactor: 1,
-        polygonOffsetUnits: 1
-    });
-    private meshWireframeMat = new THREE.MeshBasicMaterial({wireframe: true, color: 0x000000});
     private readonly font!: Font;
 
     private defaultColor: THREE.Color = new THREE.Color(1, 1, 1);
@@ -63,7 +56,7 @@ export class HexGrid {
 
         for (let z = 0, i = 0; z < this.chunkCountZ; z++) {
             for (let x = 0; x < this.chunkCountX; x++) {
-                const chunk = this.chunks[i++] = new HexGridChunk(this.meshMat, this.meshWireframeMat);
+                const chunk = this.chunks[i++] = new HexGridChunk();
                 this.chunksGroup.add(chunk);
             }
         }
@@ -130,7 +123,7 @@ export class HexGrid {
             size: 2,
             height: 0.2,
         }).center().rotateX(-Math.PI / 2);
-        const textMesh = new THREE.Mesh(textGeometry, this.fontMat);
+        const textMesh = new THREE.Mesh(textGeometry, HexMaterials.fontMaterial);
         textMesh.position.set(position.x, position.y + 0.05, position.z);
         return textMesh;
     }

@@ -7,7 +7,7 @@ import {EdgeVertices} from "./EdgeVertices";
 import {Vec3} from "../lib/math/Vec3";
 import {Color} from "three";
 import {HexEdgeType} from "./HexEdgeType";
-import {VisualDebugUtils} from "../lib/VisualDebugUtils";
+import {HexMaterials} from "./util/HexMaterials";
 
 export class HexGridChunk extends THREE.Object3D {
     readonly cells: Array<HexCell> = [];
@@ -16,11 +16,10 @@ export class HexGridChunk extends THREE.Object3D {
     rivers: HexMesh;
     dirty = true;
 
-    constructor(material: THREE.Material, wireframeMaterial: THREE.Material) {
+    constructor() {
         super();
-        const riverMat = new THREE.MeshBasicMaterial({color: 0xff0000});
-        this.terrain = new HexMesh(material, wireframeMaterial, true, true, false);
-        this.rivers = new HexMesh(riverMat, wireframeMaterial, false, false, true);
+        this.terrain = new HexMesh(HexMaterials.terrainMaterial, HexMaterials.wireframeMaterial, true, true, false);
+        this.rivers = new HexMesh(HexMaterials.riverMaterial, HexMaterials.wireframeMaterial, false, false, true);
         this.add(this.terrain);
         this.add(this.rivers);
         this.cells = new Array<HexCell>(HexMetrics.chunkSizeX * HexMetrics.chunkSizeZ);
