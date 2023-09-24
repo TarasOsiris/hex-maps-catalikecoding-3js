@@ -23,7 +23,7 @@ export class HexMapScene extends FullScreenScene {
     private font!: Font;
 
     private inspectorControls = {
-        selectedColorIndex: 2,
+        selectedColorIndex: -1,
         applyElevation: true,
         activeElevation: 0,
         brushSize: 0,

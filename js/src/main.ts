@@ -3,6 +3,8 @@ import * as THREE from 'three';
 // import * as dat from 'lil-gui'
 import {HexMapScene} from "./hexmap/scenes/HexMapScene";
 import {DebugGuiUtils} from "./lib/DebugGuiUtils";
+import {SimpleTestingScene} from "./experiments/SimpleTestingScene";
+import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 
 // THREE.ColorManagement.enabled = false
 //
@@ -149,8 +151,10 @@ import {DebugGuiUtils} from "./lib/DebugGuiUtils";
 //
 // tick()
 
-const scene = new HexMapScene();
+// TODO https://gist.github.com/kylemcdonald/9593057
+const scene = new SimpleTestingScene();
 scene.init(true);
+new OrbitControls(scene.mainCamera, scene.canvas);
 
 const clock = new THREE.Clock(true);
 
