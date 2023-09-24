@@ -9,7 +9,12 @@ export class HexMaterials {
     });
 
     static readonly wireframeMaterial = new THREE.MeshBasicMaterial({wireframe: true, color: 0x000000});
-    static readonly riverMaterial = new THREE.MeshBasicMaterial({color: 0xff0000});
+    static readonly debugMaterial = new THREE.MeshBasicMaterial({
+        color: 0xff0000,
+        polygonOffset: true,
+        polygonOffsetFactor: 1,
+        polygonOffsetUnits: 1
+    });
     static readonly fontMaterial = new THREE.MeshBasicMaterial({color: 0x000000});
 
 }
