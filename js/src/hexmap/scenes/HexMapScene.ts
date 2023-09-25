@@ -29,7 +29,8 @@ export class HexMapScene extends FullScreenScene {
         brushSize: 0,
         showLabels: false,
         riverMode: OptionalToggle.Yes.valueOf(),
-        wireframe: true
+        wireframe: true,
+        showRivers: true
     };
 
     private colors: Array<THREE.Color> = new Array<THREE.Color>(ColorUtils.red, ColorUtils.green, new THREE.Color(0x548af9),);
@@ -74,6 +75,9 @@ export class HexMapScene extends FullScreenScene {
 
         this.gui.add(this.inspectorControls, 'wireframe').onChange((value: boolean) => {
             this.hexGrid.showWireframe(value);
+        });
+        this.gui.add(this.inspectorControls, 'showRivers').onChange((value: boolean) => {
+            this.hexGrid.showRivers(value);
         });
     }
 

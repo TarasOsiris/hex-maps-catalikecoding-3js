@@ -148,4 +148,8 @@ export class HexGrid {
     showWireframe(show: boolean) {
         this.chunks.forEach(chunk => chunk.showWireframe(show));
     }
+
+    showRivers(show: boolean) {
+        this.chunks.forEach(chunk => chunk.rivers.visible = show);
+    }
 }

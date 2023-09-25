@@ -298,7 +298,7 @@ export class HexGridChunk extends THREE.Object3D {
             const e1 = e2.clone();
             const c1 = c2;
             e2 = EdgeVertices.terraceLerp(begin, end, i);
-            c2 = HexMetrics.terraceLerpColor(beginCell.color.clone(), endCell.color.clone(), i);
+            c2 = HexMetrics.terraceLerpColor(beginCell.color, endCell.color, i);
             this.triangulateEdgeStrip(e1, c1, e2, c2);
         }
 
