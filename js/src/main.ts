@@ -152,7 +152,7 @@ import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 // tick()
 
 // TODO https://gist.github.com/kylemcdonald/9593057
-const scene = new SimpleTestingScene();
+const scene = new HexMapScene();
 scene.init(true);
 new OrbitControls(scene.mainCamera, scene.canvas);
 
