@@ -11,4 +11,8 @@ export class Vec3 {
     public static lerp(v1: THREE.Vector3, v2: THREE.Vector3, alpha: number) {
         return new THREE.Vector3().lerpVectors(v1, v2, alpha);
     }
+
+    static add(v1: THREE.Vector3, v2: THREE.Vector3) {
+        return v1.clone().add(v2);
+    }
 }

@@ -17,7 +17,7 @@ export class HexMetrics {
 
     private static invZ = -1;
 
-    static readonly cellPerturbStrength = 0; // 4
+    static readonly cellPerturbStrength = 4; // 4
     static readonly elevationPerturbStrength = 1.5;
     static noise: THREE.Color[];
 
@@ -118,6 +118,7 @@ export class HexMetrics {
         return this.noise[x * this.noiseTextureSize + y]!;
     }
 
+    /* Returns a copy of original position */
     static perturb(position: THREE.Vector3): THREE.Vector3 {
         const result = position.clone();
         const sample = HexMetrics.sampleNoise(position);
