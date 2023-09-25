@@ -124,8 +124,7 @@ export class HexGridChunk extends THREE.Object3D {
 
         if (cell.hasRiverThroughEdge(direction)) {
             e2.v3.y = neighbor.streamBedY;
-            this.triangulateRiverQuad(
-                e1.v2.clone(), e1.v4.clone(), e2.v2.clone(), e2.v4.clone(),
+            this.triangulateRiverQuad(e1.v2, e1.v4, e2.v2, e2.v4,
                 cell.riverSurfaceY, neighbor.riverSurfaceY,
                 cell.hasIncomingRiver && cell.incomingRiver == direction
             );
@@ -350,8 +349,8 @@ export class HexGridChunk extends THREE.Object3D {
         this.terrain.addTriangleColorSingle(cell.color);
 
         const reversed = cell.incomingRiver == direction;
-        this.triangulateRiverQuadSameY(centerL.clone(), centerR.clone(), m.v2.clone(), m.v4.clone(), cell.riverSurfaceY, reversed);
-        this.triangulateRiverQuadSameY(m.v2.clone(), m.v4.clone(), e.v2.clone(), e.v4.clone(), cell.riverSurfaceY, reversed);
+        this.triangulateRiverQuadSameY(centerL, centerR, m.v2, m.v4, cell.riverSurfaceY, reversed);
+        this.triangulateRiverQuadSameY(m.v2, m.v4, e.v2, e.v4, cell.riverSurfaceY, reversed);
     }
 
     private triangulateWithRiverBeginOrEnd(cell: HexCell, center: THREE.Vector3, e: EdgeVertices) {
@@ -366,7 +365,7 @@ export class HexGridChunk extends THREE.Object3D {
         this.triangulateEdgeFan(center, m, cell.color);
 
         const reversed = cell.hasIncomingRiver;
-        this.triangulateRiverQuadSameY(m.v2.clone(), m.v4.clone(), e.v2.clone(), e.v4.clone(), cell.riverSurfaceY, reversed);
+        this.triangulateRiverQuadSameY(m.v2, m.v4, e.v2, e.v4, cell.riverSurfaceY, reversed);
 
         center.y = m.v2.y = m.v4.y = cell.riverSurfaceY;
         this.rivers.addTriangle(center, m.v2, m.v4);
@@ -409,6 +408,11 @@ export class HexGridChunk extends THREE.Object3D {
 
     triangulateRiverQuad(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3, v4: THREE.Vector3,
                          y1: number, y2: number, reversed: boolean) {
+        v1 = v1.clone();
+        v2 = v2.clone();
+        v3 = v3.clone();
+        v4 = v4.clone();
+
         v1.y = v2.y = y1;
         v3.y = v4.y = y2;
         this.rivers.addQuad(v1, v2, v3, v4);
