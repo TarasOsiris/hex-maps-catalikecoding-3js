@@ -1,8 +1,6 @@
 import * as THREE from "three";
 import {FullScreenScene} from "../lib/scene/FullScreenScene";
 
-import vertexShaderCode from "../shaders/vertex.glsl";
-import fragmentShaderCode from "../shaders/fragment.glsl";
 import {AmbientLight, MeshStandardMaterial, ShaderMaterial} from "three";
 import vertexShaderCode from "../shaders/testing/testVertex.glsl";
 import fragmentShaderCode from "../shaders/testing/testFragment.glsl";

@@ -38,6 +38,7 @@ export class HexMaterials {
             vertexShader: vertexShaderCode,
             fragmentShader: fragmentShaderCode,
             uniforms: HexMaterials.riverUniforms,
+            transparent: true,
         });
     }
 

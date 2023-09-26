@@ -7,12 +7,14 @@ export class HexSceneUtils {
         tex.minFilter = THREE.LinearFilter;
         tex.magFilter = THREE.LinearFilter;
         tex.colorSpace = "srgb-linear";
+        tex.wrapS = THREE.RepeatWrapping; // Horizontal wrap mode
+        tex.wrapT = THREE.RepeatWrapping; // Vertical wrap mode
 
-        const canvas = new OffscreenCanvas(tex.image.width, tex.image.height)
+        const canvas = new OffscreenCanvas(tex.image.width, tex.image.height);
         canvas.width = tex.image.width;
         canvas.height = tex.image.height;
 
-        const context= canvas.getContext('2d')!;
+        const context = canvas.getContext('2d')!;
         context.drawImage(tex.image, 0, 0);
 
         const data = context.getImageData(0, 0, canvas.width, canvas.height).data;

@@ -17,14 +17,14 @@ export class HexMetrics {
 
     private static invZ = -1;
 
-    static readonly cellPerturbStrength = 0; // 4
-    static readonly elevationPerturbStrength = 0; // 1.5
+    static readonly cellPerturbStrength = 4; // 4
+    static readonly elevationPerturbStrength = 1.5; // 1.5
     static noise: THREE.Color[];
 
     static readonly chunkSizeX = 5;
     static readonly chunkSizeZ = 5;
 
-    static readonly streamBedElevationOffset = -1;
+    static readonly streamBedElevationOffset = -1.75;
 
     static readonly riverSurfaceElevationOffset = -0.5;
 

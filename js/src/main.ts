@@ -3,10 +3,8 @@ import * as THREE from 'three';
 // import * as dat from 'lil-gui'
 import {HexMapScene} from "./hexmap/scenes/HexMapScene";
 import {DebugGuiUtils} from "./lib/DebugGuiUtils";
-// import {SimpleTestingScene} from "./experiments/SimpleTestingScene";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
 import {HexMaterials} from "./hexmap/util/HexMaterials";
-import {SimpleTestingScene} from "./experiments/SimpleTestingScene";
 
 
 // THREE.ColorManagement.enabled = false
