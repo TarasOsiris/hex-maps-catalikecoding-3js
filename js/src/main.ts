@@ -5,6 +5,9 @@ import {HexMapScene} from "./hexmap/scenes/HexMapScene";
 import {DebugGuiUtils} from "./lib/DebugGuiUtils";
 // import {SimpleTestingScene} from "./experiments/SimpleTestingScene";
 import {OrbitControls} from "three/examples/jsm/controls/OrbitControls";
+import {HexMaterials} from "./hexmap/util/HexMaterials";
+import {SimpleTestingScene} from "./experiments/SimpleTestingScene";
+
 
 // THREE.ColorManagement.enabled = false
 //
@@ -165,6 +168,7 @@ const tick = () => {
     scene.update(clock.getDelta());
 
     DebugGuiUtils.updateStats();
+    HexMaterials.riverUniforms.time.value = clock.elapsedTime;
     // scene.orbitals.update()
     window.requestAnimationFrame(tick);
 };

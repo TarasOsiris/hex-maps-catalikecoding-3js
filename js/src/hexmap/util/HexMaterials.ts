@@ -3,6 +3,8 @@ import vertexShaderCode from "../shaders/riverVertex.glsl";
 import fragmentShaderCode from "../shaders/riverFragment.glsl";
 
 export class HexMaterials {
+    static noiseTexture: THREE.Texture;
+
     static readonly terrainMaterial = new THREE.MeshStandardMaterial({
         vertexColors: true,
         polygonOffset: true,
@@ -19,8 +21,13 @@ export class HexMaterials {
     });
     static readonly fontMaterial = new THREE.MeshBasicMaterial({color: 0x000000});
 
+    static readonly riverUniforms = {
+        time: {value: 1.0},
+    };
+
     static readonly riverShaderMaterial = new THREE.ShaderMaterial({
         vertexShader: vertexShaderCode,
         fragmentShader: fragmentShaderCode,
+        uniforms: HexMaterials.riverUniforms,
     });
 }

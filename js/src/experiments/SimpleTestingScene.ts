@@ -3,6 +3,9 @@ import {FullScreenScene} from "../lib/scene/FullScreenScene";
 
 import vertexShaderCode from "../shaders/vertex.glsl";
 import fragmentShaderCode from "../shaders/fragment.glsl";
+import {AmbientLight, MeshStandardMaterial, ShaderMaterial} from "three";
+import vertexShaderCode from "../shaders/testing/testVertex.glsl";
+import fragmentShaderCode from "../shaders/testing/testFragment.glsl";
 
 export class SimpleTestingScene extends FullScreenScene {
 
@@ -13,13 +16,29 @@ export class SimpleTestingScene extends FullScreenScene {
 
     onInit() {
 
-        const material = new THREE.ShaderMaterial({
+        // const material = new THREE.ShaderMaterial({
+        //     vertexShader: vertexShaderCode,
+        //     fragmentShader: fragmentShaderCode,
+        //     uniforms: this.uniforms
+        // });
+
+        this.add(new AmbientLight(0xffffff, 1));
+
+        const material = new MeshStandardMaterial({
+            transparent: true, opacity: 0.5, color: 0xff0000
+
+        });
+        const shaderMaterial = new ShaderMaterial({
             vertexShader: vertexShaderCode,
             fragmentShader: fragmentShaderCode,
-            uniforms: this.uniforms
+            transparent: true,
+            opacity: 0.5,
         });
-        const mesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), material);
+        const mesh = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), material);
+        const mesh2 = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), shaderMaterial);
+        mesh2.position.set(1, 1, 0);
         this.add(mesh);
+        this.add(mesh2);
     }
 
     startTime = Date.now();

@@ -11,6 +11,7 @@ import {OptionalToggle} from "../util/OptionalToggle";
 import {Nullable} from "../../lib/types/Types";
 import {HexDirection, HexDirectionUtils} from "../HexDirection";
 import {ColliderLayers} from "../ColliderLayers";
+import {HexMaterials} from "../util/HexMaterials";
 
 export class HexMapScene extends FullScreenScene {
 
@@ -50,6 +51,7 @@ export class HexMapScene extends FullScreenScene {
             this._isReady = true;
         };
         this.textureLoader.load('/textures/noise.png', (tex) => {
+            HexMaterials.noiseTexture = tex;
             HexSceneUtils.processNoiseTexture(tex);
         });
         this.fontLoader.load('/fonts/roboto.json', (font) => {
