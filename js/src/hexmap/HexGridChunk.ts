@@ -19,6 +19,9 @@ export class HexGridChunk extends THREE.Object3D {
     constructor() {
         super();
         this.terrain = new HexMesh(HexMaterials.terrainMaterial, HexMaterials.wireframeMaterial, true, true, false);
+        // TODO fix shadows on the whole map!
+        this.terrain.castShadow = true;
+        this.terrain.receiveShadow = true;
         this.rivers = new HexMesh(HexMaterials.riverShaderMaterial, HexMaterials.wireframeMaterial, false, false, true);
         this.rivers.wireframeCopy.visible = false; // TODO to inspector
         this.add(this.terrain);
