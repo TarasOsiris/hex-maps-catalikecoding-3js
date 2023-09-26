@@ -168,7 +168,7 @@ const tick = () => {
     scene.update(clock.getDelta());
 
     DebugGuiUtils.updateStats();
-    HexMaterials.riverUniforms.time.value = clock.elapsedTime;
+    HexMaterials.updateTime(clock.elapsedTime);
     // scene.orbitals.update()
     window.requestAnimationFrame(tick);
 };
