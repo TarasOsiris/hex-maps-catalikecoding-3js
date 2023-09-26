@@ -12,7 +12,6 @@ import {Nullable} from "../../lib/types/Types";
 import {HexDirection, HexDirectionUtils} from "../HexDirection";
 import {ColliderLayers} from "../ColliderLayers";
 import {HexMaterials} from "../util/HexMaterials";
-import {CameraHelper} from "three";
 
 export class HexMapScene extends FullScreenScene {
 
@@ -137,10 +136,11 @@ export class HexMapScene extends FullScreenScene {
         directionalLight.shadow.camera.left = -10;
         directionalLight.shadow.camera.right = 100;
         directionalLight.shadow.camera.lookAt(center);
-        this.add(new CameraHelper(directionalLight.shadow.camera));
+        // this.add(new CameraHelper(directionalLight.shadow.camera));
         this.add(directionalLight);
-        const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 10, 0xff0000);
-        this.add(directionalLightHelper);
+        // TODO fix lighting
+        // const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 10, 0xff0000);
+        // this.add(directionalLightHelper);
     }
 
     private handleInput(grid: HexGrid) {
