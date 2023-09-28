@@ -20,6 +20,8 @@ export class HexCell extends THREE.Object3D {
     private _incomingRiver: Nullable<HexDirection> = null;
     private _outgoingRiver: Nullable<HexDirection> = null;
 
+    private _roads: Array<boolean> = new Array<boolean>(6).fill(false);
+
     constructor(coordinates: HexCoordinates) {
         super();
         this.coordinates = coordinates;
@@ -59,6 +61,35 @@ export class HexCell extends THREE.Object3D {
 
     hasRiverThroughEdge(direction: HexDirection) {
         return (this._hasIncomingRiver && this.incomingRiver == direction) || (this._hasOutgoingRiver && this.outgoingRiver == direction);
+    }
+
+    hasRoadThroughEdge(direction: HexDirection) {
+        return this._roads[direction];
+    }
+
+    get hasRoads() {
+        return this._roads.some(value => value);
+    }
+
+    removeRoads() {
+        for (let i = 0; i < this._roads.length; i++) {
+            if (this._roads[i]) {
+                this.setRoad(i, false);
+            }
+        }
+    }
+
+    addRoad(direction: HexDirection) {
+        if (!this._roads[direction] && !this.hasRiverThroughEdge(direction)) {
+            this.setRoad(direction, true);
+        }
+    }
+
+    private setRoad(direction: HexDirection, state: boolean) {
+        this._roads[direction] = state;
+        this.neighbors[direction]._roads[HexDirectionUtils.opposite(direction)] = state;
+        this.neighbors[direction].refreshSelfOnly();
+        this.refreshSelfOnly();
     }
 
     set elevation(value: number) {
