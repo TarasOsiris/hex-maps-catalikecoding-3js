@@ -29,7 +29,8 @@ export class HexMapScene extends FullScreenScene {
         activeElevation: 0,
         brushSize: 0,
         showLabels: false,
-        riverMode: OptionalToggle.Yes.valueOf(),
+        riverMode: OptionalToggle.Ignore.valueOf(),
+        roadMode: OptionalToggle.Ignore.valueOf(),
         wireframe: true,
         showRivers: true
     };
@@ -69,11 +70,13 @@ export class HexMapScene extends FullScreenScene {
         this.gui.add(this.inspectorControls, 'showLabels').name('Labels').onChange(() => {
             this.showLabels(this.inspectorControls.showLabels);
         });
-        this.gui.add(this.inspectorControls, 'riverMode', {
+        const toggleOptions = {
             "Ignore": OptionalToggle.Ignore.valueOf(),
             "Yes": OptionalToggle.Yes.valueOf(),
             "No": OptionalToggle.No.valueOf()
-        }).name('River');
+        };
+        this.gui.add(this.inspectorControls, 'riverMode', toggleOptions).name('River');
+        this.gui.add(this.inspectorControls, 'roadMode', toggleOptions).name('Road');
 
         this.gui.add(this.inspectorControls, 'wireframe').onChange((value: boolean) => {
             this.hexGrid.showWireframe(value);
