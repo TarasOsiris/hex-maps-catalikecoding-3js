@@ -80,7 +80,7 @@ export class HexCell extends THREE.Object3D {
     }
 
     addRoad(direction: HexDirection) {
-        if (!this._roads[direction] && !this.hasRiverThroughEdge(direction)) {
+        if (!this._roads[direction] && !this.hasRiverThroughEdge(direction) && this.getElevationDifference(direction) <= 1) {
             this.setRoad(direction, true);
         }
     }
@@ -90,6 +90,11 @@ export class HexCell extends THREE.Object3D {
         this.neighbors[direction]._roads[HexDirectionUtils.opposite(direction)] = state;
         this.neighbors[direction].refreshSelfOnly();
         this.refreshSelfOnly();
+    }
+
+    getElevationDifference(direction: HexDirection): number {
+        const difference = this._elevation - this.getNeighbor(direction)._elevation;
+        return difference >= 0 ? difference : -difference;
     }
 
     set elevation(value: number) {
@@ -108,6 +113,12 @@ export class HexCell extends THREE.Object3D {
         }
         if (this._hasIncomingRiver && this.elevation > this.getNeighbor(this._incomingRiver!).elevation) {
             this.removeIncomingRiver();
+        }
+
+        for (let i = 0; i < this._roads.length; i++) {
+            if (this._roads[i] && this.getElevationDifference(i) > 1) {
+                this.setRoad(i, false);
+            }
         }
 
         this.refresh();
@@ -214,11 +225,11 @@ export class HexCell extends THREE.Object3D {
 
         this._hasOutgoingRiver = true;
         this._outgoingRiver = direction;
-        this.refreshSelfOnly();
 
         neighbor.removeIncomingRiver();
         neighbor._hasIncomingRiver = true;
         neighbor._incomingRiver = HexDirectionUtils.opposite(direction);
-        neighbor.refreshSelfOnly();
+
+        this.setRoad(direction, false);
     }
 }
