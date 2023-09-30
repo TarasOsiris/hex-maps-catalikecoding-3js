@@ -407,6 +407,10 @@ export class HexGridChunk extends Object3D {
     }
 
     private triangulateAdjacentToRiver(direction: HexDirection, cell: HexCell, center: Vector3, e: EdgeVertices) {
+        if (cell.hasRoads) {
+            this.triangulateRoadAdjacentToRiver(direction, cell, center, e);
+        }
+
         if (cell.hasRiverThroughEdge(HexDirectionUtils.next(direction))) {
             if (cell.hasRiverThroughEdge(HexDirectionUtils.previous(direction))) {
                 const centerOffset = HexMetrics.getSolidEdgeMiddle(direction).multiplyScalar(HexMetrics.innerToOuter * 0.5);
@@ -495,5 +499,26 @@ export class HexGridChunk extends Object3D {
         }
 
         return interpolators;
+    }
+
+    private triangulateRoadAdjacentToRiver(direction: HexDirection, cell: HexCell, center: Vector3, e: EdgeVertices) {
+        const hasRoadThroughEdge = cell.hasRoadThroughEdge(direction);
+        const interpolators = this.getRoadInterpolators(direction, cell);
+        const roadCenter = center.clone();
+
+        if (cell.hasRiverBeginOrEnd) {
+            const oppositeDirection = HexDirectionUtils.opposite(cell.riverBeginOrEndDirection);
+            roadCenter.add(HexMetrics.getSolidEdgeMiddle(oppositeDirection).multiplyScalar(1 / 3));
+        }
+
+        const mL = Vec3.lerp(roadCenter, e.v1, interpolators.x);
+        const mR = Vec3.lerp(roadCenter, e.v5, interpolators.y);
+        this.triangulateRoad(roadCenter, mL, mR, e, hasRoadThroughEdge);
+        if (cell.hasRiverThroughEdge(HexDirectionUtils.previous(direction))) {
+            this.triangulateRoadEdge(roadCenter, center, mL);
+        }
+        if (cell.hasRiverThroughEdge(HexDirectionUtils.next(direction))) {
+            this.triangulateRoadEdge(roadCenter, mR, center);
+        }
     }
 }
