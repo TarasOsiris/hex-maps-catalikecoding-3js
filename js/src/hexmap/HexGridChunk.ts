@@ -14,6 +14,7 @@ export class HexGridChunk extends THREE.Object3D {
 
     terrain: HexMesh;
     rivers: HexMesh;
+    roads: HexMesh;
     dirty = true;
 
     constructor() {
@@ -24,17 +25,21 @@ export class HexGridChunk extends THREE.Object3D {
         this.terrain.receiveShadow = true;
         this.rivers = new HexMesh(HexMaterials.riverShaderMaterial, HexMaterials.wireframeMaterial, false, false, true);
         this.rivers.wireframeCopy.visible = false; // TODO to inspector
+        this.roads = new HexMesh(HexMaterials.roadShaderMaterial, HexMaterials.wireframeMaterial, false, false, true);
         this.add(this.terrain);
         this.add(this.rivers);
+        this.add(this.roads);
         this.cells = new Array<HexCell>(HexMetrics.chunkSizeX * HexMetrics.chunkSizeZ);
     }
 
     refresh() {
         this.terrain.clearAll();
         this.rivers.clearAll();
+        this.roads.clearAll();
         this.triangulate(this.cells);
         this.terrain.apply();
         this.rivers.apply();
+        this.roads.apply();
         this.dirty = false;
     }
 
@@ -104,7 +109,8 @@ export class HexGridChunk extends THREE.Object3D {
 
     triangulateEdgeStrip(
         e1: EdgeVertices, c1: THREE.Color,
-        e2: EdgeVertices, c2: THREE.Color
+        e2: EdgeVertices, c2: THREE.Color,
+        hasRoad: boolean = false
     ) {
         this.terrain.addQuad(e1.v1, e1.v2, e2.v1, e2.v2);
         this.terrain.addQuadColor2v(c1, c2);
@@ -114,6 +120,10 @@ export class HexGridChunk extends THREE.Object3D {
         this.terrain.addQuadColor2v(c1, c2);
         this.terrain.addQuad(e1.v4, e1.v5, e2.v4, e2.v5);
         this.terrain.addQuadColor2v(c1, c2);
+
+        if (hasRoad) {
+            this.triangulateRoadSegment(e1.v2, e1.v3, e1.v4, e2.v2, e2.v3, e2.v4);
+        }
     }
 
     private triangulateConnection(direction: HexDirection, cell: HexCell, e1: EdgeVertices) {
@@ -135,9 +145,9 @@ export class HexGridChunk extends THREE.Object3D {
         }
 
         if (cell.getEdgeType(direction) == HexEdgeType.Slope) {
-            this.triangulateEdgeTerraces(e1, cell, e2, neighbor);
+            this.triangulateEdgeTerraces(e1, cell, e2, neighbor, cell.hasRoadThroughEdge(direction));
         } else {
-            this.triangulateEdgeStrip(e1, cell.color, e2, neighbor.color);
+            this.triangulateEdgeStrip(e1, cell.color, e2, neighbor.color, cell.hasRoadThroughEdge(direction));
         }
 
         const nextDirection = HexDirectionUtils.next(direction);
@@ -291,21 +301,21 @@ export class HexGridChunk extends THREE.Object3D {
     }
 
     triangulateEdgeTerraces(begin: EdgeVertices, beginCell: HexCell,
-                            end: EdgeVertices, endCell: HexCell) {
+                            end: EdgeVertices, endCell: HexCell, hasRoad: boolean) {
         let e2 = EdgeVertices.terraceLerp(begin, end, 1);
         let c2 = HexMetrics.terraceLerpColor(beginCell.color, endCell.color, 1);
 
-        this.triangulateEdgeStrip(begin, beginCell.color, e2, c2);
+        this.triangulateEdgeStrip(begin, beginCell.color, e2, c2, hasRoad);
 
         for (let i = 2; i < HexMetrics.terraceSteps; i++) {
             const e1 = e2.clone();
             const c1 = c2;
             e2 = EdgeVertices.terraceLerp(begin, end, i);
             c2 = HexMetrics.terraceLerpColor(beginCell.color, endCell.color, i);
-            this.triangulateEdgeStrip(e1, c1, e2, c2);
+            this.triangulateEdgeStrip(e1, c1, e2, c2, hasRoad);
         }
 
-        this.triangulateEdgeStrip(e2, c2, end, endCell.color);
+        this.triangulateEdgeStrip(e2, c2, end, endCell.color, hasRoad);
     }
 
     private triangulateWithRiver(direction: HexDirection, cell: HexCell, center: THREE.Vector3, e: EdgeVertices) {
@@ -430,5 +440,15 @@ export class HexGridChunk extends THREE.Object3D {
     triangulateRiverQuadSameY(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3, v4: THREE.Vector3,
                               y: number, v: number, reversed: boolean) {
         this.triangulateRiverQuad(v1, v2, v3, v4, y, y, v, reversed);
+    }
+
+    triangulateRoadSegment(
+        v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3,
+        v4: THREE.Vector3, v5: THREE.Vector3, v6: THREE.Vector3,
+    ) {
+        this.roads.addQuad(v1, v2, v4, v5);
+        this.roads.addQuad(v2, v3, v5, v6);
+        this.roads.addQuadUVNumbers(0, 1, 0, 0);
+        this.roads.addQuadUVNumbers(1, 0, 0, 0);
     }
 }

@@ -1,6 +1,8 @@
 import * as THREE from "three";
-import vertexShaderCode from "../shaders/riverVertex.glsl";
-import fragmentShaderCode from "../shaders/riverFragment.glsl";
+import riverVertex from "../shaders/riverVertex.glsl";
+import riverFragment from "../shaders/riverFragment.glsl";
+import roadVertex from "../shaders/roadVertex.glsl";
+import roadFragment from "../shaders/roadFragment.glsl";
 import {IUniform} from "three/src/renderers/shaders/UniformsLib";
 
 export class HexMaterials {
@@ -9,7 +11,7 @@ export class HexMaterials {
     static readonly terrainMaterial = new THREE.MeshStandardMaterial({
         vertexColors: true,
         polygonOffset: true,
-        polygonOffsetFactor: 1,
+        polygonOffsetFactor: 2,
         polygonOffsetUnits: 1
     });
 
@@ -24,6 +26,13 @@ export class HexMaterials {
 
     static riverUniforms: { [uniform: string]: IUniform };
     static riverShaderMaterial: THREE.Material;
+    static roadShaderMaterial: THREE.Material = new THREE.ShaderMaterial({
+        vertexShader: roadVertex,
+        fragmentShader: roadFragment,
+        polygonOffset: true,
+        polygonOffsetFactor: 1,
+        polygonOffsetUnits: 1
+    });
 
     static createRiverUniforms(noiseTexture: THREE.Texture) {
         return {
@@ -35,8 +44,8 @@ export class HexMaterials {
     static createRiverMaterial(noiseTexture: THREE.Texture) {
         this.riverUniforms = this.createRiverUniforms(noiseTexture);
         this.riverShaderMaterial = new THREE.ShaderMaterial({
-            vertexShader: vertexShaderCode,
-            fragmentShader: fragmentShaderCode,
+            vertexShader: riverVertex,
+            fragmentShader: riverFragment,
             uniforms: HexMaterials.riverUniforms,
             transparent: true,
         });

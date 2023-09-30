@@ -203,10 +203,20 @@ export class HexMapScene extends FullScreenScene {
             }
             if (this.inspectorControls.riverMode == OptionalToggle.No) {
                 cell.removeRiver();
-            } else if (this._isDrag && this.inspectorControls.riverMode == OptionalToggle.Yes) {
+            }
+            if (this.inspectorControls.roadMode == OptionalToggle.No) {
+                cell.removeRoads();
+            }
+
+            if (this._isDrag) {
                 const otherCell = cell.getNeighbor(HexDirectionUtils.opposite(this._dragDirection!));
                 if (otherCell) {
-                    otherCell.setOutgoingRiver(this._dragDirection!);
+                    if (this.inspectorControls.riverMode == OptionalToggle.Yes) {
+                        otherCell.setOutgoingRiver(this._dragDirection!);
+                    }
+                    if (this.inspectorControls.roadMode == OptionalToggle.Yes) {
+                        otherCell.addRoad(this._dragDirection!);
+                    }
                 }
             }
         }
