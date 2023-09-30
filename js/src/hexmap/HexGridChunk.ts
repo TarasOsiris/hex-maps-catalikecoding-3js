@@ -99,9 +99,10 @@ export class HexGridChunk extends Object3D {
     private triangulateWithoutRiver(direction: HexDirection, cell: HexCell, center: Vector3, e: EdgeVertices) {
         this.triangulateEdgeFan(center, e, cell.color.clone());
         if (cell.hasRoads) {
+            const interpolators = this.getRoadInterpolators(direction, cell);
             this.triangulateRoad(center,
-                Vec3.lerp(center, e.v1, 0.5),
-                Vec3.lerp(center, e.v5, 0.5),
+                Vec3.lerp(center, e.v1, interpolators.x),
+                Vec3.lerp(center, e.v5, interpolators.y),
                 e, cell.hasRoadThroughEdge(direction)
             );
         }
@@ -482,5 +483,17 @@ export class HexGridChunk extends Object3D {
         this.roads.addTriangleUV(
             new Vector2(1, 0), new Vector2(0, 0), new Vector2(0, 0)
         );
+    }
+
+    getRoadInterpolators(direction: HexDirection, cell: HexCell): Vector3 {
+        const interpolators = new Vector3();
+        if (cell.hasRoadThroughEdge(direction)) {
+            interpolators.x = interpolators.y = 0.5;
+        } else {
+            interpolators.x = cell.hasRoadThroughEdge(HexDirectionUtils.previous(direction)) ? 0.5 : 0.25;
+            interpolators.y = cell.hasRoadThroughEdge(HexDirectionUtils.next(direction)) ? 0.5 : 0.25;
+        }
+
+        return interpolators;
     }
 }
