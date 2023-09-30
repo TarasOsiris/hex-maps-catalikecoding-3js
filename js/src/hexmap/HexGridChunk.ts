@@ -98,11 +98,11 @@ export class HexGridChunk extends Object3D {
 
     private triangulateWithoutRiver(direction: HexDirection, cell: HexCell, center: Vector3, e: EdgeVertices) {
         this.triangulateEdgeFan(center, e, cell.color.clone());
-        if (cell.hasRoadThroughEdge(direction)) {
+        if (cell.hasRoads) {
             this.triangulateRoad(center,
                 Vec3.lerp(center, e.v1, 0.5),
                 Vec3.lerp(center, e.v5, 0.5),
-                e
+                e, cell.hasRoadThroughEdge(direction)
             );
         }
     }
@@ -463,13 +463,24 @@ export class HexGridChunk extends Object3D {
         this.roads.addQuadUVNumbers(1, 0, 0, 0);
     }
 
-    triangulateRoad(center: Vector3, mL: Vector3, mR: Vector3, e: EdgeVertices) {
-        center = center.clone();
-        const mC = Vec3.lerp(mL, mR, 0.5);
-        this.triangulateRoadSegment(mL, mC, mR, e.v2, e.v3, e.v4);
-        this.roads.addTriangle(center, mL, mC);
-        this.roads.addTriangle(center, mC, mR);
-        this.roads.addTriangleUV(new Vector2(1, 0), new Vector2(0, 0), new Vector2(1, 0));
-        this.roads.addTriangleUV(new Vector2(1, 0), new Vector2(1, 0), new Vector2(0, 0));
+    triangulateRoad(center: Vector3, mL: Vector3, mR: Vector3, e: EdgeVertices, hasRoadThroughEdge: boolean) {
+        if (hasRoadThroughEdge) {
+            center = center.clone();
+            const mC = Vec3.lerp(mL, mR, 0.5);
+            this.triangulateRoadSegment(mL, mC, mR, e.v2, e.v3, e.v4);
+            this.roads.addTriangle(center, mL, mC);
+            this.roads.addTriangle(center, mC, mR);
+            this.roads.addTriangleUV(new Vector2(1, 0), new Vector2(0, 0), new Vector2(1, 0));
+            this.roads.addTriangleUV(new Vector2(1, 0), new Vector2(1, 0), new Vector2(0, 0));
+        } else {
+            this.triangulateRoadEdge(center, mL, mR);
+        }
+    }
+
+    triangulateRoadEdge(center: Vector3, mL: Vector3, mR: Vector3) {
+        this.roads.addTriangle(center, mL, mR);
+        this.roads.addTriangleUV(
+            new Vector2(1, 0), new Vector2(0, 0), new Vector2(0, 0)
+        );
     }
 }
