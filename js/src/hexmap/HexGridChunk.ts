@@ -26,6 +26,7 @@ export class HexGridChunk extends THREE.Object3D {
         this.rivers = new HexMesh(HexMaterials.riverShaderMaterial, HexMaterials.wireframeMaterial, false, false, true);
         this.rivers.wireframeCopy.visible = false; // TODO to inspector
         this.roads = new HexMesh(HexMaterials.roadShaderMaterial, HexMaterials.wireframeMaterial, false, false, true);
+        this.rivers.wireframeCopy.visible = true; // TODO to inspector
         this.add(this.terrain);
         this.add(this.rivers);
         this.add(this.roads);
