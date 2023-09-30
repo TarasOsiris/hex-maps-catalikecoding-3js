@@ -1,5 +1,3 @@
-import * as THREE from "three";
-import {Color} from "three";
 import {HexCell} from "./HexCell";
 import {HexMesh} from "./HexMesh";
 import {HexMetrics} from "./HexMetrics";
@@ -8,8 +6,9 @@ import {EdgeVertices} from "./EdgeVertices";
 import {Vec3} from "../lib/math/Vec3";
 import {HexEdgeType} from "./HexEdgeType";
 import {HexMaterials} from "./util/HexMaterials";
+import {Color, Object3D, Vector2, Vector3} from "three";
 
-export class HexGridChunk extends THREE.Object3D {
+export class HexGridChunk extends Object3D {
     readonly cells: Array<HexCell> = [];
 
     terrain: HexMesh;
@@ -85,7 +84,7 @@ export class HexGridChunk extends THREE.Object3D {
                 this.triangulateAdjacentToRiver(direction, cell, center, e);
             }
         } else {
-            this.triangulateEdgeFan(center, e, cell.color.clone());
+            this.triangulateWithoutRiver(direction, cell, center, e);
         }
 
         if (direction <= HexDirection.SE) {
@@ -97,7 +96,18 @@ export class HexGridChunk extends THREE.Object3D {
         }
     }
 
-    private triangulateEdgeFan(center: THREE.Vector3, edge: EdgeVertices, color: Color) {
+    private triangulateWithoutRiver(direction: HexDirection, cell: HexCell, center: Vector3, e: EdgeVertices) {
+        this.triangulateEdgeFan(center, e, cell.color.clone());
+        if (cell.hasRoadThroughEdge(direction)) {
+            this.triangulateRoad(center,
+                Vec3.lerp(center, e.v1, 0.5),
+                Vec3.lerp(center, e.v5, 0.5),
+                e
+            );
+        }
+    }
+
+    private triangulateEdgeFan(center: Vector3, edge: EdgeVertices, color: Color) {
         this.terrain.addTriangle(center, edge.v1, edge.v2);
         this.terrain.addTriangleColorSingle(color);
         this.terrain.addTriangle(center, edge.v2, edge.v3);
@@ -109,8 +119,8 @@ export class HexGridChunk extends THREE.Object3D {
     }
 
     triangulateEdgeStrip(
-        e1: EdgeVertices, c1: THREE.Color,
-        e2: EdgeVertices, c2: THREE.Color,
+        e1: EdgeVertices, c1: Color,
+        e2: EdgeVertices, c2: Color,
         hasRoad: boolean = false
     ) {
         this.terrain.addQuad(e1.v1, e1.v2, e2.v1, e2.v2);
@@ -171,9 +181,9 @@ export class HexGridChunk extends THREE.Object3D {
         }
     }
 
-    triangulateCorner(bottom: THREE.Vector3, bottomCell: HexCell,
-                      left: THREE.Vector3, leftCell: HexCell,
-                      right: THREE.Vector3, rightCell: HexCell) {
+    triangulateCorner(bottom: Vector3, bottomCell: HexCell,
+                      left: Vector3, leftCell: HexCell,
+                      right: Vector3, rightCell: HexCell) {
         const leftEdgeType = bottomCell.getEdgeTypeWithOtherCell(leftCell);
         const rightEdgeType = bottomCell.getEdgeTypeWithOtherCell(rightCell);
 
@@ -204,9 +214,9 @@ export class HexGridChunk extends THREE.Object3D {
     }
 
     triangulateCornerTerraces(
-        begin: THREE.Vector3, beginCell: HexCell,
-        left: THREE.Vector3, leftCell: HexCell,
-        right: THREE.Vector3, rightCell: HexCell
+        begin: Vector3, beginCell: HexCell,
+        left: Vector3, leftCell: HexCell,
+        right: Vector3, rightCell: HexCell
     ) {
         let v3 = HexMetrics.terraceLerp(begin, left, 1);
         let v4 = HexMetrics.terraceLerp(begin, right, 1);
@@ -234,9 +244,9 @@ export class HexGridChunk extends THREE.Object3D {
     }
 
     triangulateCornerTerracesCliff(
-        begin: THREE.Vector3, beginCell: HexCell,
-        left: THREE.Vector3, leftCell: HexCell,
-        right: THREE.Vector3, rightCell: HexCell
+        begin: Vector3, beginCell: HexCell,
+        left: Vector3, leftCell: HexCell,
+        right: Vector3, rightCell: HexCell
     ) {
         let b = 1 / (rightCell.elevation - beginCell.elevation);
         if (b < 0) {
@@ -257,15 +267,15 @@ export class HexGridChunk extends THREE.Object3D {
     }
 
     triangulateCornerCliffTerraces(
-        begin: THREE.Vector3, beginCell: HexCell,
-        left: THREE.Vector3, leftCell: HexCell,
-        right: THREE.Vector3, rightCell: HexCell
+        begin: Vector3, beginCell: HexCell,
+        left: Vector3, leftCell: HexCell,
+        right: Vector3, rightCell: HexCell
     ) {
         let b = 1 / (leftCell.elevation - beginCell.elevation);
         if (b < 0) {
             b = -b;
         }
-        const boundary = new THREE.Vector3().copy(HexMetrics.perturb(begin))
+        const boundary = new Vector3().copy(HexMetrics.perturb(begin))
             .lerp(HexMetrics.perturb(left), b);
         const boundaryColor = new Color().copy(beginCell.color).lerp(leftCell.color, b);
 
@@ -279,9 +289,9 @@ export class HexGridChunk extends THREE.Object3D {
         }
     }
 
-    private triangulateBoundaryTriangle(begin: THREE.Vector3, beginCell: HexCell,
-                                        left: THREE.Vector3, leftCell: HexCell,
-                                        boundary: THREE.Vector3, boundaryColor: Color) {
+    private triangulateBoundaryTriangle(begin: Vector3, beginCell: HexCell,
+                                        left: Vector3, leftCell: HexCell,
+                                        boundary: Vector3, boundaryColor: Color) {
         let v2 = HexMetrics.perturb(HexMetrics.terraceLerp(begin, left, 1));
         let c2 = HexMetrics.terraceLerpColor(beginCell.color, leftCell.color, 1);
 
@@ -319,9 +329,9 @@ export class HexGridChunk extends THREE.Object3D {
         this.triangulateEdgeStrip(e2, c2, end, endCell.color, hasRoad);
     }
 
-    private triangulateWithRiver(direction: HexDirection, cell: HexCell, center: THREE.Vector3, e: EdgeVertices) {
-        let centerL: THREE.Vector3;
-        let centerR: THREE.Vector3;
+    private triangulateWithRiver(direction: HexDirection, cell: HexCell, center: Vector3, e: EdgeVertices) {
+        let centerL: Vector3;
+        let centerR: Vector3;
         if (cell.hasRiverThroughEdge(HexDirectionUtils.opposite(direction))) {
             const offsetL = HexMetrics.getFirstSolidCorner(HexDirectionUtils.previous(direction)).multiplyScalar(0.25);
             centerL = Vec3.add(center, offsetL);
@@ -368,7 +378,7 @@ export class HexGridChunk extends THREE.Object3D {
         this.triangulateRiverQuadSameY(m.v2, m.v4, e.v2, e.v4, cell.riverSurfaceY, 0.6, reversed);
     }
 
-    private triangulateWithRiverBeginOrEnd(cell: HexCell, center: THREE.Vector3, e: EdgeVertices) {
+    private triangulateWithRiverBeginOrEnd(cell: HexCell, center: Vector3, e: EdgeVertices) {
         const m = new EdgeVertices(
             Vec3.lerp(center, e.v1, 0.5),
             Vec3.lerp(center, e.v5, 0.5),
@@ -386,16 +396,16 @@ export class HexGridChunk extends THREE.Object3D {
         this.rivers.addTriangle(center, m.v2, m.v4);
         if (reversed) {
             this.rivers.addTriangleUV(
-                new THREE.Vector2(0.5, 0.4), new THREE.Vector2(1, 0.2), new THREE.Vector2(0, 0.2)
+                new Vector2(0.5, 0.4), new Vector2(1, 0.2), new Vector2(0, 0.2)
             );
         } else {
             this.rivers.addTriangleUV(
-                new THREE.Vector2(0.5, 0.4), new THREE.Vector2(0, 0.6), new THREE.Vector2(1, 0.6)
+                new Vector2(0.5, 0.4), new Vector2(0, 0.6), new Vector2(1, 0.6)
             );
         }
     }
 
-    private triangulateAdjacentToRiver(direction: HexDirection, cell: HexCell, center: THREE.Vector3, e: EdgeVertices) {
+    private triangulateAdjacentToRiver(direction: HexDirection, cell: HexCell, center: Vector3, e: EdgeVertices) {
         if (cell.hasRiverThroughEdge(HexDirectionUtils.next(direction))) {
             if (cell.hasRiverThroughEdge(HexDirectionUtils.previous(direction))) {
                 const centerOffset = HexMetrics.getSolidEdgeMiddle(direction).multiplyScalar(HexMetrics.innerToOuter * 0.5);
@@ -421,7 +431,7 @@ export class HexGridChunk extends THREE.Object3D {
         this.terrain.wireframeCopy.visible = show;
     }
 
-    triangulateRiverQuad(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3, v4: THREE.Vector3,
+    triangulateRiverQuad(v1: Vector3, v2: Vector3, v3: Vector3, v4: Vector3,
                          y1: number, y2: number, v: number, reversed: boolean) {
         v1 = v1.clone();
         v2 = v2.clone();
@@ -438,18 +448,28 @@ export class HexGridChunk extends THREE.Object3D {
         }
     }
 
-    triangulateRiverQuadSameY(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3, v4: THREE.Vector3,
+    triangulateRiverQuadSameY(v1: Vector3, v2: Vector3, v3: Vector3, v4: Vector3,
                               y: number, v: number, reversed: boolean) {
         this.triangulateRiverQuad(v1, v2, v3, v4, y, y, v, reversed);
     }
 
     triangulateRoadSegment(
-        v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3,
-        v4: THREE.Vector3, v5: THREE.Vector3, v6: THREE.Vector3,
+        v1: Vector3, v2: Vector3, v3: Vector3,
+        v4: Vector3, v5: Vector3, v6: Vector3,
     ) {
         this.roads.addQuad(v1, v2, v4, v5);
         this.roads.addQuad(v2, v3, v5, v6);
         this.roads.addQuadUVNumbers(0, 1, 0, 0);
         this.roads.addQuadUVNumbers(1, 0, 0, 0);
+    }
+
+    triangulateRoad(center: Vector3, mL: Vector3, mR: Vector3, e: EdgeVertices) {
+        center = center.clone();
+        const mC = Vec3.lerp(mL, mR, 0.5);
+        this.triangulateRoadSegment(mL, mC, mR, e.v2, e.v3, e.v4);
+        this.roads.addTriangle(center, mL, mC);
+        this.roads.addTriangle(center, mC, mR);
+        this.roads.addTriangleUV(new Vector2(1, 0), new Vector2(0, 0), new Vector2(1, 0));
+        this.roads.addTriangleUV(new Vector2(1, 0), new Vector2(1, 0), new Vector2(0, 0));
     }
 }

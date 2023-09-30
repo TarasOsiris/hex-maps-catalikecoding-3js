@@ -1,6 +1,5 @@
 import {FullScreenScene} from "../../lib/scene/FullScreenScene";
 import {HexGrid} from "../HexGrid";
-import * as THREE from "three";
 import {HexCell} from "../HexCell";
 import {ColorUtils} from "../../lib/ColorUtils";
 import {Font, FontLoader} from "three/examples/jsm/loaders/FontLoader";
@@ -12,14 +11,24 @@ import {Nullable} from "../../lib/types/Types";
 import {HexDirection, HexDirectionUtils} from "../HexDirection";
 import {ColliderLayers} from "../ColliderLayers";
 import {HexMaterials} from "../util/HexMaterials";
+import {
+    AmbientLight,
+    Color,
+    DirectionalLight,
+    LoadingManager,
+    PerspectiveCamera,
+    Raycaster,
+    TextureLoader, Vector2,
+    Vector3
+} from "three";
 
 export class HexMapScene extends FullScreenScene {
 
     private hexGrid!: HexGrid;
-    private raycaster = new THREE.Raycaster();
-    private loadingManager = new THREE.LoadingManager();
+    private raycaster = new Raycaster();
+    private loadingManager = new LoadingManager();
     private fontLoader = new FontLoader(this.loadingManager);
-    private textureLoader = new THREE.TextureLoader(this.loadingManager);
+    private textureLoader = new TextureLoader(this.loadingManager);
 
     private font!: Font;
 
@@ -35,7 +44,7 @@ export class HexMapScene extends FullScreenScene {
         showRivers: true
     };
 
-    private colors: Array<THREE.Color> = new Array<THREE.Color>(ColorUtils.red, ColorUtils.green, new THREE.Color(0x548af9),);
+    private colors: Array<Color> = new Array<Color>(ColorUtils.red, ColorUtils.green, new Color(0x548af9),);
 
     hexMapCamera!: HexMapCamera;
 
@@ -111,11 +120,11 @@ export class HexMapScene extends FullScreenScene {
         this.hexGrid = new HexGrid(this, this.font);
         this.setInspectorDefaults();
 
-        this.mainCamera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 1000);
+        this.mainCamera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 1000);
         this.hexMapCamera = new HexMapCamera(this.mainCamera, this.hexGrid);
         this.add(this.hexMapCamera);
 
-        this.addLighting(new THREE.Vector3());
+        this.addLighting(new Vector3());
         this.handleInput(this.hexGrid);
     }
 
@@ -124,10 +133,10 @@ export class HexMapScene extends FullScreenScene {
         this.hexGrid.showWireframe(this.inspectorControls.wireframe);
     }
 
-    private addLighting(center: THREE.Vector3) {
-        const ambientLight = new THREE.AmbientLight(ColorUtils.white, 1);
+    private addLighting(center: Vector3) {
+        const ambientLight = new AmbientLight(ColorUtils.white, 1);
         this.add(ambientLight);
-        const directionalLight = new THREE.DirectionalLight(ColorUtils.white, 1.5);
+        const directionalLight = new DirectionalLight(ColorUtils.white, 1.5);
         directionalLight.position.set(0, 25, 25);
         directionalLight.castShadow = true;
         directionalLight.shadow.mapSize.width = 1024;
@@ -142,12 +151,12 @@ export class HexMapScene extends FullScreenScene {
         // this.add(new CameraHelper(directionalLight.shadow.camera));
         this.add(directionalLight);
         // TODO fix lighting
-        // const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 10, 0xff0000);
+        // const directionalLightHelper = new DirectionalLightHelper(directionalLight, 10, 0xff0000);
         // this.add(directionalLightHelper);
     }
 
     private handleInput(grid: HexGrid) {
-        const mouseListener = (mouseCoordinate: THREE.Vector2) => {
+        const mouseListener = (mouseCoordinate: Vector2) => {
             this.raycaster.layers.set(ColliderLayers.Collidable);
             this.raycaster.setFromCamera(mouseCoordinate, this.mainCamera);
             const intersects = this.raycaster.intersectObjects(this.children);
