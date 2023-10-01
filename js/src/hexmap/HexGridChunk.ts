@@ -502,6 +502,7 @@ export class HexGridChunk extends Object3D {
     }
 
     private triangulateRoadAdjacentToRiver(direction: HexDirection, cell: HexCell, center: Vector3, e: EdgeVertices) {
+        center = center.clone();
         const hasRoadThroughEdge = cell.hasRoadThroughEdge(direction);
         const previousHasRiver = cell.hasRiverThroughEdge(HexDirectionUtils.previous(direction));
         const nextHasRiver = cell.hasRiverThroughEdge(HexDirectionUtils.next(direction));
@@ -512,11 +513,16 @@ export class HexGridChunk extends Object3D {
             const oppositeDirection = HexDirectionUtils.opposite(cell.riverBeginOrEndDirection);
             roadCenter.add(HexMetrics.getSolidEdgeMiddle(oppositeDirection).multiplyScalar(1 / 3));
         } else if (cell.incomingRiver == HexDirectionUtils.opposite(cell.outgoingRiver)) {
+            let corner : Vector3;
             if (previousHasRiver) {
-                // TODO see 4.2
+                corner = HexMetrics.getSecondSolidCorner(direction);
             } else {
-                // TODO see 4.2
+                corner = HexMetrics.getFirstSolidCorner(direction);
             }
+            const roadCenterOffset = corner.clone().multiplyScalar(0.5);
+            roadCenter.add(roadCenterOffset);
+            const centerOffset = corner.clone().multiplyScalar(0.25);
+            center.add(centerOffset);
         }
 
         const mL = Vec3.lerp(roadCenter, e.v1, interpolators.x);
