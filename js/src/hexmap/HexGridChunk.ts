@@ -515,8 +515,20 @@ export class HexGridChunk extends Object3D {
         } else if (cell.incomingRiver == HexDirectionUtils.opposite(cell.outgoingRiver)) {
             let corner : Vector3;
             if (previousHasRiver) {
+                if (
+                    !hasRoadThroughEdge &&
+                    !cell.hasRoadThroughEdge(HexDirectionUtils.next(direction))
+                ) {
+                    return;
+                }
                 corner = HexMetrics.getSecondSolidCorner(direction);
             } else {
+                if (
+                    !hasRoadThroughEdge &&
+                    !cell.hasRoadThroughEdge(HexDirectionUtils.next(direction))
+                ) {
+                    return;
+                }
                 corner = HexMetrics.getFirstSolidCorner(direction);
             }
             const roadCenterOffset = corner.clone().multiplyScalar(0.5);
