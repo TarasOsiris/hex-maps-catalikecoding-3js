@@ -84,7 +84,6 @@ export class HexCell extends THREE.Object3D {
     }
 
     addRoad(direction: HexDirection) {
-        console.log("Adding road");
         if (!this._roads[direction] && !this.hasRiverThroughEdge(direction) && this.getElevationDifference(direction) <= 1) {
             this.setRoad(direction, true);
         }

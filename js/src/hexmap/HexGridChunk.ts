@@ -25,7 +25,7 @@ export class HexGridChunk extends Object3D {
         this.rivers = new HexMesh(HexMaterials.riverShaderMaterial, HexMaterials.wireframeMaterial, false, false, true);
         this.rivers.wireframeCopy.visible = false; // TODO to inspector
         this.roads = new HexMesh(HexMaterials.roadShaderMaterial, HexMaterials.wireframeMaterial, false, false, true);
-        this.rivers.wireframeCopy.visible = true; // TODO to inspector
+        this.roads.wireframeCopy.visible = false; // TODO to inspector
         this.add(this.terrain);
         this.add(this.rivers);
         this.add(this.roads);
@@ -539,6 +539,30 @@ export class HexGridChunk extends Object3D {
             roadCenter.sub(HexMetrics.getSecondCorner(cell.incomingRiver).multiplyScalar(0.2));
         } else if (cell.incomingRiver == HexDirectionUtils.next(cell.outgoingRiver)) {
             roadCenter.sub(HexMetrics.getFirstSolidCorner(cell.incomingRiver).multiplyScalar(0.2));
+        } else if (previousHasRiver && nextHasRiver) {
+            if (!hasRoadThroughEdge) {
+                return;
+            }
+            const offset = HexMetrics.getSolidEdgeMiddle(direction).multiplyScalar(HexMetrics.innerToOuter);
+            roadCenter.add(offset.clone().multiplyScalar(0.7));
+            center.add(offset.clone().multiplyScalar(0.5));
+        } else {
+            let middle: HexDirection;
+            if (previousHasRiver) {
+                middle = HexDirectionUtils.next(direction);
+            } else if (nextHasRiver) {
+                middle = HexDirectionUtils.previous(direction);
+            } else {
+                middle = direction;
+            }
+            if (
+                !cell.hasRoadThroughEdge(middle) &&
+                !cell.hasRoadThroughEdge(HexDirectionUtils.previous(middle)) &&
+                !cell.hasRoadThroughEdge(HexDirectionUtils.next(middle))
+            ) {
+                return;
+            }
+            roadCenter.add(HexMetrics.getSolidEdgeMiddle(middle).multiplyScalar(0.25));
         }
 
         const mL = Vec3.lerp(roadCenter, e.v1, interpolators.x);

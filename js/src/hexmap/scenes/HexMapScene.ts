@@ -63,6 +63,7 @@ export class HexMapScene extends FullScreenScene {
         this.textureLoader.load('/textures/noise.png', (tex) => {
             HexSceneUtils.processNoiseTexture(tex);
             HexMaterials.createRiverMaterial(tex);
+            HexMaterials.createRoadMaterial(tex);
         });
         this.fontLoader.load('/fonts/roboto.json', (font) => {
             this.font = font;
