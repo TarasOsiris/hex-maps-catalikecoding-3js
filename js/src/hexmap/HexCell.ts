@@ -21,6 +21,7 @@ export class HexCell extends THREE.Object3D {
     private _outgoingRiver: Nullable<HexDirection> = null;
 
     private _roads: Array<boolean> = new Array<boolean>(6).fill(false);
+    private _waterLevel: number = 0;
 
     constructor(coordinates: HexCoordinates) {
         super();
@@ -56,10 +57,14 @@ export class HexCell extends THREE.Object3D {
     }
 
     get riverSurfaceY() {
-        return (this._elevation + HexMetrics.riverSurfaceElevationOffset) * HexMetrics.elevationStep;
+        return (this._elevation + HexMetrics.waterElevationOffset) * HexMetrics.elevationStep;
     }
 
-    get riverBeginOrEndDirection() : HexDirection {
+    get waterSurfaceY() {
+        return (this._waterLevel + HexMetrics.waterElevationOffset) * HexMetrics.elevationStep;
+    }
+
+    get riverBeginOrEndDirection(): HexDirection {
         return this._hasIncomingRiver ? this._incomingRiver! : this._outgoingRiver!;
     }
 
@@ -73,6 +78,22 @@ export class HexCell extends THREE.Object3D {
 
     get hasRoads() {
         return this._roads.some(value => value);
+    }
+
+    get waterLevel() {
+        return this._waterLevel;
+    }
+
+    set waterLevel(value: number) {
+        if (this._waterLevel == value) {
+            return;
+        }
+        this._waterLevel = value;
+        this.refresh();
+    }
+
+    get isUnderwater() {
+        return this._waterLevel > this._elevation;
     }
 
     removeRoads() {

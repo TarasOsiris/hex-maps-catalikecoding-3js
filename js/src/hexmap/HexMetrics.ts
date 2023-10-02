@@ -17,7 +17,7 @@ export class HexMetrics {
 
     private static invZ = -1;
 
-    static readonly cellPerturbStrength = 1; // 4
+    static readonly cellPerturbStrength = 4; // 4
     static readonly elevationPerturbStrength = 1.5; // 1.5
     static noise: THREE.Color[];
 
@@ -26,7 +26,7 @@ export class HexMetrics {
 
     static readonly streamBedElevationOffset = -1.75;
 
-    static readonly riverSurfaceElevationOffset = -0.5;
+    static readonly waterElevationOffset = -0.5;
 
     private static corners = [
         new THREE.Vector3(0, 0, HexMetrics.invZ * this.outerRadius),
