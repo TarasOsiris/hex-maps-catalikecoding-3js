@@ -1,55 +1,38 @@
-import * as THREE from "three";
 import riverVertex from "../shaders/riverVertex.glsl";
 import riverFragment from "../shaders/riverFragment.glsl";
+import waterVertex from "../shaders/waterVertex.glsl";
+import waterFragment from "../shaders/waterFragment.glsl";
 import roadVertex from "../shaders/roadVertex.glsl";
 import roadFragment from "../shaders/roadFragment.glsl";
-import {IUniform} from "three/src/renderers/shaders/UniformsLib";
-import {Color, Texture} from "three";
+import {Color, Material, MeshBasicMaterial, MeshStandardMaterial, ShaderMaterial, Texture} from "three";
 
 export class HexMaterials {
-    static noiseTexture: THREE.Texture;
+    static noiseTexture: Texture;
 
-    static readonly terrainMaterial = new THREE.MeshStandardMaterial({
+    static readonly terrainMaterial = new MeshStandardMaterial({
         vertexColors: true,
         polygonOffset: true,
         polygonOffsetFactor: 2,
         polygonOffsetUnits: 2
     });
 
-    private static riverUniforms: { [uniform: string]: IUniform };
+    private static riverUniforms: { time: { value: number }; noiseTexture: { value: Texture } };
+    private static waterUniforms: { waterColor: { value: Color }; noiseTexture: { value: Texture } };
     private static roadUniforms: { roadColor: { value: Color }; noiseTexture: { value: Texture } };
 
-    static riverShaderMaterial: THREE.Material;
-    static roadShaderMaterial: THREE.Material = new THREE.ShaderMaterial({
-        vertexShader: roadVertex,
-        fragmentShader: roadFragment,
+    static riverMaterial: Material;
+    static waterMaterial: Material;
+    static roadMaterial: Material;
 
-        polygonOffset: true,
-        polygonOffsetFactor: 1,
-        polygonOffsetUnits: 1,
-        uniforms: {
-            roadColor: {value: new THREE.Color(0xff0000)}
-        },
-        transparent: true
-    });
-
-    static createRiverUniforms(noiseTexture: THREE.Texture) {
-        return {
-            time: {value: 1.0},
-            noiseTexture: {value: noiseTexture}
-        };
+    static createMaterials(noiseTexture: Texture) {
+        this.createRiverMaterial(noiseTexture);
+        this.createWaterMaterial(noiseTexture);
+        this.createRoadMaterial(noiseTexture);
     }
 
-    static createRoadUniforms(noiseTexture: THREE.Texture) {
-        return {
-            roadColor: {value: new THREE.Color(0xff0000)},
-            noiseTexture: {value: noiseTexture}
-        };
-    }
-
-    static createRiverMaterial(noiseTexture: THREE.Texture) {
+    static createRiverMaterial(noiseTexture: Texture) {
         this.riverUniforms = this.createRiverUniforms(noiseTexture);
-        this.riverShaderMaterial = new THREE.ShaderMaterial({
+        this.riverMaterial = new ShaderMaterial({
             vertexShader: riverVertex,
             fragmentShader: riverFragment,
             uniforms: HexMaterials.riverUniforms,
@@ -57,9 +40,33 @@ export class HexMaterials {
         });
     }
 
-    static createRoadMaterial(noiseTexture: THREE.Texture) {
+    static createRiverUniforms(noiseTexture: Texture) {
+        return {
+            time: {value: 1.0},
+            noiseTexture: {value: noiseTexture}
+        };
+    }
+
+    static createWaterMaterial(noiseTexture: Texture) {
+        this.waterUniforms = this.createWaterUniforms(noiseTexture);
+        this.waterMaterial = new ShaderMaterial({
+            vertexShader: waterVertex,
+            fragmentShader: waterFragment,
+            uniforms: this.waterUniforms,
+            transparent: true,
+        });
+    }
+
+    static createWaterUniforms(noiseTexture: Texture) {
+        return {
+            waterColor: {value: new Color(0x00ff00)},
+            noiseTexture: {value: noiseTexture}
+        };
+    }
+
+    static createRoadMaterial(noiseTexture: Texture) {
         this.roadUniforms = this.createRoadUniforms(noiseTexture);
-        this.roadShaderMaterial = new THREE.ShaderMaterial({
+        this.roadMaterial = new ShaderMaterial({
             vertexShader: roadVertex,
             fragmentShader: roadFragment,
 
@@ -67,8 +74,15 @@ export class HexMaterials {
             polygonOffsetFactor: 1,
             polygonOffsetUnits: 1,
             uniforms: this.roadUniforms,
-            transparent: true
+            transparent: true,
         });
+    }
+
+    static createRoadUniforms(noiseTexture: Texture) {
+        return {
+            roadColor: {value: new Color(0xff0000)},
+            noiseTexture: {value: noiseTexture}
+        };
     }
 
     static updateTime(elapsedTime: number) {
@@ -77,15 +91,15 @@ export class HexMaterials {
         }
     }
 
-    static readonly wireframeMaterial = new THREE.MeshBasicMaterial({
+    static readonly wireframeMaterial = new MeshBasicMaterial({
         wireframe: true,
         color: 0x000000,
     });
-    static readonly debugMaterial = new THREE.MeshBasicMaterial({
+    static readonly debugMaterial = new MeshBasicMaterial({
         color: 0xff0000,
         polygonOffset: true,
         polygonOffsetFactor: 1,
         polygonOffsetUnits: 1
     });
-    static readonly fontMaterial = new THREE.MeshBasicMaterial({color: 0xff0000});
+    static readonly fontMaterial = new MeshBasicMaterial({color: 0xff0000});
 }

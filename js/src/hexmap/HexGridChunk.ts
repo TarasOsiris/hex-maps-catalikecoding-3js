@@ -14,32 +14,41 @@ export class HexGridChunk extends Object3D {
     terrain: HexMesh;
     rivers: HexMesh;
     roads: HexMesh;
+    water: HexMesh;
     dirty = true;
 
     constructor() {
         super();
+        this.cells = new Array<HexCell>(HexMetrics.chunkSizeX * HexMetrics.chunkSizeZ);
+
         this.terrain = new HexMesh(HexMaterials.terrainMaterial, HexMaterials.wireframeMaterial, true, true, false);
-        // TODO fix shadows on the whole map!
         this.terrain.castShadow = true;
         this.terrain.receiveShadow = true;
-        this.rivers = new HexMesh(HexMaterials.riverShaderMaterial, HexMaterials.wireframeMaterial, false, false, true);
+
+        this.rivers = new HexMesh(HexMaterials.riverMaterial, HexMaterials.wireframeMaterial, false, false, true);
         this.rivers.wireframeCopy.visible = false; // TODO to inspector
-        this.roads = new HexMesh(HexMaterials.roadShaderMaterial, HexMaterials.wireframeMaterial, false, false, true);
+
+        this.roads = new HexMesh(HexMaterials.roadMaterial, HexMaterials.wireframeMaterial, false, false, true);
         this.roads.wireframeCopy.visible = false; // TODO to inspector
-        this.add(this.terrain);
-        this.add(this.rivers);
-        this.add(this.roads);
-        this.cells = new Array<HexCell>(HexMetrics.chunkSizeX * HexMetrics.chunkSizeZ);
+
+        this.water = new HexMesh(HexMaterials.waterMaterial, HexMaterials.wireframeMaterial, false, false, false);
+        this.water.wireframeCopy.visible = true;
+
+        this.add(this.terrain, this.rivers, this.roads, this.water);
     }
 
     refresh() {
         this.terrain.clearAll();
         this.rivers.clearAll();
         this.roads.clearAll();
-        this.triangulate(this.cells);
+        this.water.clearAll();
+        for (let i = 0; i < this.cells.length; i++) {
+            this.triangulateCell((this.cells)[i]);
+        }
         this.terrain.apply();
         this.rivers.apply();
         this.roads.apply();
+        this.water.apply();
         this.dirty = false;
     }
 
@@ -52,13 +61,6 @@ export class HexGridChunk extends Object3D {
         cell.chunk = this;
         this.add(cell, cell.textMesh);
     }
-
-    triangulate(cells: Array<HexCell>) {
-        for (let i = 0; i < cells.length; i++) {
-            this.triangulateCell(cells[i]);
-        }
-    }
-
     triangulateCell(cell: HexCell) {
         for (let d = HexDirection.NE; d <= HexDirection.NW; d++) {
             this.triangulateSector(d, cell);
@@ -93,6 +95,10 @@ export class HexGridChunk extends Object3D {
                 return;
             }
             this.triangulateConnection(direction, cell, e);
+        }
+
+        if (cell.isUnderwater) {
+            this.triangulateWater(direction, cell, center);
         }
     }
 
@@ -574,5 +580,9 @@ export class HexGridChunk extends Object3D {
         if (nextHasRiver) {
             this.triangulateRoadEdge(roadCenter, mR, center);
         }
+    }
+
+    triangulateWater(direction: HexDirection, cell: HexCell, center: Vector3) {
+        center = center.clone();
     }
 }
