@@ -15,12 +15,13 @@ import {
     AmbientLight,
     Color,
     DirectionalLight,
-    LoadingManager,
+    LoadingManager, Mesh,
     PerspectiveCamera,
-    Raycaster,
+    Raycaster, SphereGeometry,
     TextureLoader, Vector2,
     Vector3
 } from "three";
+import {CustomMat} from "../shaders/experiments/CustomMat";
 
 export class HexMapScene extends FullScreenScene {
 
@@ -130,6 +131,12 @@ export class HexMapScene extends FullScreenScene {
 
         this.addLighting(new Vector3());
         this.handleInput(this.hexGrid);
+
+        // TODO make proper materials for everything
+        // const material = new CustomMat();
+        // const sphere = new Mesh(new SphereGeometry(10), material);
+        // console.log(material.uniforms);
+        // this.add(sphere);
     }
 
     private setInspectorDefaults() {

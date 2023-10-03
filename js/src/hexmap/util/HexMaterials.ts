@@ -4,6 +4,8 @@ import waterVertex from "../shaders/waterVertex.glsl";
 import waterFragment from "../shaders/waterFragment.glsl";
 import roadVertex from "../shaders/roadVertex.glsl";
 import roadFragment from "../shaders/roadFragment.glsl";
+import tVertex from "../shaders/experiments/testVertex.glsl";
+import tFragment from "../shaders/experiments/testFragment.glsl";
 import {Color, Material, MeshBasicMaterial, MeshStandardMaterial, ShaderMaterial, Texture} from "three";
 
 export class HexMaterials {
@@ -102,4 +104,9 @@ export class HexMaterials {
         polygonOffsetUnits: 1
     });
     static readonly fontMaterial = new MeshBasicMaterial({color: 0xff0000});
+
+    static testMat = new ShaderMaterial({
+        vertexShader: tVertex, fragmentShader: tFragment,
+        defines: {'STANDARD': ''},
+    });
 }
