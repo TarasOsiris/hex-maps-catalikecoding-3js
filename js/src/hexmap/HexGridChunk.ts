@@ -584,5 +584,10 @@ export class HexGridChunk extends Object3D {
 
     triangulateWater(direction: HexDirection, cell: HexCell, center: Vector3) {
         center = center.clone();
+        center.y = cell.waterSurfaceY;
+        const c1 = Vec3.add(center, HexMetrics.getFirstSolidCorner(direction));
+        const c2 = Vec3.add(center, HexMetrics.getSecondSolidCorner(direction));
+
+        this.water.addTriangle(center, c1, c2);
     }
 }

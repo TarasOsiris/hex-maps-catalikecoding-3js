@@ -59,7 +59,7 @@ export class HexMaterials {
 
     static createWaterUniforms(noiseTexture: Texture) {
         return {
-            waterColor: {value: new Color(0x00ff00)},
+            waterColor: {value: new Color(0x0000ff)},
             noiseTexture: {value: noiseTexture}
         };
     }

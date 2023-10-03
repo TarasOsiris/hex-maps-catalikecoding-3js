@@ -214,6 +214,9 @@ export class HexMapScene extends FullScreenScene {
             if (this.inspectorControls.applyElevation) {
                 cell.elevation = this.inspectorControls.activeElevation;
             }
+            if (this.inspectorControls.applyWaterLevel) {
+                cell.waterLevel = this.inspectorControls.activeWaterLevel;
+            }
             if (this.inspectorControls.riverMode == OptionalToggle.No) {
                 cell.removeRiver();
             }
