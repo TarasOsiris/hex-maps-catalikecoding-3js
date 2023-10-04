@@ -61,6 +61,7 @@ export class HexGridChunk extends Object3D {
         cell.chunk = this;
         this.add(cell, cell.textMesh);
     }
+
     triangulateCell(cell: HexCell) {
         for (let d = HexDirection.NE; d <= HexDirection.NW; d++) {
             this.triangulateSector(d, cell);
@@ -589,5 +590,30 @@ export class HexGridChunk extends Object3D {
         const c2 = Vec3.add(center, HexMetrics.getSecondSolidCorner(direction));
 
         this.water.addTriangle(center, c1, c2);
+
+        if (direction <= HexDirection.SE) {
+            const neighbor = cell.getNeighbor(direction);
+            if (neighbor == null || !neighbor.isUnderwater) {
+                return;
+            }
+
+            const bridge = HexMetrics.getBridge(direction);
+            const e1 = Vec3.add(c1, bridge);
+            const e2 = Vec3.add(c2, bridge);
+
+            this.water.addQuad(c1, c2, e1, e2);
+
+
+            if (direction <= HexDirection.E) {
+                const next = HexDirectionUtils.next(direction);
+                const nextNeighbor = cell.getNeighbor(next);
+                if (nextNeighbor == null || !nextNeighbor.isUnderwater) {
+                    return;
+                }
+                this.water.addTriangle(
+                    c2, e2, Vec3.add(c2, HexMetrics.getBridge(next))
+                );
+            }
+        }
     }
 }
