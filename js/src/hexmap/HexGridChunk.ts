@@ -32,7 +32,7 @@ export class HexGridChunk extends Object3D {
         this.roads.wireframeCopy.visible = false; // TODO to inspector
 
         this.water = new HexMesh(HexMaterials.waterMaterial, HexMaterials.wireframeMaterial, false, false, false);
-        this.water.wireframeCopy.visible = true;
+        this.water.wireframeCopy.visible = false;
 
         this.add(this.terrain, this.rivers, this.roads, this.water);
     }

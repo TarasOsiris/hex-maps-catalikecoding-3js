@@ -7,5 +7,5 @@ void main() {
     vec2 uv = vUv;
     vec4 noise = texture2D(noiseTexture, uv);
 
-    gl_FragColor = vec4(waterColor, 0.4);
+    gl_FragColor = vec4(waterColor, 0.2);
 }

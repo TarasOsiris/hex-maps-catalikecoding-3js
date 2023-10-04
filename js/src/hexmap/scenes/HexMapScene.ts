@@ -15,13 +15,10 @@ import {
     AmbientLight,
     Color,
     DirectionalLight,
-    LoadingManager, Mesh,
-    PerspectiveCamera,
-    Raycaster, SphereGeometry,
-    TextureLoader, Vector2,
+    LoadingManager, PerspectiveCamera,
+    Raycaster, TextureLoader, Vector2,
     Vector3
 } from "three";
-import {CustomMat} from "../shaders/experiments/CustomMat";
 
 export class HexMapScene extends FullScreenScene {
 
@@ -34,6 +31,7 @@ export class HexMapScene extends FullScreenScene {
     private font!: Font;
 
     private inspectorControls = {
+        someColor: 0x000000,
         selectedColorIndex: -1,
         applyElevation: true,
         applyWaterLevel: true,
@@ -72,6 +70,7 @@ export class HexMapScene extends FullScreenScene {
         });
 
         const folder = this.gui.addFolder("Colors");
+        folder.addColor(this.inspectorControls, 'someColor').name('Color');
         folder.add(this, 'clearColor').name('Clear');
         folder.add(this, 'selectTestColor1').name('Red');
         folder.add(this, 'selectTestColor2').name('Green');
