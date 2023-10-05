@@ -7,6 +7,7 @@ import roadFragment from "../shaders/roadFragment.glsl";
 import tVertex from "../shaders/experiments/testVertex.glsl";
 import tFragment from "../shaders/experiments/testFragment.glsl";
 import {Color, Material, MeshBasicMaterial, MeshStandardMaterial, ShaderMaterial, Texture} from "three";
+import {RoadMaterial} from "../materials/RoadMaterial";
 
 export class HexMaterials {
     static noiseTexture: Texture;
@@ -29,7 +30,7 @@ export class HexMaterials {
     static createMaterials(noiseTexture: Texture) {
         this.createRiverMaterial(noiseTexture);
         this.createWaterMaterial(noiseTexture);
-        this.createRoadMaterial(noiseTexture);
+        this.createRoadMaterial(noiseTexture, false);
     }
 
     static createRiverMaterial(noiseTexture: Texture) {
@@ -66,18 +67,22 @@ export class HexMaterials {
         };
     }
 
-    static createRoadMaterial(noiseTexture: Texture) {
+    static createRoadMaterial(noiseTexture: Texture, experimental: boolean = false) {
         this.roadUniforms = this.createRoadUniforms(noiseTexture);
-        this.roadMaterial = new ShaderMaterial({
-            vertexShader: roadVertex,
-            fragmentShader: roadFragment,
+        if (experimental) {
+            this.roadMaterial = new RoadMaterial();
+        } else {
+            this.roadMaterial = new ShaderMaterial({
+                vertexShader: roadVertex,
+                fragmentShader: roadFragment,
 
-            polygonOffset: true,
-            polygonOffsetFactor: 1,
-            polygonOffsetUnits: 1,
-            uniforms: this.roadUniforms,
-            transparent: true,
-        });
+                polygonOffset: true,
+                polygonOffsetFactor: 1,
+                polygonOffsetUnits: 1,
+                uniforms: this.roadUniforms,
+                transparent: true,
+            });
+        }
     }
 
     static createRoadUniforms(noiseTexture: Texture) {

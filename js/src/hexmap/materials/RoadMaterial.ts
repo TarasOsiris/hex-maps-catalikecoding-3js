@@ -1,18 +1,19 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import {Color, ShaderMaterial, TangentSpaceNormalMap, Vector2} from "three";
-import tVertex from "../experiments/testVertex.glsl";
-import tFragment from "../experiments/testFragment.glsl";
-export class CustomMat extends ShaderMaterial {
+import tVertex from "../shaders/experiments/testVertex.glsl";
+import tFragment from "../shaders/experiments/testFragment.glsl";
+
+export class RoadMaterial extends ShaderMaterial {
     constructor() {
         super({vertexShader: tVertex, fragmentShader: tFragment});
         this.isMeshStandardMaterial = true;
 
-        this.defines = { 'STANDARD': '' };
+        this.defines = {'STANDARD': ''};
 
         this.type = 'MeshStandardMaterial';
 
-        this.color = new Color( 0xffffff ); // diffuse
+        this.color = new Color(0xff0000); // diffuse
         this.roughness = 1.0;
         this.metalness = 0.0;
 
@@ -24,7 +25,7 @@ export class CustomMat extends ShaderMaterial {
         this.aoMap = null;
         this.aoMapIntensity = 1.0;
 
-        this.emissive = new Color( 0x000000 );
+        this.emissive = new Color(0x000000);
         this.emissiveIntensity = 1.0;
         this.emissiveMap = null;
 
@@ -33,7 +34,7 @@ export class CustomMat extends ShaderMaterial {
 
         this.normalMap = null;
         this.normalMapType = TangentSpaceNormalMap;
-        this.normalScale = new Vector2( 1, 1 );
+        this.normalScale = new Vector2(1, 1);
 
         this.displacementMap = null;
         this.displacementScale = 1;
@@ -57,6 +58,10 @@ export class CustomMat extends ShaderMaterial {
 
         this.fog = true;
 
-        this.setValues( {vertexShader: tVertex, fragmentShader: tFragment} );
+        // Customs stuff
+        this.transparent = true;
+        this.polygonOffset = true;
+        this.polygonOffsetFactor = 1;
+        this.polygonOffsetUnits = 1;
     }
 }
