@@ -1,8 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import {Color, IUniform, ShaderMaterial, TangentSpaceNormalMap, Vector2} from "three";
-import tVertex from "../shaders/experiments/testVertex.glsl";
-import tFragment from "../shaders/experiments/testFragment.glsl";
+import tVertex from "../shaders/experiments/roadStandartVertex.glsl";
+import tFragment from "../shaders/experiments/roadStandardFragment.glsl";
 
 export class CustomStandardMaterial extends ShaderMaterial {
     constructor(uniforms: { [p: string]: IUniform } | undefined) {

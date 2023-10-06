@@ -4,8 +4,8 @@ import waterVertex from "../shaders/waterVertex.glsl";
 import waterFragment from "../shaders/waterFragment.glsl";
 import roadVertex from "../shaders/roadVertex.glsl";
 import roadFragment from "../shaders/roadFragment.glsl";
-import tVertex from "../shaders/experiments/testVertex.glsl";
-import tFragment from "../shaders/experiments/testFragment.glsl";
+import tVertex from "../shaders/experiments/roadStandartVertex.glsl";
+import tFragment from "../shaders/experiments/roadStandardFragment.glsl";
 import {
     Color,
     Material,

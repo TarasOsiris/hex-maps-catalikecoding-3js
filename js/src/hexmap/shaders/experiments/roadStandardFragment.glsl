@@ -111,8 +111,8 @@ void main() {
     blend = smoothstep(0.4, 0.7, blend);
     vec3 color = roadColor * (noise.y * 0.75 + 0.25);
 
-    vec4 diffuseColor = vec4( color, blend );
-    ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
+    vec4 diffuseColor = vec4(color, blend);
+    ReflectedLight reflectedLight = ReflectedLight(vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
     vec3 totalEmissiveRadiance = emissive;
 
     #include <logdepthbuf_fragment>
@@ -149,7 +149,7 @@ void main() {
 
     // Sheen energy compensation approximation calculation can be found at the end of
     // https://drive.google.com/file/d/1T0D1VSyR4AllqIJTQAraEIzjlb5h4FKH/view?usp=sharing
-    float sheenEnergyComp = 1.0 - 0.157 * max3( material.sheenColor );
+    float sheenEnergyComp = 1.0 - 0.157 * max3(material.sheenColor);
 
     outgoingLight = outgoingLight * sheenEnergyComp + sheenSpecular;
 
@@ -157,11 +157,11 @@ void main() {
 
     #ifdef USE_CLEARCOAT
 
-    float dotNVcc = saturate( dot( geometryClearcoatNormal, geometryViewDir ) );
+    float dotNVcc = saturate(dot(geometryClearcoatNormal, geometryViewDir));
 
-    vec3 Fcc = F_Schlick( material.clearcoatF0, material.clearcoatF90, dotNVcc );
+    vec3 Fcc = F_Schlick(material.clearcoatF0, material.clearcoatF90, dotNVcc);
 
-    outgoingLight = outgoingLight * ( 1.0 - material.clearcoat * Fcc ) + clearcoatSpecular * material.clearcoat;
+    outgoingLight = outgoingLight * (1.0 - material.clearcoat * Fcc) + clearcoatSpecular * material.clearcoat;
 
     #endif
 
