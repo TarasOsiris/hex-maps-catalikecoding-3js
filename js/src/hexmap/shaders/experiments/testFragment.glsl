@@ -1,3 +1,8 @@
+// Custom stuff
+uniform sampler2D noiseTexture;
+uniform vec3 roadColor;
+varying vec3 vWorldPosition;
+
 #define STANDARD
 
 #ifdef PHYSICAL
@@ -94,11 +99,19 @@ varying vec3 vViewPosition;
 #include <logdepthbuf_pars_fragment>
 #include <clipping_planes_pars_fragment>
 
+
 void main() {
 
     #include <clipping_planes_fragment>
 
-    vec4 diffuseColor = vec4( diffuse, opacity );
+    vec4 noise = texture2D(noiseTexture, vWorldPosition.xz * 0.025);
+    vec2 uv = vUv;
+    float blend = uv.x;
+    blend *= noise.x + 0.5;
+    blend = smoothstep(0.4, 0.7, blend);
+    vec3 color = roadColor * (noise.y * 0.75 + 0.25);
+
+    vec4 diffuseColor = vec4( color, blend );
     ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
     vec3 totalEmissiveRadiance = emissive;
 

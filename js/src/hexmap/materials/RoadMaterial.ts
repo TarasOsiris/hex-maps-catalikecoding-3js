@@ -3,18 +3,15 @@
 import {Color, ShaderMaterial, TangentSpaceNormalMap, Vector2} from "three";
 import tVertex from "../shaders/experiments/testVertex.glsl";
 import tFragment from "../shaders/experiments/testFragment.glsl";
+import {ShaderMaterialParameters} from "three/src/materials/ShaderMaterial";
 
 export class RoadMaterial extends ShaderMaterial {
-    constructor() {
-        super({vertexShader: tVertex, fragmentShader: tFragment});
+    constructor(parameters?: ShaderMaterialParameters) {
+        super(parameters);
         this.isMeshStandardMaterial = true;
 
-        this.defines = {'STANDARD': ''};
-
-        this.type = 'MeshStandardMaterial';
-
-        this.color = new Color(0xff0000); // diffuse
-        this.roughness = 1.0;
+        this.color = new Color(0x00ff00); // diffuse
+        this.roughness = 0.5;
         this.metalness = 0.0;
 
         this.map = null;
@@ -59,6 +56,7 @@ export class RoadMaterial extends ShaderMaterial {
         this.fog = true;
 
         // Customs stuff
+        // this.opacity = 0.5;
         this.transparent = true;
         this.polygonOffset = true;
         this.polygonOffsetFactor = 1;

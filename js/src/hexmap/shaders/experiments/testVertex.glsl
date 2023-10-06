@@ -2,11 +2,7 @@
 
 varying vec3 vViewPosition;
 
-#ifdef USE_TRANSMISSION
-
 varying vec3 vWorldPosition;
-
-#endif
 
 #include <common>
 #include <uv_pars_vertex>
@@ -20,8 +16,8 @@ varying vec3 vWorldPosition;
 #include <logdepthbuf_pars_vertex>
 #include <clipping_planes_pars_vertex>
 
-void main() {
 
+void main() {
     #include <uv_vertex>
     #include <color_vertex>
     #include <morphcolor_vertex>
@@ -43,13 +39,11 @@ void main() {
 
     vViewPosition = - mvPosition.xyz;
 
-    #include <worldpos_vertex>
+    vec4 worldPosition = vec4( transformed, 1.0 );
+    worldPosition = modelMatrix * worldPosition;
+
     #include <shadowmap_vertex>
     #include <fog_vertex>
 
-    #ifdef USE_TRANSMISSION
-
     vWorldPosition = worldPosition.xyz;
-
-    #endif
 }

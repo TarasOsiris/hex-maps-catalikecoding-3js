@@ -6,7 +6,16 @@ import roadVertex from "../shaders/roadVertex.glsl";
 import roadFragment from "../shaders/roadFragment.glsl";
 import tVertex from "../shaders/experiments/testVertex.glsl";
 import tFragment from "../shaders/experiments/testFragment.glsl";
-import {Color, Material, MeshBasicMaterial, MeshStandardMaterial, ShaderMaterial, Texture} from "three";
+import {
+    Color,
+    Material,
+    MeshBasicMaterial,
+    MeshStandardMaterial,
+    ShaderLib,
+    ShaderMaterial,
+    Texture,
+    UniformsUtils
+} from "three";
 import {RoadMaterial} from "../materials/RoadMaterial";
 
 export class HexMaterials {
@@ -30,7 +39,7 @@ export class HexMaterials {
     static createMaterials(noiseTexture: Texture) {
         this.createRiverMaterial(noiseTexture);
         this.createWaterMaterial(noiseTexture);
-        this.createRoadMaterial(noiseTexture, false);
+        this.createRoadMaterial(noiseTexture, true);
     }
 
     static createRiverMaterial(noiseTexture: Texture) {
@@ -70,7 +79,19 @@ export class HexMaterials {
     static createRoadMaterial(noiseTexture: Texture, experimental: boolean = false) {
         this.roadUniforms = this.createRoadUniforms(noiseTexture);
         if (experimental) {
-            this.roadMaterial = new RoadMaterial();
+            ShaderLib.xxx = {
+                vertexShader: tVertex,
+                fragmentShader: tFragment,
+                uniforms: ShaderLib.standard.uniforms
+            };
+            const shader = ShaderLib.xxx;
+            const uniforms = UniformsUtils.merge([this.roadUniforms, UniformsUtils.clone(shader.uniforms)]);
+            this.roadMaterial = new RoadMaterial({
+                defines: {'STANDARD': '', 'USE_UV':''},
+                uniforms: uniforms,
+                vertexShader: shader.vertexShader,
+                fragmentShader: shader.fragmentShader,
+            });
         } else {
             this.roadMaterial = new ShaderMaterial({
                 vertexShader: roadVertex,
