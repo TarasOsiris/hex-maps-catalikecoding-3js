@@ -1,13 +1,14 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import {Color, ShaderMaterial, TangentSpaceNormalMap, Vector2} from "three";
+import {Color, ShaderLib, ShaderMaterial, TangentSpaceNormalMap, Texture, UniformsUtils, Vector2} from "three";
 import tVertex from "../shaders/experiments/testVertex.glsl";
 import tFragment from "../shaders/experiments/testFragment.glsl";
-import {ShaderMaterialParameters} from "three/src/materials/ShaderMaterial";
 
 export class RoadMaterial extends ShaderMaterial {
-    constructor(parameters?: ShaderMaterialParameters) {
-        super(parameters);
+    constructor(uniforms: { roadColor: { value: Color }; noiseTexture: { value: Texture } }) {
+        super(
+            {uniforms: UniformsUtils.merge([uniforms, UniformsUtils.clone(ShaderLib.standard.uniforms)])}
+        );
         this.isMeshStandardMaterial = true;
 
         this.color = new Color(0x00ff00); // diffuse
@@ -56,10 +57,12 @@ export class RoadMaterial extends ShaderMaterial {
         this.fog = true;
 
         // Customs stuff
-        // this.opacity = 0.5;
         this.transparent = true;
         this.polygonOffset = true;
         this.polygonOffsetFactor = 1;
         this.polygonOffsetUnits = 1;
+        this.defines = {'STANDARD': '', 'USE_UV': ''};
+        this.vertexShader = tVertex;
+        this.fragmentShader = tFragment;
     }
 }

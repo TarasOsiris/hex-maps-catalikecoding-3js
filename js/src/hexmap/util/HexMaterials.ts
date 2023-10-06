@@ -11,16 +11,12 @@ import {
     Material,
     MeshBasicMaterial,
     MeshStandardMaterial,
-    ShaderLib,
     ShaderMaterial,
-    Texture,
-    UniformsUtils
+    Texture
 } from "three";
 import {RoadMaterial} from "../materials/RoadMaterial";
 
 export class HexMaterials {
-    static noiseTexture: Texture;
-
     static readonly terrainMaterial = new MeshStandardMaterial({
         vertexColors: true,
         polygonOffset: true,
@@ -79,19 +75,7 @@ export class HexMaterials {
     static createRoadMaterial(noiseTexture: Texture, experimental: boolean = false) {
         this.roadUniforms = this.createRoadUniforms(noiseTexture);
         if (experimental) {
-            ShaderLib.xxx = {
-                vertexShader: tVertex,
-                fragmentShader: tFragment,
-                uniforms: ShaderLib.standard.uniforms
-            };
-            const shader = ShaderLib.xxx;
-            const uniforms = UniformsUtils.merge([this.roadUniforms, UniformsUtils.clone(shader.uniforms)]);
-            this.roadMaterial = new RoadMaterial({
-                defines: {'STANDARD': '', 'USE_UV':''},
-                uniforms: uniforms,
-                vertexShader: shader.vertexShader,
-                fragmentShader: shader.fragmentShader,
-            });
+            this.roadMaterial = new RoadMaterial(this.roadUniforms);
         } else {
             this.roadMaterial = new ShaderMaterial({
                 vertexShader: roadVertex,
