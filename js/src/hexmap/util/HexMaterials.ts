@@ -16,6 +16,10 @@ import {
 } from "three";
 import {RoadMaterial} from "../materials/RoadMaterial";
 
+type RoadUniforms = { roadColor: { value: Color }; noiseTexture: { value: Texture } };
+type WaterUniforms = { waterColor: { value: Color }; noiseTexture: { value: Texture } };
+type RiverUniforms = { time: { value: number }; noiseTexture: { value: Texture } };
+
 export class HexMaterials {
     static readonly terrainMaterial = new MeshStandardMaterial({
         vertexColors: true,
@@ -24,9 +28,9 @@ export class HexMaterials {
         polygonOffsetUnits: 2
     });
 
-    private static riverUniforms: { time: { value: number }; noiseTexture: { value: Texture } };
-    private static waterUniforms: { waterColor: { value: Color }; noiseTexture: { value: Texture } };
-    private static roadUniforms: { roadColor: { value: Color }; noiseTexture: { value: Texture } };
+    private static riverUniforms: RiverUniforms;
+    private static waterUniforms: WaterUniforms;
+    private static roadUniforms: RoadUniforms;
 
     static riverMaterial: Material;
     static waterMaterial: Material;
