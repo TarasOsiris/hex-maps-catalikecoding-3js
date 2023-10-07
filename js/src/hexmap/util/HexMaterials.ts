@@ -1,24 +1,12 @@
-import riverVertex from "../shaders/riverVertex.glsl";
-import riverFragment from "../shaders/riverFragment.glsl";
 import waterVertex from "../shaders/waterVertex.glsl";
 import waterFragment from "../shaders/waterFragment.glsl";
-import roadVertex from "../shaders/roadVertex.glsl";
-import roadFragment from "../shaders/roadFragment.glsl";
-import tVertex from "../shaders/experiments/roadStandartVertex.glsl";
-import tFragment from "../shaders/experiments/roadStandardFragment.glsl";
-import {
-    Color,
-    Material,
-    MeshBasicMaterial,
-    MeshStandardMaterial,
-    ShaderMaterial,
-    Texture
-} from "three";
-import {RoadMaterial} from "../materials/RoadMaterial";
+import tVertex from "../rendering/shaders/roadStandartVertex.glsl";
+import tFragment from "../rendering/shaders/roadStandardFragment.glsl";
+import {Color, Material, MeshBasicMaterial, MeshStandardMaterial, ShaderMaterial, Texture} from "three";
+import {RoadMaterial, RoadUniforms} from "../rendering/RoadMaterial";
+import {RiverMaterial, RiverUniforms} from "../rendering/RiverMaterial";
 
-type RoadUniforms = { roadColor: { value: Color }; noiseTexture: { value: Texture } };
-type WaterUniforms = { waterColor: { value: Color }; noiseTexture: { value: Texture } };
-type RiverUniforms = { time: { value: number }; noiseTexture: { value: Texture } };
+export type WaterUniforms = { waterColor: { value: Color }; noiseTexture: { value: Texture } };
 
 export class HexMaterials {
     static readonly terrainMaterial = new MeshStandardMaterial({
@@ -39,28 +27,22 @@ export class HexMaterials {
     static createMaterials(noiseTexture: Texture) {
         this.createRiverMaterial(noiseTexture);
         this.createWaterMaterial(noiseTexture);
-        this.createRoadMaterial(noiseTexture, true);
+        this.createRoadMaterial(noiseTexture);
     }
 
     static createRiverMaterial(noiseTexture: Texture) {
-        this.riverUniforms = this.createRiverUniforms(noiseTexture);
-        this.riverMaterial = new ShaderMaterial({
-            vertexShader: riverVertex,
-            fragmentShader: riverFragment,
-            uniforms: HexMaterials.riverUniforms,
-            transparent: true,
-        });
-    }
-
-    static createRiverUniforms(noiseTexture: Texture) {
-        return {
+        this.riverUniforms = {
             time: {value: 1.0},
             noiseTexture: {value: noiseTexture}
         };
+        this.riverMaterial = new RiverMaterial(this.riverUniforms);
     }
 
     static createWaterMaterial(noiseTexture: Texture) {
-        this.waterUniforms = this.createWaterUniforms(noiseTexture);
+        this.waterUniforms = {
+            waterColor: {value: new Color(0x4069ff)},
+            noiseTexture: {value: noiseTexture}
+        };
         this.waterMaterial = new ShaderMaterial({
             vertexShader: waterVertex,
             fragmentShader: waterFragment,
@@ -69,41 +51,21 @@ export class HexMaterials {
         });
     }
 
-    static createWaterUniforms(noiseTexture: Texture) {
-        return {
-            waterColor: {value: new Color(0x4069ff)},
-            noiseTexture: {value: noiseTexture}
-        };
-    }
-
-    static createRoadMaterial(noiseTexture: Texture, experimental: boolean = false) {
-        this.roadUniforms = this.createRoadUniforms(noiseTexture);
-        if (experimental) {
-            this.roadMaterial = new RoadMaterial(this.roadUniforms);
-        } else {
-            this.roadMaterial = new ShaderMaterial({
-                vertexShader: roadVertex,
-                fragmentShader: roadFragment,
-
-                polygonOffset: true,
-                polygonOffsetFactor: 1,
-                polygonOffsetUnits: 1,
-                uniforms: this.roadUniforms,
-                transparent: true,
-            });
-        }
-    }
-
-    static createRoadUniforms(noiseTexture: Texture) {
-        return {
+    static createRoadMaterial(noiseTexture: Texture) {
+        this.roadUniforms = {
             roadColor: {value: new Color(0xff0000)},
             noiseTexture: {value: noiseTexture}
         };
+        this.roadMaterial = new RoadMaterial(this.roadUniforms);
     }
 
     static updateTime(elapsedTime: number) {
         if (this.riverUniforms) {
             this.riverUniforms.time.value = elapsedTime;
+        }
+        if (this.riverMaterial) {
+            // @ts-ignore
+            this.riverMaterial.uniforms.time.value = elapsedTime;
         }
     }
 

@@ -1,20 +1,20 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import {Color, IUniform, ShaderMaterial, TangentSpaceNormalMap, Vector2} from "three";
-import tVertex from "../shaders/experiments/roadStandartVertex.glsl";
-import tFragment from "../shaders/experiments/roadStandardFragment.glsl";
+import {Color, ShaderLib, ShaderMaterial, TangentSpaceNormalMap, Texture, UniformsUtils, Vector2} from "three";
+import tVertex from "./shaders/riverStandartVertex.glsl";
+import tFragment from "./shaders/riverStandardFragment.glsl";
 
-export class CustomStandardMaterial extends ShaderMaterial {
-    constructor(uniforms: { [p: string]: IUniform } | undefined) {
-        super({vertexShader: tVertex, fragmentShader: tFragment, uniforms: uniforms});
+export type RiverUniforms = { time: { value: number }; noiseTexture: { value: Texture } };
+
+export class RiverMaterial extends ShaderMaterial {
+    constructor(uniforms: RiverUniforms) {
+        super(
+            {uniforms: UniformsUtils.merge([uniforms, UniformsUtils.clone(ShaderLib.standard.uniforms)])}
+        );
         this.isMeshStandardMaterial = true;
 
-        this.defines = {'STANDARD': ''};
-
-        this.type = 'MeshStandardMaterial';
-
-        this.color = new Color(0xffffff); // diffuse
-        this.roughness = 1.0;
+        this.color = new Color(0x00ff00); // diffuse
+        this.roughness = 0.5;
         this.metalness = 0.0;
 
         this.map = null;
@@ -57,6 +57,15 @@ export class CustomStandardMaterial extends ShaderMaterial {
         this.flatShading = false;
 
         this.fog = true;
-        this.setValues({vertexShader: tVertex, fragmentShader: tFragment});
+
+        // Customs stuff
+        this.transparent = true;
+        this.opacity = 0.5;
+        this.polygonOffset = true;
+        this.polygonOffsetFactor = 1;
+        this.polygonOffsetUnits = 1;
+        this.defines = {'STANDARD': '', 'USE_UV': ''};
+        this.vertexShader = tVertex;
+        this.fragmentShader = tFragment;
     }
 }

@@ -39,8 +39,8 @@ export class HexMapScene extends FullScreenScene {
         activeWaterLevel: 0,
         brushSize: 0,
         showLabels: false,
-        riverMode: OptionalToggle.Ignore.valueOf(),
-        roadMode: OptionalToggle.Yes.valueOf(),
+        riverMode: OptionalToggle.Yes.valueOf(),
+        roadMode: OptionalToggle.Ignore.valueOf(),
         wireframe: false,
         showRivers: true
     };
@@ -131,7 +131,7 @@ export class HexMapScene extends FullScreenScene {
         this.addLighting(new Vector3());
         this.handleInput(this.hexGrid);
 
-        // TODO make proper materials for everything
+        // TODO make proper rendering for everything
         // const material = new CustomMat();
         // const sphere = new Mesh(new SphereGeometry(10), material);
         // console.log(material.uniforms);

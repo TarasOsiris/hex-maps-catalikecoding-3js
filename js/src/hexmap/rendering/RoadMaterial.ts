@@ -1,11 +1,13 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import {Color, ShaderLib, ShaderMaterial, TangentSpaceNormalMap, Texture, UniformsUtils, Vector2} from "three";
-import tVertex from "../shaders/experiments/roadStandartVertex.glsl";
-import tFragment from "../shaders/experiments/roadStandardFragment.glsl";
+import tVertex from "./shaders/roadStandartVertex.glsl";
+import tFragment from "./shaders/roadStandardFragment.glsl";
+
+export type RoadUniforms = { roadColor: { value: Color }; noiseTexture: { value: Texture } };
 
 export class RoadMaterial extends ShaderMaterial {
-    constructor(uniforms: { roadColor: { value: Color }; noiseTexture: { value: Texture } }) {
+    constructor(uniforms: RoadUniforms) {
         super(
             {uniforms: UniformsUtils.merge([uniforms, UniformsUtils.clone(ShaderLib.standard.uniforms)])}
         );
