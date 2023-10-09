@@ -68,4 +68,8 @@ export class RiverMaterial extends ShaderMaterial {
         this.vertexShader = tVertex;
         this.fragmentShader = tFragment;
     }
+
+    updateTime(time: number) {
+        this.uniforms.time.value = time;
+    }
 }

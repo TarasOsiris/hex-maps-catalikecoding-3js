@@ -1,6 +1,6 @@
 import tVertex from "../rendering/shaders/roadStandardVertex.glsl";
 import tFragment from "../rendering/shaders/roadStandardFragment.glsl";
-import {Color, Material, MeshBasicMaterial, MeshStandardMaterial, ShaderMaterial, Texture} from "three";
+import {Color, MeshBasicMaterial, MeshStandardMaterial, ShaderMaterial, Texture} from "three";
 import {RoadMaterial, RoadUniforms} from "../rendering/RoadMaterial";
 import {RiverMaterial, RiverUniforms} from "../rendering/RiverMaterial";
 import {WaterMaterial, WaterUniforms} from "../rendering/WaterMaterial";
@@ -13,13 +13,14 @@ export class HexMaterials {
         polygonOffsetUnits: 2
     });
 
+    // TODO inline when possible
     private static riverUniforms: RiverUniforms;
     private static waterUniforms: WaterUniforms;
     private static roadUniforms: RoadUniforms;
 
-    static riverMaterial: Material;
-    static waterMaterial: Material;
-    static roadMaterial: Material;
+    static riverMaterial: RiverMaterial;
+    static waterMaterial: WaterMaterial;
+    static roadMaterial: RoadMaterial;
 
     static createMaterials(noiseTexture: Texture) {
         this.createRiverMaterial(noiseTexture);
@@ -55,11 +56,11 @@ export class HexMaterials {
     static updateTime(elapsedTime: number) {
         if (this.riverMaterial) {
             // @ts-ignore
-            this.riverMaterial.uniforms.time.value = elapsedTime;
+            this.riverMaterial.updateTime(elapsedTime);
         }
         if (this.waterMaterial) {
             // @ts-ignore
-            this.waterMaterial.uniforms.time.value = elapsedTime;
+            this.waterMaterial.updateTime(elapsedTime);
         }
     }
 
