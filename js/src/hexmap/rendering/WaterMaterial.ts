@@ -1,13 +1,13 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import {Color, ShaderLib, ShaderMaterial, TangentSpaceNormalMap, Texture, UniformsUtils, Vector2} from "three";
-import tVertex from "./shaders/roadStandardVertex.glsl";
-import tFragment from "./shaders/roadStandardFragment.glsl";
+import tVertex from "./shaders/waterStandardVertex.glsl";
+import tFragment from "./shaders/waterStandardFragment.glsl";
 
-export type RoadUniforms = { roadColor: { value: Color }; noiseTexture: { value: Texture } };
+export type WaterUniforms = { waterColor: { value: Color }; noiseTexture: { value: Texture }, time: { value: number } };
 
-export class RoadMaterial extends ShaderMaterial {
-    constructor(uniforms: RoadUniforms) {
+export class WaterMaterial extends ShaderMaterial {
+    constructor(uniforms: WaterUniforms) {
         super(
             {uniforms: UniformsUtils.merge([uniforms, UniformsUtils.clone(ShaderLib.standard.uniforms)])}
         );
@@ -60,6 +60,7 @@ export class RoadMaterial extends ShaderMaterial {
 
         // Customs stuff
         this.transparent = true;
+        this.opacity = 0.5;
         this.polygonOffset = true;
         this.polygonOffsetFactor = 1;
         this.polygonOffsetUnits = 1;

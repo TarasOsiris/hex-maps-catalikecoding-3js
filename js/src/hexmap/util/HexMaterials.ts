@@ -1,12 +1,9 @@
-import waterVertex from "../shaders/waterVertex.glsl";
-import waterFragment from "../shaders/waterFragment.glsl";
-import tVertex from "../rendering/shaders/roadStandartVertex.glsl";
+import tVertex from "../rendering/shaders/roadStandardVertex.glsl";
 import tFragment from "../rendering/shaders/roadStandardFragment.glsl";
 import {Color, Material, MeshBasicMaterial, MeshStandardMaterial, ShaderMaterial, Texture} from "three";
 import {RoadMaterial, RoadUniforms} from "../rendering/RoadMaterial";
 import {RiverMaterial, RiverUniforms} from "../rendering/RiverMaterial";
-
-export type WaterUniforms = { waterColor: { value: Color }; noiseTexture: { value: Texture } };
+import {WaterMaterial, WaterUniforms} from "../rendering/WaterMaterial";
 
 export class HexMaterials {
     static readonly terrainMaterial = new MeshStandardMaterial({
@@ -32,7 +29,7 @@ export class HexMaterials {
 
     static createRiverMaterial(noiseTexture: Texture) {
         this.riverUniforms = {
-            time: {value: 1.0},
+            time: {value: 0},
             noiseTexture: {value: noiseTexture}
         };
         this.riverMaterial = new RiverMaterial(this.riverUniforms);
@@ -40,15 +37,11 @@ export class HexMaterials {
 
     static createWaterMaterial(noiseTexture: Texture) {
         this.waterUniforms = {
+            time: {value: 0},
             waterColor: {value: new Color(0x4069ff)},
             noiseTexture: {value: noiseTexture}
         };
-        this.waterMaterial = new ShaderMaterial({
-            vertexShader: waterVertex,
-            fragmentShader: waterFragment,
-            uniforms: this.waterUniforms,
-            transparent: true,
-        });
+        this.waterMaterial = new WaterMaterial(this.waterUniforms);
     }
 
     static createRoadMaterial(noiseTexture: Texture) {
@@ -60,12 +53,13 @@ export class HexMaterials {
     }
 
     static updateTime(elapsedTime: number) {
-        if (this.riverUniforms) {
-            this.riverUniforms.time.value = elapsedTime;
-        }
         if (this.riverMaterial) {
             // @ts-ignore
             this.riverMaterial.uniforms.time.value = elapsedTime;
+        }
+        if (this.waterMaterial) {
+            // @ts-ignore
+            this.waterMaterial.uniforms.time.value = elapsedTime;
         }
     }
 
