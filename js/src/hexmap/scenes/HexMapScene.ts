@@ -39,7 +39,7 @@ export class HexMapScene extends FullScreenScene {
         activeWaterLevel: 0,
         brushSize: 0,
         showLabels: false,
-        riverMode: OptionalToggle.Yes.valueOf(),
+        riverMode: OptionalToggle.Ignore.valueOf(),
         roadMode: OptionalToggle.Ignore.valueOf(),
         wireframe: false,
         showRivers: true

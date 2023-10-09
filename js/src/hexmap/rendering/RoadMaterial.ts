@@ -63,7 +63,11 @@ export class RoadMaterial extends ShaderMaterial {
         this.polygonOffset = true;
         this.polygonOffsetFactor = 1;
         this.polygonOffsetUnits = 1;
-        this.defines = {'STANDARD': '', 'USE_UV': ''};
+        this.defines = {
+            'STANDARD': '',
+            'USE_UV': '',
+            'USE_SHADOWMAP': '' // This enables world position calculation
+        };
         this.vertexShader = tVertex;
         this.fragmentShader = tFragment;
     }
