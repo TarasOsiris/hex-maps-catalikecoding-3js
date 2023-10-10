@@ -106,18 +106,25 @@ void main() {
     #include <clipping_planes_fragment>
 
     vec2 uv1 = vWorldPosition.xz;
+    uv1.y = -uv1.y;
     uv1.y += time;
     vec4 noise1 = texture2D(noiseTexture, uv1 * 0.025);
 
     vec2 uv2 = vWorldPosition.xz;
+    uv2.y = -uv2.y;
     uv2.x += time;
     vec4 noise2 = texture2D(noiseTexture, uv2 * 0.025);
 
-    float waves = noise1.z + noise2.x;
-    waves = smoothstep(0.75, 2.0, waves);
-    vec3 c = saturate(waterColor + waves);
+    float blendWave = sin((vWorldPosition.x + (-vWorldPosition.z)) * 0.1 + (noise1.y + noise2.z) + time);
+    blendWave *= blendWave;
 
-    vec4 diffuseColor = vec4(c, opacity);
+    float waves = mix(noise1.z, noise1.w, blendWave) + mix(noise2.x, noise2.y, blendWave);
+    waves = smoothstep(0.75, 2.0, waves);
+
+    vec4 myWaterColor = vec4(waterColor.rgb, opacity);
+    vec4 c = saturate(myWaterColor + waves);
+
+    vec4 diffuseColor = vec4(c);
     ReflectedLight reflectedLight = ReflectedLight(vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
     vec3 totalEmissiveRadiance = emissive;
 
