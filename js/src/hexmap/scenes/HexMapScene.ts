@@ -36,7 +36,7 @@ export class HexMapScene extends FullScreenScene {
         applyElevation: true,
         applyWaterLevel: true,
         activeElevation: 0,
-        activeWaterLevel: 0,
+        activeWaterLevel: 1,
         brushSize: 0,
         showLabels: false,
         riverMode: OptionalToggle.Ignore.valueOf(),
@@ -77,7 +77,7 @@ export class HexMapScene extends FullScreenScene {
         folder.add(this, 'selectTestColor3').name('Blue');
         this.gui.add(this.inspectorControls, 'activeElevation').name('Cell elevation').min(0).max(6).step(1);
         this.gui.add(this.inspectorControls, 'applyElevation').name('Apply elevation?');
-        this.gui.add(this.inspectorControls, 'activeWaterLevel').name('Cell water level').min(0).max(6).step(1);
+        this.gui.add(this.inspectorControls, 'activeWaterLevel').name('Cell water level').min(1).max(6).step(1);
         this.gui.add(this.inspectorControls, 'applyWaterLevel').name('Apply water level?');
         this.gui.add(this.inspectorControls, 'brushSize').name('Brush Size').min(0).max(4).step(1);
         this.gui.add(this.inspectorControls, 'showLabels').name('Labels').onChange(() => {
