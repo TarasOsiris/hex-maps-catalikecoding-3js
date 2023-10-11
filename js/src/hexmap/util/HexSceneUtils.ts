@@ -10,9 +10,11 @@ export class HexSceneUtils {
         tex.wrapS = THREE.RepeatWrapping; // Horizontal wrap mode
         tex.wrapT = THREE.RepeatWrapping; // Vertical wrap mode
 
-        const canvas = new OffscreenCanvas(tex.image.width, tex.image.height);
-        canvas.width = tex.image.width;
-        canvas.height = tex.image.height;
+        const w = tex.image.width;
+        const h = tex.image.height;
+        const canvas = new OffscreenCanvas(w, h);
+        canvas.width = w;
+        canvas.height = h;
 
         const context = canvas.getContext('2d')!;
         context.drawImage(tex.image, 0, 0);
@@ -28,6 +30,6 @@ export class HexSceneUtils {
 
             colors.push(new THREE.Color(r, g, b));
         }
-        HexMetrics.noise = colors;
+        HexMetrics.setNoise(colors, Math.min(w, h));
     }
 }

@@ -34,7 +34,7 @@ export class HexGridChunk extends Object3D {
         this.roads.receiveShadow = true;
 
         this.water = new HexMesh(HexMaterials.waterMaterial, HexMaterials.wireframeMaterial, false, false, false);
-        this.water.wireframeCopy.visible = false;
+        this.water.wireframeCopy.visible = true;
         this.roads.receiveShadow = true;
 
         this.add(this.terrain, this.rivers, this.roads, this.water);
@@ -589,17 +589,22 @@ export class HexGridChunk extends Object3D {
     triangulateWater(direction: HexDirection, cell: HexCell, center: Vector3) {
         center = center.clone();
         center.y = cell.waterSurfaceY;
+
+        const neighbor = cell.getNeighbor(direction);
+        if (neighbor != null && !neighbor.isUnderwater) {
+            this.triangulateWaterShore(direction, cell, neighbor, center);
+        } else {
+            this.triangulateOpenWater(direction, cell, neighbor, center);
+        }
+    }
+
+    private triangulateOpenWater(direction: HexDirection, cell: HexCell, neighbor: HexCell, center: Vector3) {
         const c1 = Vec3.add(center, HexMetrics.getFirstSolidCorner(direction));
         const c2 = Vec3.add(center, HexMetrics.getSecondSolidCorner(direction));
 
         this.water.addTriangle(center, c1, c2);
 
-        if (direction <= HexDirection.SE) {
-            const neighbor = cell.getNeighbor(direction);
-            if (neighbor == null || !neighbor.isUnderwater) {
-                return;
-            }
-
+        if (direction <= HexDirection.SE && neighbor != null) {
             const bridge = HexMetrics.getBridge(direction);
             const e1 = Vec3.add(c1, bridge);
             const e2 = Vec3.add(c2, bridge);
@@ -617,6 +622,36 @@ export class HexGridChunk extends Object3D {
                     c2, e2, Vec3.add(c2, HexMetrics.getBridge(next))
                 );
             }
+        }
+    }
+
+    private triangulateWaterShore(direction: HexDirection, cell: HexCell, neighbor: HexCell, center: Vector3) {
+        center = center.clone();
+        const e1 = new EdgeVertices(
+            Vec3.add(center, HexMetrics.getFirstSolidCorner(direction)),
+            Vec3.add(center, HexMetrics.getSecondSolidCorner(direction))
+        );
+        this.water.addTriangle(center, e1.v1, e1.v2);
+        this.water.addTriangle(center, e1.v2, e1.v3);
+        this.water.addTriangle(center, e1.v3, e1.v4);
+        this.water.addTriangle(center, e1.v4, e1.v5);
+
+        const bridge = HexMetrics.getBridge(direction);
+        const e2 = new EdgeVertices(
+            Vec3.add(e1.v1, bridge),
+            Vec3.add(e1.v5, bridge)
+        );
+        this.water.addQuad(e1.v1, e1.v2, e2.v1, e2.v2);
+        this.water.addQuad(e1.v2, e1.v3, e2.v2, e2.v3);
+        this.water.addQuad(e1.v3, e1.v4, e2.v3, e2.v4);
+        this.water.addQuad(e1.v4, e1.v5, e2.v4, e2.v5);
+
+        const directionNext = HexDirectionUtils.next(direction);
+        const nextNeighbor = cell.getNeighbor(directionNext);
+        if (nextNeighbor != null) {
+            this.water.addTriangle(
+                e1.v5, e2.v5, Vec3.add(e1.v5, HexMetrics.getBridge(directionNext))
+            );
         }
     }
 }
