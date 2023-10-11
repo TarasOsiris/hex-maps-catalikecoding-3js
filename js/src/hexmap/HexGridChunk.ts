@@ -15,6 +15,7 @@ export class HexGridChunk extends Object3D {
     rivers: HexMesh;
     roads: HexMesh;
     water: HexMesh;
+    waterShore: HexMesh;
     dirty = true;
 
     constructor() {
@@ -34,10 +35,15 @@ export class HexGridChunk extends Object3D {
         this.roads.receiveShadow = true;
 
         this.water = new HexMesh(HexMaterials.waterMaterial, HexMaterials.wireframeMaterial, false, false, false);
-        this.water.wireframeCopy.visible = true;
+        this.water.wireframeCopy.visible = false;
         this.roads.receiveShadow = true;
 
-        this.add(this.terrain, this.rivers, this.roads, this.water);
+        // TODO water shore separate material
+        this.waterShore = new HexMesh(HexMaterials.debugMaterial, HexMaterials.wireframeMaterial, false, false, true);
+        this.waterShore.wireframeCopy.visible = true;
+        this.waterShore.receiveShadow = true;
+
+        this.add(this.terrain, this.rivers, this.roads, this.water, this.waterShore);
     }
 
     refresh() {
@@ -45,6 +51,7 @@ export class HexGridChunk extends Object3D {
         this.rivers.clearAll();
         this.roads.clearAll();
         this.water.clearAll();
+        this.waterShore.clearAll();
         for (let i = 0; i < this.cells.length; i++) {
             this.triangulateCell((this.cells)[i]);
         }
@@ -52,6 +59,8 @@ export class HexGridChunk extends Object3D {
         this.rivers.apply();
         this.roads.apply();
         this.water.apply();
+        this.waterShore.apply();
+
         this.dirty = false;
     }
 
@@ -641,16 +650,25 @@ export class HexGridChunk extends Object3D {
             Vec3.add(e1.v1, bridge),
             Vec3.add(e1.v5, bridge)
         );
-        this.water.addQuad(e1.v1, e1.v2, e2.v1, e2.v2);
-        this.water.addQuad(e1.v2, e1.v3, e2.v2, e2.v3);
-        this.water.addQuad(e1.v3, e1.v4, e2.v3, e2.v4);
-        this.water.addQuad(e1.v4, e1.v5, e2.v4, e2.v5);
+        this.waterShore.addQuad(e1.v1, e1.v2, e2.v1, e2.v2);
+        this.waterShore.addQuad(e1.v2, e1.v3, e2.v2, e2.v3);
+        this.waterShore.addQuad(e1.v3, e1.v4, e2.v3, e2.v4);
+        this.waterShore.addQuad(e1.v4, e1.v5, e2.v4, e2.v5);
+        this.waterShore.addQuadUVNumbers(0, 0, 0, 1);
+        this.waterShore.addQuadUVNumbers(0, 0, 0, 1);
+        this.waterShore.addQuadUVNumbers(0, 0, 0, 1);
+        this.waterShore.addQuadUVNumbers(0, 0, 0, 1);
 
         const directionNext = HexDirectionUtils.next(direction);
         const nextNeighbor = cell.getNeighbor(directionNext);
         if (nextNeighbor != null) {
-            this.water.addTriangle(
+            this.waterShore.addTriangle(
                 e1.v5, e2.v5, Vec3.add(e1.v5, HexMetrics.getBridge(directionNext))
+            );
+            this.waterShore.addTriangleUV(
+                new Vector2(0, 0),
+                new Vector2(0, 1),
+                new Vector2(0, 0)
             );
         }
     }
