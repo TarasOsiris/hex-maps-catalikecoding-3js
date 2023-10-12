@@ -106,6 +106,7 @@ void main() {
     #include <clipping_planes_fragment>
 
     float shore = vUv.y;
+    shore = sqrt(shore);
 
     float foam = sin(shore * 10.0);
     foam *= foam * shore;
