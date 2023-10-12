@@ -155,7 +155,7 @@ export abstract class FullScreenScene extends THREE.Scene {
         this.mainCamera.position.z = 3;
     }
 
-    abstract onInit();
+    abstract onInit(): void;
 
     private updateRenderer(size: THREE.Vector2) {
         this.renderer.setSize(size.width, size.height);
