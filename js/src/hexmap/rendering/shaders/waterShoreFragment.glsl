@@ -1,6 +1,7 @@
 // Custom stuff
+uniform float time;
 uniform sampler2D noiseTexture;
-uniform vec3 roadColor;
+uniform vec3 waterColor;
 varying vec3 vWorldPosition;
 
 #define STANDARD
@@ -101,16 +102,16 @@ varying vec3 vViewPosition;
 
 
 void main() {
+
     #include <clipping_planes_fragment>
 
-    vec4 noise = texture2D(noiseTexture, vWorldPosition.xz * 0.025);
-    vec2 uv = vUv;
-    float blend = uv.x;
-    blend *= noise.x + 0.5;
-    blend = smoothstep(0.4, 0.7, blend);
-    vec3 color = roadColor * (noise.y * 0.75 + 0.25);
+    float shore = vUv.y;
 
-    vec4 diffuseColor = vec4(color, blend);
+    float foam = sin(shore * 10.0);
+    foam *= foam * shore;
+
+    vec4 c = saturate(vec4(waterColor.rgb, opacity) + foam);
+    vec4 diffuseColor = c;
     ReflectedLight reflectedLight = ReflectedLight(vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
     vec3 totalEmissiveRadiance = emissive;
 

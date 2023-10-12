@@ -39,8 +39,8 @@ export class HexGridChunk extends Object3D {
         this.roads.receiveShadow = true;
 
         // TODO water shore separate material
-        this.waterShore = new HexMesh(HexMaterials.debugMaterial, HexMaterials.wireframeMaterial, false, false, true);
-        this.waterShore.wireframeCopy.visible = true;
+        this.waterShore = new HexMesh(HexMaterials.waterShoreMaterial, HexMaterials.wireframeMaterial, false, false, true);
+        this.waterShore.wireframeCopy.visible = false;
         this.waterShore.receiveShadow = true;
 
         this.add(this.terrain, this.rivers, this.roads, this.water, this.waterShore);
@@ -668,7 +668,7 @@ export class HexGridChunk extends Object3D {
             this.waterShore.addTriangleUV(
                 new Vector2(0, 0),
                 new Vector2(0, 1),
-                new Vector2(0, 0)
+                new Vector2(0, nextNeighbor.isUnderwater ? 0 : 1)
             );
         }
     }

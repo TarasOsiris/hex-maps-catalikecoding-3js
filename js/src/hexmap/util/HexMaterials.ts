@@ -4,6 +4,7 @@ import {Color, MeshBasicMaterial, MeshStandardMaterial, ShaderMaterial, Texture}
 import {RoadMaterial, RoadUniforms} from "../rendering/RoadMaterial";
 import {RiverMaterial, RiverUniforms} from "../rendering/RiverMaterial";
 import {WaterMaterial, WaterUniforms} from "../rendering/WaterMaterial";
+import {WaterShoreMaterial} from "../rendering/WaterShoreMaterial";
 
 export class HexMaterials {
     static readonly terrainMaterial = new MeshStandardMaterial({
@@ -20,6 +21,7 @@ export class HexMaterials {
 
     static riverMaterial: RiverMaterial;
     static waterMaterial: WaterMaterial;
+    static waterShoreMaterial: WaterShoreMaterial;
     static roadMaterial: RoadMaterial;
 
     static createMaterials(noiseTexture: Texture) {
@@ -43,7 +45,9 @@ export class HexMaterials {
             noiseTexture: {value: noiseTexture}
         };
         this.waterMaterial = new WaterMaterial(this.waterUniforms);
+        this.waterShoreMaterial = new WaterShoreMaterial(this.waterUniforms);
     }
+
 
     static createRoadMaterial(noiseTexture: Texture) {
         this.roadUniforms = {
@@ -80,4 +84,5 @@ export class HexMaterials {
         vertexShader: tVertex, fragmentShader: tFragment,
         defines: {'STANDARD': ''},
     });
+
 }

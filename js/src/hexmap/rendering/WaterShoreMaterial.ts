@@ -1,8 +1,8 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import {Color, ShaderLib, ShaderMaterial, TangentSpaceNormalMap, UniformsUtils, Vector2} from "three";
-import tVertex from "./shaders/waterStandardVertex.glsl";
-import tFragment from "./shaders/waterStandardFragment.glsl";
+import tVertex from "./shaders/waterShoreVertex.glsl";
+import tFragment from "./shaders/waterShoreFragment.glsl";
 import {WaterUniforms} from "./WaterMaterial";
 
 export class WaterShoreMaterial extends ShaderMaterial {
