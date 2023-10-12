@@ -634,6 +634,7 @@ export class HexGridChunk extends Object3D {
         }
     }
 
+    // @ts-ignore
     private triangulateWaterShore(direction: HexDirection, cell: HexCell, neighbor: HexCell, center: Vector3) {
         center = center.clone();
         const e1 = new EdgeVertices(
