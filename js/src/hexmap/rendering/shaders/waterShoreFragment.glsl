@@ -108,8 +108,18 @@ void main() {
     float shore = vUv.y;
     shore = sqrt(shore);
 
-    float foam = sin(shore * 10.0);
-    foam *= foam * shore;
+    vec2 noiseUV = vWorldPosition.xz + time * 0.25;
+    vec4 noise = texture2D(noiseTexture, noiseUV * 0.015);
+
+    float distortion1 = noise.x * (1.0 - shore);
+    float foam1 = sin((shore + distortion1) * 10.0 - time);
+    foam1 *= foam1;
+
+    float distortion2 = noise.y * (1.0 - shore);
+    float foam2 = sin((shore + distortion2) * 10.0 + time + 2.0);
+    foam2 *= foam2 * 0.7;
+
+    float foam = max(foam1, foam2) * shore;
 
     vec4 c = saturate(vec4(waterColor.rgb, opacity) + foam);
     vec4 diffuseColor = c;

@@ -58,14 +58,9 @@ export class HexMaterials {
     }
 
     static updateTime(elapsedTime: number) {
-        if (this.riverMaterial) {
-            // @ts-ignore
-            this.riverMaterial.updateTime(elapsedTime);
-        }
-        if (this.waterMaterial) {
-            // @ts-ignore
-            this.waterMaterial.updateTime(elapsedTime);
-        }
+        this.riverMaterial?.updateTime(elapsedTime);
+        this.waterMaterial?.updateTime(elapsedTime);
+        this.waterShoreMaterial?.updateTime(elapsedTime);
     }
 
     static readonly wireframeMaterial = new MeshBasicMaterial({
