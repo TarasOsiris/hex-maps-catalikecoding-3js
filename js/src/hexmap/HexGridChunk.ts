@@ -29,7 +29,7 @@ export class HexGridChunk extends Object3D {
         this.rivers = new HexMesh(HexMaterials.riverMaterial, HexMaterials.wireframeMaterial, false, false, true);
         this.rivers.receiveShadow = false;
         this.rivers.wireframeCopy.visible = false; // TODO to inspector
-        this.rivers.renderOrder = 3;
+        this.rivers.renderOrder = 0;
 
         this.roads = new HexMesh(HexMaterials.roadMaterial, HexMaterials.wireframeMaterial, false, false, true);
         this.roads.wireframeCopy.visible = false; // TODO to inspector
@@ -38,15 +38,15 @@ export class HexGridChunk extends Object3D {
         this.water = new HexMesh(HexMaterials.waterMaterial, HexMaterials.wireframeMaterial, false, false, false);
         this.water.wireframeCopy.visible = false;
         this.water.receiveShadow = true;
-        this.water.renderOrder = 2;
+        this.water.renderOrder = 0;
 
         // TODO water shore separate material
         this.waterShore = new HexMesh(HexMaterials.waterShoreMaterial, HexMaterials.wireframeMaterial, false, false, true);
         this.waterShore.wireframeCopy.visible = false;
         this.waterShore.receiveShadow = true;
-        this.waterShore.renderOrder = 2;
+        this.waterShore.renderOrder = 0;
 
-        this.add(this.terrain, this.rivers, this.roads, this.water, this.waterShore);
+        this.add(this.terrain, this.roads, this.water, this.waterShore, this.rivers);
     }
 
     refresh() {
@@ -172,10 +172,13 @@ export class HexGridChunk extends Object3D {
 
         if (cell.hasRiverThroughEdge(direction)) {
             e2.v3.y = neighbor.streamBedY;
-            this.triangulateRiverQuad(e1.v2, e1.v4, e2.v2, e2.v4,
-                cell.riverSurfaceY, neighbor.riverSurfaceY, 0.8,
-                cell.hasIncomingRiver && cell.incomingRiver == direction
-            );
+
+            if (!cell.isUnderwater && !neighbor.isUnderwater) {
+                this.triangulateRiverQuad(e1.v2, e1.v4, e2.v2, e2.v4,
+                    cell.riverSurfaceY, neighbor.riverSurfaceY, 0.8,
+                    cell.hasIncomingRiver && cell.incomingRiver == direction
+                );
+            }
         }
 
         if (cell.getEdgeType(direction) == HexEdgeType.Slope) {
@@ -396,9 +399,11 @@ export class HexGridChunk extends Object3D {
         this.terrain.addTriangle(centerR, m.v4, m.v5);
         this.terrain.addTriangleColorSingle(cell.color);
 
-        const reversed = cell.incomingRiver == direction;
-        this.triangulateRiverQuadSameY(centerL, centerR, m.v2, m.v4, cell.riverSurfaceY, 0.4, reversed);
-        this.triangulateRiverQuadSameY(m.v2, m.v4, e.v2, e.v4, cell.riverSurfaceY, 0.6, reversed);
+        if (!cell.isUnderwater) {
+            const reversed = cell.incomingRiver == direction;
+            this.triangulateRiverQuadSameY(centerL, centerR, m.v2, m.v4, cell.riverSurfaceY, 0.4, reversed);
+            this.triangulateRiverQuadSameY(m.v2, m.v4, e.v2, e.v4, cell.riverSurfaceY, 0.6, reversed);
+        }
     }
 
     private triangulateWithRiverBeginOrEnd(cell: HexCell, center: Vector3, e: EdgeVertices) {
@@ -412,19 +417,21 @@ export class HexGridChunk extends Object3D {
         this.triangulateEdgeStrip(m, cell.color, e, cell.color);
         this.triangulateEdgeFan(center, m, cell.color);
 
-        const reversed = cell.hasIncomingRiver;
-        this.triangulateRiverQuadSameY(m.v2, m.v4, e.v2, e.v4, cell.riverSurfaceY, 0.6, reversed);
+        if (!cell.isUnderwater) {
+            const reversed = cell.hasIncomingRiver;
+            this.triangulateRiverQuadSameY(m.v2, m.v4, e.v2, e.v4, cell.riverSurfaceY, 0.6, reversed);
 
-        center.y = m.v2.y = m.v4.y = cell.riverSurfaceY;
-        this.rivers.addTriangle(center, m.v2, m.v4);
-        if (reversed) {
-            this.rivers.addTriangleUV(
-                new Vector2(0.5, 0.4), new Vector2(1, 0.2), new Vector2(0, 0.2)
-            );
-        } else {
-            this.rivers.addTriangleUV(
-                new Vector2(0.5, 0.4), new Vector2(0, 0.6), new Vector2(1, 0.6)
-            );
+            center.y = m.v2.y = m.v4.y = cell.riverSurfaceY;
+            this.rivers.addTriangle(center, m.v2, m.v4);
+            if (reversed) {
+                this.rivers.addTriangleUV(
+                    new Vector2(0.5, 0.4), new Vector2(1, 0.2), new Vector2(0, 0.2)
+                );
+            } else {
+                this.rivers.addTriangleUV(
+                    new Vector2(0.5, 0.4), new Vector2(0, 0.6), new Vector2(1, 0.6)
+                );
+            }
         }
     }
 

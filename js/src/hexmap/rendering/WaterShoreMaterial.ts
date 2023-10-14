@@ -60,9 +60,9 @@ export class WaterShoreMaterial extends ShaderMaterial {
         // Customs stuff
         this.transparent = true;
         this.opacity = 0.3;
-        // this.polygonOffset = true;
-        // this.polygonOffsetFactor = 1;
-        // this.polygonOffsetUnits = 1;
+        this.polygonOffset = true;
+        this.polygonOffsetFactor = 1;
+        this.polygonOffsetUnits = 1;
         this.defines = {
             'STANDARD': '',
             'USE_UV': '',
