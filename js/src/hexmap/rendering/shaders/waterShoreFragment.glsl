@@ -100,28 +100,19 @@ varying vec3 vViewPosition;
 #include <logdepthbuf_pars_fragment>
 #include <clipping_planes_pars_fragment>
 
+#include "chunks/water"
 
 void main() {
 
     #include <clipping_planes_fragment>
 
     float shore = vUv.y;
-    shore = sqrt(shore);
+    float foam = Foam(shore, vWorldPosition.xz, noiseTexture);
+    float waves = Waves(vWorldPosition.xz, noiseTexture);
+    waves *= 1. - shore;
 
-    vec2 noiseUV = vWorldPosition.xz + time * 0.25;
-    vec4 noise = texture2D(noiseTexture, noiseUV * 0.015);
-
-    float distortion1 = noise.x * (1.0 - shore);
-    float foam1 = sin((shore + distortion1) * 10.0 - time);
-    foam1 *= foam1;
-
-    float distortion2 = noise.y * (1.0 - shore);
-    float foam2 = sin((shore + distortion2) * 10.0 + time + 2.0);
-    foam2 *= foam2 * 0.7;
-
-    float foam = max(foam1, foam2) * shore;
-
-    vec4 c = saturate(vec4(waterColor.rgb, opacity) + foam);
+    vec4 waterColor = vec4(waterColor.rgb, opacity);
+    vec4 c = saturate(waterColor + max(foam, waves));
     vec4 diffuseColor = c;
     ReflectedLight reflectedLight = ReflectedLight(vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
     vec3 totalEmissiveRadiance = emissive;
