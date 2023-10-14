@@ -86,7 +86,7 @@ export class HexMapScene extends FullScreenScene {
         this.gui.add(this.inspectorControls, 'showLabels').name('Labels').onChange(() => {
             this.showLabels(this.inspectorControls.showLabels);
         });
-        this.gui.add(this.inspectorControls, 'riverMode', this.inspectorControls.toggleOptions).name('River');
+        this.gui.add(this.inspectorControls, 'roadMode', this.inspectorControls.toggleOptions).name('Road');
         this.gui.add(this.inspectorControls, 'riverMode', this.inspectorControls.toggleOptions).name('River');
 
         this.gui.add(this.inspectorControls, 'wireframe').onChange((value: boolean) => {
