@@ -10,6 +10,7 @@ export class HexMesh extends THREE.Mesh {
     meshTriangles!: Array<number>;
     meshColors!: Array<number>;
     meshUVs!: Array<number>;
+    meshUV2s!: Array<number>;
 
     static verticesPool = new ListPool<number>();
     static trianglesPool = new ListPool<number>();
@@ -19,16 +20,20 @@ export class HexMesh extends THREE.Mesh {
     readonly wireframeCopy: THREE.Mesh;
     private readonly _useColors: boolean;
     private readonly _useUVCoordinates: boolean;
+    private readonly _useUV2Coordinates: boolean;
 
     constructor(material: THREE.Material, wireframeMaterial: THREE.Material,
                 useCollider: boolean,
                 useColors: boolean,
-                useUVCoordinates: boolean) {
+                useUVCoordinates: boolean,
+                useUV2Coordinates: boolean = false,
+    ) {
         const geometry = new THREE.BufferGeometry();
         material.side = THREE.BackSide;
         super(geometry, material);
         this._useColors = useColors;
         this._useUVCoordinates = useUVCoordinates;
+        this._useUV2Coordinates = useUV2Coordinates;
 
         this.name = "Hex mesh";
         if (useCollider) {
@@ -49,10 +54,18 @@ export class HexMesh extends THREE.Mesh {
         if (this._useUVCoordinates) {
             this.meshUVs = HexMesh.uvsPool.get();
         }
+        if (this._useUV2Coordinates) {
+            this.meshUV2s = HexMesh.uvsPool.get();
+        }
     }
 
     apply() {
         const meshGeometry = new THREE.BufferGeometry();
+
+        if (this.meshVertices.length == 0) {
+            // no use updating mesh if it is empty
+            return;
+        }
 
         meshGeometry.setIndex(this.meshTriangles);
         HexMesh.trianglesPool.add(this.meshTriangles);
@@ -64,10 +77,13 @@ export class HexMesh extends THREE.Mesh {
             BufferGeometryUtils.setColor(meshGeometry, this.meshColors);
             HexMesh.colorsPool.add(this.meshColors);
         }
-
         if (this._useUVCoordinates) {
             BufferGeometryUtils.setUVs(meshGeometry, this.meshUVs);
             HexMesh.uvsPool.add(this.meshUVs);
+        }
+        if (this._useUV2Coordinates) {
+            BufferGeometryUtils.setUVs(meshGeometry, this.meshUVs, '2');
+            HexMesh.uvsPool.add(this.meshUV2s);
         }
 
         meshGeometry.computeVertexNormals();

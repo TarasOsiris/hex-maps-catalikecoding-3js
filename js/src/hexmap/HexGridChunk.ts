@@ -42,7 +42,7 @@ export class HexGridChunk extends Object3D {
         this.water.renderOrder = 0;
 
         // TODO water shore separate material
-        this.waterShore = new HexMesh(HexMaterials.waterShoreMaterial, HexMaterials.wireframeMaterial, false, false, true);
+        this.waterShore = new HexMesh(HexMaterials.waterShoreMaterial, HexMaterials.wireframeMaterial, false, false, true, true);
         this.waterShore.wireframeCopy.visible = true;
         this.waterShore.receiveShadow = true;
         this.waterShore.renderOrder = 0;

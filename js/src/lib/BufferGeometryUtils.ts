@@ -9,7 +9,7 @@ export class BufferGeometryUtils {
         geometry.setAttribute('color', new THREE.BufferAttribute(new Float32Array(colors), 3));
     }
 
-    static setUVs(geometry: THREE.BufferGeometry, uvs: Array<number>) {
-        geometry.setAttribute('uv', new THREE.BufferAttribute(new Float32Array(uvs), 2));
+    static setUVs(geometry: THREE.BufferGeometry, uvs: Array<number>, index: string = '') {
+        geometry.setAttribute('uv' + index, new THREE.BufferAttribute(new Float32Array(uvs), 2));
     }
 }
