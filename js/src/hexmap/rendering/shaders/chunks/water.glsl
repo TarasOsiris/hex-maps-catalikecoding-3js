@@ -1,18 +1,18 @@
 float Foam(float shore, vec2 worldXZ, sampler2D noiseTex) {
-	shore = sqrt(shore);
+    shore = sqrt(shore);
 
-	vec2 noiseUV = worldXZ + time * 0.25;
-	vec4 noise = texture2D(noiseTex, noiseUV * 0.015);
+    vec2 noiseUV = worldXZ + time * 0.25;
+    vec4 noise = texture2D(noiseTex, noiseUV * 0.015);
 
-	float distortion1 = noise.x * (1. - shore);
-	float foam1 = sin((shore + distortion1) * 10.0 - time);
-	foam1 *= foam1;
+    float distortion1 = noise.x * (1. - shore);
+    float foam1 = sin((shore + distortion1) * 10.0 - time);
+    foam1 *= foam1;
 
-	float distortion2 = noise.y * (1. - shore);
-	float foam2 = sin((shore + distortion2) * 10. + time + 2.);
-	foam2 *= foam2 * 0.7;
+    float distortion2 = noise.y * (1. - shore);
+    float foam2 = sin((shore + distortion2) * 10. + time + 2.);
+    foam2 *= foam2 * 0.7;
 
-	return max(foam1, foam2) * shore;
+    return max(foam1, foam2) * shore;
 }
 
 float Waves(vec2 worldXZ, sampler2D noiseTex) {
