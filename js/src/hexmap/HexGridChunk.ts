@@ -26,14 +26,15 @@ export class HexGridChunk extends Object3D {
         this.terrain.castShadow = true;
         this.terrain.receiveShadow = true;
 
-        this.rivers = new HexMesh(HexMaterials.riverMaterial, HexMaterials.wireframeMaterial, false, false, true);
-        this.rivers.receiveShadow = false;
-        this.rivers.wireframeCopy.visible = false; // TODO to inspector
-        this.rivers.renderOrder = 0;
-
         this.roads = new HexMesh(HexMaterials.roadMaterial, HexMaterials.wireframeMaterial, false, false, true);
         this.roads.wireframeCopy.visible = false; // TODO to inspector
         this.roads.receiveShadow = true;
+
+        this.rivers = new HexMesh(HexMaterials.riverMaterial, HexMaterials.wireframeMaterial, false, false, true);
+        this.rivers.receiveShadow = false;
+        this.rivers.wireframeCopy.visible = false; // TODO to inspector
+        // TODO there is this issue where the rivers are not drawn at all below the water
+        this.rivers.renderOrder = 0;
 
         this.water = new HexMesh(HexMaterials.waterMaterial, HexMaterials.wireframeMaterial, false, false, false);
         this.water.wireframeCopy.visible = false;
@@ -173,10 +174,24 @@ export class HexGridChunk extends Object3D {
         if (cell.hasRiverThroughEdge(direction)) {
             e2.v3.y = neighbor.streamBedY;
 
-            if (!cell.isUnderwater && !neighbor.isUnderwater) {
-                this.triangulateRiverQuad(e1.v2, e1.v4, e2.v2, e2.v4,
-                    cell.riverSurfaceY, neighbor.riverSurfaceY, 0.8,
-                    cell.hasIncomingRiver && cell.incomingRiver == direction
+            if (!cell.isUnderwater) {
+                if (!neighbor.isUnderwater) {
+                    this.triangulateRiverQuad(e1.v2, e1.v4, e2.v2, e2.v4,
+                        cell.riverSurfaceY, neighbor.riverSurfaceY, 0.8,
+                        cell.hasIncomingRiver && cell.incomingRiver == direction
+                    );
+                } else if (cell.elevation > neighbor.waterLevel) {
+                    this.triangulateWaterfallInWater(
+                        e1.v2, e1.v4, e2.v2, e2.v4,
+                        cell.riverSurfaceY, neighbor.riverSurfaceY,
+                        neighbor.waterSurfaceY
+                    );
+                }
+            } else if (!neighbor.isUnderwater && neighbor.elevation > cell.waterLevel) {
+                this.triangulateWaterfallInWater(
+                    e2.v4, e2.v2, e1.v4, e1.v2,
+                    neighbor.riverSurfaceY, cell.riverSurfaceY,
+                    cell.waterSurfaceY
                 );
             }
         }
@@ -644,7 +659,6 @@ export class HexGridChunk extends Object3D {
         }
     }
 
-    // @ts-ignore
     private triangulateWaterShore(direction: HexDirection, cell: HexCell, neighbor: HexCell, center: Vector3) {
         center = center.clone();
         const e1 = new EdgeVertices(
@@ -688,5 +702,25 @@ export class HexGridChunk extends Object3D {
                 new Vector2(0, nextNeighbor.isUnderwater ? 0 : 1)
             );
         }
+    }
+
+    triangulateWaterfallInWater(v1: Vector3, v2: Vector3, v3: Vector3, v4: Vector3,
+                                y1: number, y2: number, waterY: number) {
+        v1 = v1.clone();
+        v2 = v2.clone();
+        v3 = v3.clone();
+        v4 = v4.clone();
+        v1 = HexMetrics.perturb(v1);
+        v2 = HexMetrics.perturb(v2);
+        v3 = HexMetrics.perturb(v3);
+        v4 = HexMetrics.perturb(v4);
+
+        v1.y = v2.y = y1;
+        v3.y = v4.y = y2;
+        const t = (waterY - y2) / (y1 - y2);
+        v3 = Vec3.lerp(v3, v1, t);
+        v4 = Vec3.lerp(v4, v2, t);
+        this.rivers.addQuadUnperturbed(v1, v2, v3, v4);
+        this.rivers.addQuadUVNumbers(0, 1, 0.8, 1);
     }
 }

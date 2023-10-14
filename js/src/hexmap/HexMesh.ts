@@ -112,6 +112,17 @@ export class HexMesh extends THREE.Mesh {
         this.meshTriangles.push(vertexIndex + 3);
     }
 
+    addQuadUnperturbed(v1: THREE.Vector3, v2: THREE.Vector3, v3: THREE.Vector3, v4: THREE.Vector3) {
+        const vertexIndex = this.meshVertices.length / 3;
+        this.addVertices(v1, v2, v3, v4);
+        this.meshTriangles.push(vertexIndex);
+        this.meshTriangles.push(vertexIndex + 2);
+        this.meshTriangles.push(vertexIndex + 1);
+        this.meshTriangles.push(vertexIndex + 1);
+        this.meshTriangles.push(vertexIndex + 2);
+        this.meshTriangles.push(vertexIndex + 3);
+    }
+
     addQuadColor4v(c1: THREE.Color, c2: THREE.Color, c3: THREE.Color, c4: THREE.Color) {
         this.addColor(c1);
         this.addColor(c2);
