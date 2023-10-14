@@ -1,5 +1,5 @@
 float Foam(float shore, vec2 worldXZ, sampler2D noiseTex) {
-    shore = sqrt(shore);
+    shore = sqrt(shore) * 0.9;
 
     vec2 noiseUV = worldXZ + time * 0.25;
     vec4 noise = texture2D(noiseTex, noiseUV * 0.015);

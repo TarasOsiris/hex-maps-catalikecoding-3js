@@ -35,8 +35,8 @@ export class HexGridChunk extends Object3D {
         this.roads.receiveShadow = true;
 
         this.water = new HexMesh(HexMaterials.waterMaterial, HexMaterials.wireframeMaterial, false, false, false);
-        this.water.wireframeCopy.visible = true;
-        this.roads.receiveShadow = true;
+        this.water.wireframeCopy.visible = false;
+        this.water.receiveShadow = true;
 
         // TODO water shore separate material
         this.waterShore = new HexMesh(HexMaterials.waterShoreMaterial, HexMaterials.wireframeMaterial, false, false, true);
@@ -646,10 +646,11 @@ export class HexGridChunk extends Object3D {
         this.water.addTriangle(center, e1.v3, e1.v4);
         this.water.addTriangle(center, e1.v4, e1.v5);
 
-        const bridge = HexMetrics.getWaterBridge(direction);
+        const center2 = neighbor.position.clone();
+        center2.y = center.y;
         const e2 = new EdgeVertices(
-            Vec3.add(e1.v1, bridge),
-            Vec3.add(e1.v5, bridge)
+            Vec3.add(center2, HexMetrics.getSecondSolidCorner(HexDirectionUtils.opposite(direction))),
+            Vec3.add(center2, HexMetrics.getFirstSolidCorner(HexDirectionUtils.opposite(direction)))
         );
         this.waterShore.addQuad(e1.v1, e1.v2, e2.v1, e2.v2);
         this.waterShore.addQuad(e1.v2, e1.v3, e2.v2, e2.v3);
@@ -663,9 +664,14 @@ export class HexGridChunk extends Object3D {
         const directionNext = HexDirectionUtils.next(direction);
         const nextNeighbor = cell.getNeighbor(directionNext);
         if (nextNeighbor != null) {
-            this.waterShore.addTriangle(
-                e1.v5, e2.v5, Vec3.add(e1.v5, HexMetrics.getWaterBridge(directionNext))
+            const nextNeighborPos = nextNeighbor.position.clone();
+            const prevDirection = HexDirectionUtils.previous(direction);
+            const v3 = Vec3.add(
+                nextNeighborPos,
+                nextNeighbor.isUnderwater ? HexMetrics.getFirstWaterCorner(prevDirection) : HexMetrics.getFirstSolidCorner(prevDirection)
             );
+            v3.y = center.y;
+            this.waterShore.addTriangle(e1.v5, e2.v5, v3);
             this.waterShore.addTriangleUV(
                 new Vector2(0, 0),
                 new Vector2(0, 1),
