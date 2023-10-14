@@ -37,13 +37,13 @@ export class HexGridChunk extends Object3D {
         this.rivers.renderOrder = 0;
 
         this.water = new HexMesh(HexMaterials.waterMaterial, HexMaterials.wireframeMaterial, false, false, false);
-        this.water.wireframeCopy.visible = false;
+        this.water.wireframeCopy.visible = true;
         this.water.receiveShadow = true;
         this.water.renderOrder = 0;
 
         // TODO water shore separate material
         this.waterShore = new HexMesh(HexMaterials.waterShoreMaterial, HexMaterials.wireframeMaterial, false, false, true);
-        this.waterShore.wireframeCopy.visible = false;
+        this.waterShore.wireframeCopy.visible = true;
         this.waterShore.receiveShadow = true;
         this.waterShore.renderOrder = 0;
 
@@ -676,14 +676,18 @@ export class HexGridChunk extends Object3D {
             Vec3.add(center2, HexMetrics.getSecondSolidCorner(HexDirectionUtils.opposite(direction))),
             Vec3.add(center2, HexMetrics.getFirstSolidCorner(HexDirectionUtils.opposite(direction)))
         );
-        this.waterShore.addQuad(e1.v1, e1.v2, e2.v1, e2.v2);
-        this.waterShore.addQuad(e1.v2, e1.v3, e2.v2, e2.v3);
-        this.waterShore.addQuad(e1.v3, e1.v4, e2.v3, e2.v4);
-        this.waterShore.addQuad(e1.v4, e1.v5, e2.v4, e2.v5);
-        this.waterShore.addQuadUVNumbers(0, 0, 0, 1);
-        this.waterShore.addQuadUVNumbers(0, 0, 0, 1);
-        this.waterShore.addQuadUVNumbers(0, 0, 0, 1);
-        this.waterShore.addQuadUVNumbers(0, 0, 0, 1);
+        if (cell.hasRiverThroughEdge(direction)) {
+            this.triangulateEstuary(e1, e2);
+        } else {
+            this.waterShore.addQuad(e1.v1, e1.v2, e2.v1, e2.v2);
+            this.waterShore.addQuad(e1.v2, e1.v3, e2.v2, e2.v3);
+            this.waterShore.addQuad(e1.v3, e1.v4, e2.v3, e2.v4);
+            this.waterShore.addQuad(e1.v4, e1.v5, e2.v4, e2.v5);
+            this.waterShore.addQuadUVNumbers(0, 0, 0, 1);
+            this.waterShore.addQuadUVNumbers(0, 0, 0, 1);
+            this.waterShore.addQuadUVNumbers(0, 0, 0, 1);
+            this.waterShore.addQuadUVNumbers(0, 0, 0, 1);
+        }
 
         const directionNext = HexDirectionUtils.next(direction);
         const nextNeighbor = cell.getNeighbor(directionNext);
@@ -722,5 +726,12 @@ export class HexGridChunk extends Object3D {
         v4 = Vec3.lerp(v4, v2, t);
         this.rivers.addQuadUnperturbed(v1, v2, v3, v4);
         this.rivers.addQuadUVNumbers(0, 1, 0.8, 1);
+    }
+
+    private triangulateEstuary(e1: EdgeVertices, e2: EdgeVertices) {
+        this.waterShore.addTriangle(e2.v1, e1.v2, e1.v1);
+        this.waterShore.addTriangle(e2.v5, e1.v5, e1.v4);
+        this.waterShore.addTriangleUV(new Vector2(0, 1), new Vector2(0, 0), new Vector2(0, 0));
+        this.waterShore.addTriangleUV(new Vector2(0, 1), new Vector2(0, 0), new Vector2(0, 0));
     }
 }
