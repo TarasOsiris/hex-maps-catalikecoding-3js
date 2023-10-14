@@ -1,6 +1,7 @@
 import {Color, MathUtils, Vector2, Vector3, Vector4} from "three";
 import {HexDirection} from "./HexDirection";
 import {HexEdgeType} from "./HexEdgeType";
+import {Vec3} from "../lib/math/Vec3";
 
 export class HexMetrics {
     static readonly outerRadius = 10;
@@ -8,7 +9,9 @@ export class HexMetrics {
     static readonly innerToOuter = 1 / this.outerToInner;
     static readonly innerRadius = this.outerRadius * this.outerToInner;
     static readonly solidFactor = 0.8;
+    static readonly waterFactor = 0.6;
     static readonly blendFactor = 1 - this.solidFactor;
+    static readonly waterBlendFactor = 1 - this.waterFactor;
 
     static readonly elevationStep = 3;
     static readonly terracesPerSlope = 2;
@@ -49,11 +52,19 @@ export class HexMetrics {
     }
 
     public static getFirstSolidCorner(direction: HexDirection): Vector3 {
-        return HexMetrics.corners[direction]!.clone().multiplyScalar(this.solidFactor);
+        return Vec3.mulScalar(HexMetrics.corners[direction], this.solidFactor);
     }
 
     public static getSecondSolidCorner(direction: HexDirection): Vector3 {
-        return HexMetrics.corners[direction + 1]!.clone().multiplyScalar(this.solidFactor);
+        return Vec3.mulScalar(HexMetrics.corners[direction + 1], this.solidFactor);
+    }
+
+    public static getFirstWaterCorner(direction: HexDirection): Vector3 {
+        return Vec3.mulScalar(HexMetrics.corners[direction], this.waterFactor);
+    }
+
+    public static getSecondWaterCorner(direction: HexDirection): Vector3 {
+        return Vec3.mulScalar(HexMetrics.corners[direction + 1], this.waterFactor);
     }
 
     public static getSolidEdgeMiddle(direction: HexDirection): Vector3 {
@@ -65,6 +76,12 @@ export class HexMetrics {
         const corner1 = this.getFirstCorner(direction);
         const corner2 = this.getSecondCorner(direction);
         return corner1.add(corner2).multiplyScalar(this.blendFactor);
+    }
+
+    public static getWaterBridge(direction: HexDirection) {
+        const corner1 = this.getFirstCorner(direction);
+        const corner2 = this.getSecondCorner(direction);
+        return corner1.add(corner2).multiplyScalar(this.waterBlendFactor);
     }
 
     static readonly horizontalTerraceStepSize = 1 / HexMetrics.terraceSteps;

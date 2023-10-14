@@ -35,7 +35,7 @@ export class HexGridChunk extends Object3D {
         this.roads.receiveShadow = true;
 
         this.water = new HexMesh(HexMaterials.waterMaterial, HexMaterials.wireframeMaterial, false, false, false);
-        this.water.wireframeCopy.visible = false;
+        this.water.wireframeCopy.visible = true;
         this.roads.receiveShadow = true;
 
         // TODO water shore separate material
@@ -608,13 +608,13 @@ export class HexGridChunk extends Object3D {
     }
 
     private triangulateOpenWater(direction: HexDirection, cell: HexCell, neighbor: HexCell, center: Vector3) {
-        const c1 = Vec3.add(center, HexMetrics.getFirstSolidCorner(direction));
-        const c2 = Vec3.add(center, HexMetrics.getSecondSolidCorner(direction));
+        const c1 = Vec3.add(center, HexMetrics.getFirstWaterCorner(direction));
+        const c2 = Vec3.add(center, HexMetrics.getSecondWaterCorner(direction));
 
         this.water.addTriangle(center, c1, c2);
 
         if (direction <= HexDirection.SE && neighbor != null) {
-            const bridge = HexMetrics.getBridge(direction);
+            const bridge = HexMetrics.getWaterBridge(direction);
             const e1 = Vec3.add(c1, bridge);
             const e2 = Vec3.add(c2, bridge);
 
@@ -628,7 +628,7 @@ export class HexGridChunk extends Object3D {
                     return;
                 }
                 this.water.addTriangle(
-                    c2, e2, Vec3.add(c2, HexMetrics.getBridge(next))
+                    c2, e2, Vec3.add(c2, HexMetrics.getWaterBridge(next))
                 );
             }
         }
@@ -638,15 +638,15 @@ export class HexGridChunk extends Object3D {
     private triangulateWaterShore(direction: HexDirection, cell: HexCell, neighbor: HexCell, center: Vector3) {
         center = center.clone();
         const e1 = new EdgeVertices(
-            Vec3.add(center, HexMetrics.getFirstSolidCorner(direction)),
-            Vec3.add(center, HexMetrics.getSecondSolidCorner(direction))
+            Vec3.add(center, HexMetrics.getFirstWaterCorner(direction)),
+            Vec3.add(center, HexMetrics.getSecondWaterCorner(direction))
         );
         this.water.addTriangle(center, e1.v1, e1.v2);
         this.water.addTriangle(center, e1.v2, e1.v3);
         this.water.addTriangle(center, e1.v3, e1.v4);
         this.water.addTriangle(center, e1.v4, e1.v5);
 
-        const bridge = HexMetrics.getBridge(direction);
+        const bridge = HexMetrics.getWaterBridge(direction);
         const e2 = new EdgeVertices(
             Vec3.add(e1.v1, bridge),
             Vec3.add(e1.v5, bridge)
@@ -664,7 +664,7 @@ export class HexGridChunk extends Object3D {
         const nextNeighbor = cell.getNeighbor(directionNext);
         if (nextNeighbor != null) {
             this.waterShore.addTriangle(
-                e1.v5, e2.v5, Vec3.add(e1.v5, HexMetrics.getBridge(directionNext))
+                e1.v5, e2.v5, Vec3.add(e1.v5, HexMetrics.getWaterBridge(directionNext))
             );
             this.waterShore.addTriangleUV(
                 new Vector2(0, 0),
