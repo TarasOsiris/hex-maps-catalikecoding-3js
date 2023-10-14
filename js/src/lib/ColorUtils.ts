@@ -8,6 +8,8 @@ export class ColorUtils {
     static green = new THREE.Color('green');
     static blue = new THREE.Color('blue');
 
+    static yellow = new THREE.Color('yellow');
+
     static randomColor(): THREE.Color {
         return new THREE.Color(Math.random(), Math.random(), Math.random());
     }

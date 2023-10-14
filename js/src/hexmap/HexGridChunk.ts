@@ -29,6 +29,7 @@ export class HexGridChunk extends Object3D {
         this.rivers = new HexMesh(HexMaterials.riverMaterial, HexMaterials.wireframeMaterial, false, false, true);
         this.rivers.receiveShadow = false;
         this.rivers.wireframeCopy.visible = false; // TODO to inspector
+        this.rivers.renderOrder = 3;
 
         this.roads = new HexMesh(HexMaterials.roadMaterial, HexMaterials.wireframeMaterial, false, false, true);
         this.roads.wireframeCopy.visible = false; // TODO to inspector
@@ -37,11 +38,13 @@ export class HexGridChunk extends Object3D {
         this.water = new HexMesh(HexMaterials.waterMaterial, HexMaterials.wireframeMaterial, false, false, false);
         this.water.wireframeCopy.visible = false;
         this.water.receiveShadow = true;
+        this.water.renderOrder = 2;
 
         // TODO water shore separate material
         this.waterShore = new HexMesh(HexMaterials.waterShoreMaterial, HexMaterials.wireframeMaterial, false, false, true);
         this.waterShore.wireframeCopy.visible = false;
         this.waterShore.receiveShadow = true;
+        this.waterShore.renderOrder = 2;
 
         this.add(this.terrain, this.rivers, this.roads, this.water, this.waterShore);
     }

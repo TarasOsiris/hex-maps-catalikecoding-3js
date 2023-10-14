@@ -31,7 +31,7 @@ export class HexMapScene extends FullScreenScene {
     private font!: Font;
 
     private inspectorControls = {
-        someColor: 0x000000,
+        colors: new Array<Color>(ColorUtils.red, ColorUtils.green, ColorUtils.yellow, new Color(0x548af9),),
         selectedColorIndex: -1,
         applyElevation: true,
         applyWaterLevel: true,
@@ -42,10 +42,18 @@ export class HexMapScene extends FullScreenScene {
         riverMode: OptionalToggle.Ignore.valueOf(),
         roadMode: OptionalToggle.Ignore.valueOf(),
         wireframe: false,
-        showRivers: true
+        showRivers: true,
+
+        colorOptions: {
+            clear: -1, red: 0, green: 1, yellow: 2, blue: 3
+        } as const,
+        toggleOptions: {
+            "Ignore": OptionalToggle.Ignore.valueOf(),
+            "Yes": OptionalToggle.Yes.valueOf(),
+            "No": OptionalToggle.No.valueOf()
+        } as const
     };
 
-    private colors: Array<Color> = new Array<Color>(ColorUtils.red, ColorUtils.green, new Color(0x548af9),);
 
     hexMapCamera!: HexMapCamera;
 
@@ -69,12 +77,7 @@ export class HexMapScene extends FullScreenScene {
             this.font = font;
         });
 
-        const folder = this.gui.addFolder("Colors");
-        folder.addColor(this.inspectorControls, 'someColor').name('Color');
-        folder.add(this, 'clearColor').name('Clear');
-        folder.add(this, 'selectTestColor1').name('Red');
-        folder.add(this, 'selectTestColor2').name('Green');
-        folder.add(this, 'selectTestColor3').name('Blue');
+        this.gui.add(this.inspectorControls, 'selectedColorIndex', this.inspectorControls.colorOptions).name('Color');
         this.gui.add(this.inspectorControls, 'activeElevation').name('Cell elevation').min(0).max(6).step(1);
         this.gui.add(this.inspectorControls, 'applyElevation').name('Apply elevation?');
         this.gui.add(this.inspectorControls, 'activeWaterLevel').name('Cell water level').min(1).max(6).step(1);
@@ -83,13 +86,8 @@ export class HexMapScene extends FullScreenScene {
         this.gui.add(this.inspectorControls, 'showLabels').name('Labels').onChange(() => {
             this.showLabels(this.inspectorControls.showLabels);
         });
-        const toggleOptions = {
-            "Ignore": OptionalToggle.Ignore.valueOf(),
-            "Yes": OptionalToggle.Yes.valueOf(),
-            "No": OptionalToggle.No.valueOf()
-        };
-        this.gui.add(this.inspectorControls, 'riverMode', toggleOptions).name('River');
-        this.gui.add(this.inspectorControls, 'roadMode', toggleOptions).name('Road');
+        this.gui.add(this.inspectorControls, 'riverMode', this.inspectorControls.toggleOptions).name('River');
+        this.gui.add(this.inspectorControls, 'riverMode', this.inspectorControls.toggleOptions).name('River');
 
         this.gui.add(this.inspectorControls, 'wireframe').onChange((value: boolean) => {
             this.hexGrid.showWireframe(value);
@@ -215,7 +213,7 @@ export class HexMapScene extends FullScreenScene {
         if (cell) {
             const applyColor = this.inspectorControls.selectedColorIndex >= 0;
             if (applyColor) {
-                cell.color = this.colors[this.inspectorControls.selectedColorIndex].clone();
+                cell.color = this.inspectorControls.colors[this.inspectorControls.selectedColorIndex].clone();
             }
             if (this.inspectorControls.applyElevation) {
                 cell.elevation = this.inspectorControls.activeElevation;
@@ -242,23 +240,6 @@ export class HexMapScene extends FullScreenScene {
                 }
             }
         }
-    }
-
-    clearColor() {
-        this.inspectorControls.selectedColorIndex = -1;
-    }
-
-    selectTestColor1() {
-        this.inspectorControls.selectedColorIndex = 0;
-        console.log(this.inspectorControls.selectedColorIndex);
-    }
-
-    selectTestColor2() {
-        this.inspectorControls.selectedColorIndex = 1;
-    }
-
-    selectTestColor3() {
-        this.inspectorControls.selectedColorIndex = 2;
     }
 
     private validateDrag(currentCell: HexCell) {
