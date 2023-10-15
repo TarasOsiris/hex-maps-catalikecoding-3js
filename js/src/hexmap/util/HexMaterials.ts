@@ -7,6 +7,8 @@ import {WaterMaterial, WaterUniforms} from "../rendering/WaterMaterial";
 import {WaterShoreMaterial} from "../rendering/WaterShoreMaterial";
 
 export class HexMaterials {
+    private static waterColor = new Color(0x4069ff);
+
     static readonly terrainMaterial = new MeshStandardMaterial({
         vertexColors: true,
         polygonOffset: true,
@@ -33,7 +35,8 @@ export class HexMaterials {
     static createRiverMaterial(noiseTexture: Texture) {
         this.riverUniforms = {
             time: {value: 0},
-            noiseTexture: {value: noiseTexture}
+            noiseTexture: {value: noiseTexture},
+            waterColor: {value: this.waterColor}
         };
         this.riverMaterial = new RiverMaterial(this.riverUniforms);
     }
@@ -41,7 +44,7 @@ export class HexMaterials {
     static createWaterMaterial(noiseTexture: Texture) {
         this.waterUniforms = {
             time: {value: 0},
-            waterColor: {value: new Color(0x4069ff)},
+            waterColor: {value: this.waterColor},
             noiseTexture: {value: noiseTexture}
         };
         this.waterMaterial = new WaterMaterial(this.waterUniforms);

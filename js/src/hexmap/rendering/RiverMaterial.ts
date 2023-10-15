@@ -4,7 +4,11 @@ import {Color, ShaderLib, ShaderMaterial, TangentSpaceNormalMap, Texture, Unifor
 import tVertex from "./shaders/riverStandartVertex.glsl";
 import tFragment from "./shaders/riverStandardFragment.glsl";
 
-export type RiverUniforms = { time: { value: number }; noiseTexture: { value: Texture } };
+export type RiverUniforms = {
+    time: { value: number };
+    noiseTexture: { value: Texture };
+    waterColor: { value: Color }
+};
 
 export class RiverMaterial extends ShaderMaterial {
     constructor(uniforms: RiverUniforms) {

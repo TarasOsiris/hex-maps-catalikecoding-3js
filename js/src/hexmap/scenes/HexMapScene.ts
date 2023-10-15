@@ -13,47 +13,24 @@ import {ColliderLayers} from "../ColliderLayers";
 import {HexMaterials} from "../util/HexMaterials";
 import {
     AmbientLight,
-    Color,
     DirectionalLight,
     LoadingManager, PerspectiveCamera,
     Raycaster, TextureLoader, Vector2,
     Vector3
 } from "three";
+import {HexMapSceneEditor} from "./HexMapSceneEditor";
 
 export class HexMapScene extends FullScreenScene {
 
-    private hexGrid!: HexGrid;
-    private raycaster = new Raycaster();
-    private loadingManager = new LoadingManager();
-    private fontLoader = new FontLoader(this.loadingManager);
-    private textureLoader = new TextureLoader(this.loadingManager);
+    private _hexGrid!: HexGrid;
+    private _raycaster = new Raycaster();
+    private _loadingManager = new LoadingManager();
+    private _fontLoader = new FontLoader(this._loadingManager);
+    private _textureLoader = new TextureLoader(this._loadingManager);
 
     private font!: Font;
 
-    private inspectorControls = {
-        colors: new Array<Color>(ColorUtils.red, ColorUtils.green, ColorUtils.yellow, new Color(0x548af9),),
-        selectedColorIndex: -1,
-        applyElevation: true,
-        applyWaterLevel: true,
-        activeElevation: 0,
-        activeWaterLevel: 1,
-        brushSize: 0,
-        showLabels: false,
-        riverMode: OptionalToggle.Ignore.valueOf(),
-        roadMode: OptionalToggle.Ignore.valueOf(),
-        wireframe: false,
-        showRivers: true,
-
-        colorOptions: {
-            clear: -1, red: 0, green: 1, yellow: 2, blue: 3
-        } as const,
-        toggleOptions: {
-            "Ignore": OptionalToggle.Ignore.valueOf(),
-            "Yes": OptionalToggle.Yes.valueOf(),
-            "No": OptionalToggle.No.valueOf()
-        } as const
-    };
-
+    private _editor!: HexMapSceneEditor;
 
     hexMapCamera!: HexMapCamera;
 
@@ -65,40 +42,18 @@ export class HexMapScene extends FullScreenScene {
     private _previousCell: Nullable<HexCell> = null;
 
     onInit() {
-        this.loadingManager.onLoad = () => {
+        this._loadingManager.onLoad = () => {
             this.onLoadingFinished();
             this._isReady = true;
         };
-        this.textureLoader.load('/textures/noise.png', (tex) => {
+        this._textureLoader.load('/textures/noise.png', (tex) => {
             HexSceneUtils.processNoiseTexture(tex);
             HexMaterials.createMaterials(tex);
         });
-        this.fontLoader.load('/fonts/roboto.json', (font) => {
+        this._fontLoader.load('/fonts/roboto.json', (font) => {
             this.font = font;
         });
 
-        this.gui.add(this.inspectorControls, 'selectedColorIndex', this.inspectorControls.colorOptions).name('Color');
-        this.gui.add(this.inspectorControls, 'activeElevation').name('Cell elevation').min(0).max(6).step(1);
-        this.gui.add(this.inspectorControls, 'applyElevation').name('Apply elevation?');
-        this.gui.add(this.inspectorControls, 'activeWaterLevel').name('Cell water level').min(1).max(6).step(1);
-        this.gui.add(this.inspectorControls, 'applyWaterLevel').name('Apply water level?');
-        this.gui.add(this.inspectorControls, 'brushSize').name('Brush Size').min(0).max(4).step(1);
-        this.gui.add(this.inspectorControls, 'showLabels').name('Labels').onChange(() => {
-            this.showLabels(this.inspectorControls.showLabels);
-        });
-        this.gui.add(this.inspectorControls, 'roadMode', this.inspectorControls.toggleOptions).name('Road');
-        this.gui.add(this.inspectorControls, 'riverMode', this.inspectorControls.toggleOptions).name('River');
-
-        this.gui.add(this.inspectorControls, 'wireframe').onChange((value: boolean) => {
-            this.hexGrid.showWireframe(value);
-        });
-        this.gui.add(this.inspectorControls, 'showRivers').onChange((value: boolean) => {
-            this.hexGrid.showRivers(value);
-        });
-    }
-
-    private showLabels(show: boolean) {
-        this.hexGrid.showLabels(show);
     }
 
     update(dt: number) {
@@ -117,17 +72,17 @@ export class HexMapScene extends FullScreenScene {
         super.update(dt);
     }
 
-
     private onLoadingFinished() {
-        this.hexGrid = new HexGrid(this, this.font);
-        this.setInspectorDefaults();
+        this._hexGrid = new HexGrid(this, this.font);
 
         this.mainCamera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.3, 1000);
-        this.hexMapCamera = new HexMapCamera(this.mainCamera, this.hexGrid);
+        this.hexMapCamera = new HexMapCamera(this.mainCamera, this._hexGrid);
         this.add(this.hexMapCamera);
 
         this.addLighting(new Vector3());
-        this.handleInput(this.hexGrid);
+        this.handleInput(this._hexGrid);
+
+        this.createEditor();
 
         // TODO make proper rendering for everything
         // const material = new CustomMat();
@@ -136,9 +91,9 @@ export class HexMapScene extends FullScreenScene {
         // this.add(sphere);
     }
 
-    private setInspectorDefaults() {
-        this.showLabels(this.inspectorControls.showLabels);
-        this.hexGrid.showWireframe(this.inspectorControls.wireframe);
+    private createEditor() {
+        this._editor = new HexMapSceneEditor(this.gui, this._hexGrid);
+        this._hexGrid.showWireframe(this._editor.wireframe.terrain);
     }
 
     private addLighting(center: Vector3) {
@@ -165,9 +120,9 @@ export class HexMapScene extends FullScreenScene {
 
     private handleInput(grid: HexGrid) {
         const mouseListener = (mouseCoordinate: Vector2) => {
-            this.raycaster.layers.set(ColliderLayers.Collidable);
-            this.raycaster.setFromCamera(mouseCoordinate, this.mainCamera);
-            const intersects = this.raycaster.intersectObjects(this.children);
+            this._raycaster.layers.set(ColliderLayers.Collidable);
+            this._raycaster.setFromCamera(mouseCoordinate, this.mainCamera);
+            const intersects = this._raycaster.intersectObjects(this.children);
             if (intersects.length > 0 && intersects[0]!.object.type == 'Mesh') {
                 const currentCell = grid.getCell(intersects[0].point);
                 if (this._previousCell && this._previousCell != currentCell) {
@@ -176,7 +131,7 @@ export class HexMapScene extends FullScreenScene {
                     this._isDrag = false;
                 }
                 this.editCells(currentCell);
-                this.hexGrid.refreshDirty();
+                this._hexGrid.refreshDirty();
                 this._previousCell = currentCell;
             } else {
                 this._previousCell = null;
@@ -196,45 +151,45 @@ export class HexMapScene extends FullScreenScene {
         const centerX = center.coordinates.x;
         const centerZ = center.coordinates.z;
 
-        const brushSize = this.inspectorControls.brushSize;
+        const brushSize = this._editor.brushSize;
         for (let r = 0, z = centerZ - brushSize; z <= centerZ; z++, r++) {
             for (let x = centerX - r; x <= centerX + brushSize; x++) {
-                this.editCell(this.hexGrid.getCellByCoords(new HexCoordinates(x, z)));
+                this.editCell(this._hexGrid.getCellByCoords(new HexCoordinates(x, z)));
             }
         }
         for (let r = 0, z = centerZ + brushSize; z > centerZ; z--, r++) {
             for (let x = centerX - brushSize; x <= centerX + r; x++) {
-                this.editCell(this.hexGrid.getCellByCoords(new HexCoordinates(x, z)));
+                this.editCell(this._hexGrid.getCellByCoords(new HexCoordinates(x, z)));
             }
         }
     }
 
     editCell(cell: null | HexCell) {
         if (cell) {
-            const applyColor = this.inspectorControls.selectedColorIndex >= 0;
+            const applyColor = this._editor.selectedColorIndex >= 0;
             if (applyColor) {
-                cell.color = this.inspectorControls.colors[this.inspectorControls.selectedColorIndex].clone();
+                cell.color = this._editor.colors[this._editor.selectedColorIndex].clone();
             }
-            if (this.inspectorControls.applyElevation) {
-                cell.elevation = this.inspectorControls.activeElevation;
+            if (this._editor.applyElevation) {
+                cell.elevation = this._editor.activeElevation;
             }
-            if (this.inspectorControls.applyWaterLevel) {
-                cell.waterLevel = this.inspectorControls.activeWaterLevel;
+            if (this._editor.applyWaterLevel) {
+                cell.waterLevel = this._editor.activeWaterLevel;
             }
-            if (this.inspectorControls.riverMode == OptionalToggle.No) {
+            if (this._editor.riverMode == OptionalToggle.No) {
                 cell.removeRiver();
             }
-            if (this.inspectorControls.roadMode == OptionalToggle.No) {
+            if (this._editor.roadMode == OptionalToggle.No) {
                 cell.removeRoads();
             }
 
             if (this._isDrag) {
                 const otherCell = cell.getNeighbor(HexDirectionUtils.opposite(this._dragDirection!));
                 if (otherCell) {
-                    if (this.inspectorControls.riverMode == OptionalToggle.Yes) {
+                    if (this._editor.riverMode == OptionalToggle.Yes) {
                         otherCell.setOutgoingRiver(this._dragDirection!);
                     }
-                    if (this.inspectorControls.roadMode == OptionalToggle.Yes) {
+                    if (this._editor.roadMode == OptionalToggle.Yes) {
                         otherCell.addRoad(this._dragDirection!);
                     }
                 }

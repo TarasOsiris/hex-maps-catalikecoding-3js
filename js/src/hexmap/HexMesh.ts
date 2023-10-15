@@ -185,4 +185,24 @@ export class HexMesh extends THREE.Mesh {
         this.meshUVs.push(uMin, vMax);
         this.meshUVs.push(uMax, vMax);
     }
+
+    addTriangleUV2(uv1: THREE.Vector2, uv2: THREE.Vector2, uv3: THREE.Vector2) {
+        this.meshUV2s.push(uv1.x, uv1.y);
+        this.meshUV2s.push(uv2.x, uv2.y);
+        this.meshUV2s.push(uv3.x, uv3.y);
+    }
+
+    addQuadUV2(uv1: THREE.Vector2, uv2: THREE.Vector2, uv3: THREE.Vector2, uv4: THREE.Vector2) {
+        this.meshUV2s.push(uv1.x, uv1.y);
+        this.meshUV2s.push(uv2.x, uv2.y);
+        this.meshUV2s.push(uv3.x, uv3.y);
+        this.meshUV2s.push(uv4.x, uv4.y);
+    }
+
+    addQuadUVNumbers2(uMin: number, uMax: number, vMin: number, vMax: number) {
+        this.meshUV2s.push(uMin, vMin);
+        this.meshUV2s.push(uMax, vMin);
+        this.meshUV2s.push(uMin, vMax);
+        this.meshUV2s.push(uMax, vMax);
+    }
 }

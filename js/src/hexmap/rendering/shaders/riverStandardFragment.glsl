@@ -1,7 +1,7 @@
 // Custom stuff
 uniform float time;
 uniform sampler2D noiseTexture;
-uniform vec3 riverColor;
+uniform vec3 waterColor;
 
 #define STANDARD
 
@@ -99,25 +99,14 @@ varying vec3 vViewPosition;
 #include <logdepthbuf_pars_fragment>
 #include <clipping_planes_pars_fragment>
 
+#include "chunks/water"
 
 void main() {
 
     #include <clipping_planes_fragment>
 
-    vec2 uv = vUv;
-    uv.x = uv.x * 0.0625 + time * 0.005;
-    uv.y -= time * 0.25;
-    vec4 noise = texture2D(noiseTexture, uv);
-
-    vec2 uv2 = vUv;
-    uv2.x = uv2.x * 0.0625 - time * 0.0052;
-    uv2.y -= time * 0.23;
-    vec4 noise2 = texture2D(noiseTexture, uv2);
-
-    // TODO extract this as water color
-    vec3 riverColor = vec3(0.247, 0.411, 1.0);
-//    vec3 riverColor = vec3(1., 0, 0);
-    vec3 c = clamp(riverColor + noise.r * noise2.a, 0.0, 1.0);
+    float river = River(vUv, noiseTexture);
+    vec3 c = clamp(waterColor + river, 0.0, 1.0);
 
     vec4 diffuseColor = vec4(c.rgb, opacity);
     ReflectedLight reflectedLight = ReflectedLight(vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));

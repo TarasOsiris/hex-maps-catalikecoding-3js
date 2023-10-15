@@ -32,3 +32,17 @@ float Waves(vec2 worldXZ, sampler2D noiseTex) {
     float waves = mix(noise1.z, noise1.w, blendWave) + mix(noise2.x, noise2.y, blendWave);
     return smoothstep(0.75, 2.0, waves);
 }
+
+float River(vec2 riverUV, sampler2D noiseTex) {
+    vec2 uv = riverUV;
+    uv.x = uv.x * 0.0625 + time * 0.005;
+    uv.y -= time * 0.25;
+    vec4 noise = texture2D(noiseTex, uv);
+
+    vec2 uv2 = riverUV;
+    uv2.x = uv2.x * 0.0625 - time * 0.0052;
+    uv2.y -= time * 0.23;
+    vec4 noise2 = texture2D(noiseTex, uv2);
+
+    return noise.x * noise2.w;
+}
