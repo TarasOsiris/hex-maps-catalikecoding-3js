@@ -58,9 +58,17 @@ export class HexMapSceneEditor {
         wireframes.add(this.wireframe, 'terrain').onChange((value: boolean) => {
             hexGrid.showWireframe(value);
         });
+
+        this.setInitialValues();
     }
 
     showLabels() {
         this._hexGrid.showLabels(this.showGridLabels);
+    }
+
+    private setInitialValues() {
+        this._hexGrid.showWireframe(this.wireframe.terrain);
+        this._hexGrid.showLabels(this.showGridLabels);
+        this._hexGrid.showRivers(this.showRivers);
     }
 }

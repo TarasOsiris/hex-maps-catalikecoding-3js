@@ -93,7 +93,6 @@ export class HexMapScene extends FullScreenScene {
 
     private createEditor() {
         this._editor = new HexMapSceneEditor(this.gui, this._hexGrid);
-        this._hexGrid.showWireframe(this._editor.wireframe.terrain);
     }
 
     private addLighting(center: Vector3) {

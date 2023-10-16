@@ -5,6 +5,7 @@ import {RoadMaterial, RoadUniforms} from "../rendering/RoadMaterial";
 import {RiverMaterial, RiverUniforms} from "../rendering/RiverMaterial";
 import {WaterMaterial, WaterUniforms} from "../rendering/WaterMaterial";
 import {WaterShoreMaterial} from "../rendering/WaterShoreMaterial";
+import {EstuariesMaterial} from "../rendering/EstuariesMaterial";
 
 export class HexMaterials {
     private static waterColor = new Color(0x4069ff);
@@ -24,6 +25,7 @@ export class HexMaterials {
     static riverMaterial: RiverMaterial;
     static waterMaterial: WaterMaterial;
     static waterShoreMaterial: WaterShoreMaterial;
+    static estuariesMaterial: WaterShoreMaterial;
     static roadMaterial: RoadMaterial;
 
     static createMaterials(noiseTexture: Texture) {
@@ -49,6 +51,7 @@ export class HexMaterials {
         };
         this.waterMaterial = new WaterMaterial(this.waterUniforms);
         this.waterShoreMaterial = new WaterShoreMaterial(this.waterUniforms);
+        this.estuariesMaterial = new EstuariesMaterial(this.waterUniforms);
     }
 
 

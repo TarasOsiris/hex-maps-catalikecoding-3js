@@ -16,6 +16,7 @@ export class HexGridChunk extends Object3D {
     roads: HexMesh;
     water: HexMesh;
     waterShore: HexMesh;
+    estuaries: HexMesh;
     dirty = true;
 
     constructor() {
@@ -47,7 +48,12 @@ export class HexGridChunk extends Object3D {
         this.waterShore.receiveShadow = true;
         this.waterShore.renderOrder = 0;
 
-        this.add(this.terrain, this.roads, this.water, this.waterShore, this.rivers);
+        this.estuaries = new HexMesh(HexMaterials.estuariesMaterial, HexMaterials.wireframeMaterial, false, false, true, true);
+        this.estuaries.wireframeCopy.visible = true;
+        this.estuaries.receiveShadow = true;
+        this.estuaries.renderOrder = 0;
+
+        this.add(this.terrain, this.roads, this.water, this.waterShore, this.rivers, this.estuaries);
     }
 
     refresh() {
@@ -56,6 +62,7 @@ export class HexGridChunk extends Object3D {
         this.roads.clearAll();
         this.water.clearAll();
         this.waterShore.clearAll();
+        this.estuaries.clearAll();
         for (let i = 0; i < this.cells.length; i++) {
             this.triangulateCell((this.cells)[i]);
         }
@@ -64,6 +71,7 @@ export class HexGridChunk extends Object3D {
         this.roads.apply();
         this.water.apply();
         this.waterShore.apply();
+        this.estuaries.apply();
 
         this.dirty = false;
     }
@@ -733,5 +741,10 @@ export class HexGridChunk extends Object3D {
         this.waterShore.addTriangle(e2.v5, e1.v5, e1.v4);
         this.waterShore.addTriangleUV(new Vector2(0, 1), new Vector2(0, 0), new Vector2(0, 0));
         this.waterShore.addTriangleUV(new Vector2(0, 1), new Vector2(0, 0), new Vector2(0, 0));
+
+        this.estuaries.addTriangle(e1.v3, e2.v2, e2.v4);
+        this.estuaries.addTriangleUV(
+            new Vector2(0, 0), new Vector2(0, 1), new Vector2(0, 1)
+        );
     }
 }
