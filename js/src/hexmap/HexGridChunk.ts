@@ -7,6 +7,7 @@ import {Vec3} from "../lib/math/Vec3";
 import {HexEdgeType} from "./HexEdgeType";
 import {HexMaterials} from "./util/HexMaterials";
 import {Color, Object3D, Vector2, Vector3} from "three";
+import {MeshType} from "./scenes/HexMapSceneEditor";
 
 export class HexGridChunk extends Object3D {
     readonly cells: Array<HexCell> = [];
@@ -28,28 +29,22 @@ export class HexGridChunk extends Object3D {
         this.terrain.receiveShadow = true;
 
         this.roads = new HexMesh(HexMaterials.roadMaterial, HexMaterials.wireframeMaterial, false, false, true);
-        this.roads.wireframeCopy.visible = false; // TODO to inspector
         this.roads.receiveShadow = true;
 
         this.rivers = new HexMesh(HexMaterials.riverMaterial, HexMaterials.wireframeMaterial, false, false, true);
-        this.rivers.receiveShadow = false;
-        this.rivers.wireframeCopy.visible = false; // TODO to inspector
+        this.rivers.receiveShadow = true;
         // TODO there is this issue where the rivers are not drawn at all below the water
         this.rivers.renderOrder = 0;
 
         this.water = new HexMesh(HexMaterials.waterMaterial, HexMaterials.wireframeMaterial, false, false, false);
-        this.water.wireframeCopy.visible = true;
         this.water.receiveShadow = true;
         this.water.renderOrder = 0;
 
-        // TODO water shore separate material
         this.waterShore = new HexMesh(HexMaterials.waterShoreMaterial, HexMaterials.wireframeMaterial, false, false, true, true);
-        this.waterShore.wireframeCopy.visible = true;
         this.waterShore.receiveShadow = true;
         this.waterShore.renderOrder = 0;
 
         this.estuaries = new HexMesh(HexMaterials.estuariesMaterial, HexMaterials.wireframeMaterial, false, false, true, true);
-        this.estuaries.wireframeCopy.visible = true;
         this.estuaries.receiveShadow = true;
         this.estuaries.renderOrder = 0;
 
@@ -484,8 +479,27 @@ export class HexGridChunk extends Object3D {
         this.triangulateEdgeFan(center, m, cell.color);
     }
 
-    showWireframe(show: boolean) {
-        this.terrain.wireframeCopy.visible = show;
+    showWireframe(show: boolean, type: MeshType) {
+        switch (type) {
+            case MeshType.Terrain:
+                this.terrain.wireframeCopy.visible = show;
+                break;
+            case MeshType.Roads:
+                this.roads.wireframeCopy.visible = show;
+                break;
+            case MeshType.Rivers:
+                this.rivers.wireframeCopy.visible = show;
+                break;
+            case MeshType.Water:
+                this.water.wireframeCopy.visible = show;
+                break;
+            case MeshType.WaterShore:
+                this.waterShore.wireframeCopy.visible = show;
+                break;
+            case MeshType.Estuaries:
+                this.estuaries.wireframeCopy.visible = show;
+                break;
+        }
     }
 
     triangulateRiverQuad(v1: Vector3, v2: Vector3, v3: Vector3, v4: Vector3,

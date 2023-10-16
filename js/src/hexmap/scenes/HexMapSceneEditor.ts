@@ -4,6 +4,8 @@ import {ColorUtils} from "../../lib/ColorUtils";
 import {OptionalToggle} from "../util/OptionalToggle";
 import {HexGrid} from "../HexGrid";
 
+export enum MeshType {Terrain, Roads, Rivers, Water, WaterShore, Estuaries}
+
 export class HexMapSceneEditor {
     colors = new Array<Color>(ColorUtils.red, ColorUtils.green, ColorUtils.yellow, new Color(0x548af9),);
     selectedColorIndex = -1;
@@ -22,7 +24,8 @@ export class HexMapSceneEditor {
         roads: false,
         rivers: false,
         water: false,
-        shore: false
+        waterShore: false,
+        estuaries: false
     };
     showRivers = true;
 
@@ -54,12 +57,31 @@ export class HexMapSceneEditor {
         gui.add(this, 'showRivers').onChange((value: boolean) => {
             hexGrid.showRivers(value);
         });
-        const wireframes = gui.addFolder('Wireframes').close();
-        wireframes.add(this.wireframe, 'terrain').onChange((value: boolean) => {
-            hexGrid.showWireframe(value);
-        });
+        this.addWireframeToggles(gui, hexGrid);
 
         this.setInitialValues();
+    }
+
+    private addWireframeToggles(gui: GUI, hexGrid: HexGrid) {
+        const wireframes = gui.addFolder('Wireframes').close();
+        wireframes.add(this.wireframe, 'terrain').onChange((value: boolean) => {
+            hexGrid.showWireframe(value, MeshType.Terrain);
+        });
+        wireframes.add(this.wireframe, 'roads').onChange((value: boolean) => {
+            hexGrid.showWireframe(value, MeshType.Roads);
+        });
+        wireframes.add(this.wireframe, 'rivers').onChange((value: boolean) => {
+            hexGrid.showWireframe(value, MeshType.Rivers);
+        });
+        wireframes.add(this.wireframe, 'water').onChange((value: boolean) => {
+            hexGrid.showWireframe(value, MeshType.Water);
+        });
+        wireframes.add(this.wireframe, 'waterShore').onChange((value: boolean) => {
+            hexGrid.showWireframe(value, MeshType.WaterShore);
+        });
+        wireframes.add(this.wireframe, 'estuaries').onChange((value: boolean) => {
+            hexGrid.showWireframe(value, MeshType.Estuaries);
+        });
     }
 
     showLabels() {
@@ -67,7 +89,12 @@ export class HexMapSceneEditor {
     }
 
     private setInitialValues() {
-        this._hexGrid.showWireframe(this.wireframe.terrain);
+        this._hexGrid.showWireframe(this.wireframe.terrain, MeshType.Terrain);
+        this._hexGrid.showWireframe(this.wireframe.roads, MeshType.Roads);
+        this._hexGrid.showWireframe(this.wireframe.rivers, MeshType.Rivers);
+        this._hexGrid.showWireframe(this.wireframe.water, MeshType.Water);
+        this._hexGrid.showWireframe(this.wireframe.waterShore, MeshType.WaterShore);
+        this._hexGrid.showWireframe(this.wireframe.estuaries, MeshType.Estuaries);
         this._hexGrid.showLabels(this.showGridLabels);
         this._hexGrid.showRivers(this.showRivers);
     }

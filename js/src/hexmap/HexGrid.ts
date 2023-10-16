@@ -8,6 +8,7 @@ import {HexMapScene} from "./scenes/HexMapScene";
 import {HexDirection} from "./HexDirection";
 import {HexGridChunk} from "./HexGridChunk";
 import {HexMaterials} from "./util/HexMaterials";
+import {MeshType} from "./scenes/HexMapSceneEditor";
 
 export class HexGrid {
     chunkCountX = 3;
@@ -145,8 +146,8 @@ export class HexGrid {
         this.cells.forEach(cell => cell.textMesh.visible = show);
     }
 
-    showWireframe(show: boolean) {
-        this.chunks.forEach(chunk => chunk.showWireframe(show));
+    showWireframe(show: boolean, type: MeshType) {
+        this.chunks.forEach(chunk => chunk.showWireframe(show, type));
     }
 
     showRivers(show: boolean) {
