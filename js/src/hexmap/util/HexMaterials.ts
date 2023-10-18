@@ -54,7 +54,6 @@ export class HexMaterials {
         this.estuariesMaterial = new EstuariesMaterial(this.waterUniforms);
     }
 
-
     static createRoadMaterial(noiseTexture: Texture) {
         this.roadUniforms = {
             roadColor: {value: new Color(0xff0000)},
@@ -67,6 +66,7 @@ export class HexMaterials {
         this.riverMaterial?.updateTime(elapsedTime);
         this.waterMaterial?.updateTime(elapsedTime);
         this.waterShoreMaterial?.updateTime(elapsedTime);
+        this.estuariesMaterial?.updateTime(elapsedTime);
     }
 
     static readonly wireframeMaterial = new MeshBasicMaterial({

@@ -768,5 +768,18 @@ export class HexGridChunk extends Object3D {
             new Vector2(0, 0), new Vector2(0, 1), new Vector2(0, 1)
         );
         this.estuaries.addQuadUVNumbers(0, 0, 0, 1);
+
+        this.estuaries.addQuadUV2(
+            new Vector2(1, 0), new Vector2(1, 1),
+            new Vector2(1, 0), new Vector2(0.5, 1)
+        );
+        this.estuaries.addTriangleUV2(
+            new Vector2(0.5, 1), new Vector2(1, 0), new Vector2(0, 0)
+        );
+        this.estuaries.addQuadUV2(
+            new Vector2(0.5, 1), new Vector2(0, 1),
+            new Vector2(0, 0), new Vector2(0, 0)
+        );
+        console.log(this.estuaries.geometry.attributes);
     }
 }
