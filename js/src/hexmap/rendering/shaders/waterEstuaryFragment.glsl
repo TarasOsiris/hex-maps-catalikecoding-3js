@@ -113,10 +113,12 @@ void main() {
     waves *= 1. - shore;
 
     vec4 waterColor = vec4(waterColor.rgb, opacity);
-//    vec4 c = saturate(waterColor + max(foam, waves));
-    float river = River(vUv2, noiseTexture);
 
-    vec4 c = saturate(waterColor + river);
+    float shoreWater = max(foam, waves);
+    float river = River(vUv2, noiseTexture);
+    float water = mix(shoreWater, river, vUv.x);
+
+    vec4 c = saturate(waterColor + water);
     vec4 diffuseColor = c;
     ReflectedLight reflectedLight = ReflectedLight(vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
     vec3 totalEmissiveRadiance = emissive;

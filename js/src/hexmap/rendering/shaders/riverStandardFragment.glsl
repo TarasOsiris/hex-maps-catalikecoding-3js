@@ -106,9 +106,10 @@ void main() {
     #include <clipping_planes_fragment>
 
     float river = River(vUv, noiseTexture);
-    vec3 c = clamp(waterColor + river, 0.0, 1.0);
+    vec4 waterColor = vec4(waterColor.rgb, opacity);
+    vec4 c = clamp(waterColor + river, 0.0, 1.0);
 
-    vec4 diffuseColor = vec4(c.rgb, opacity);
+    vec4 diffuseColor = vec4(c);
     ReflectedLight reflectedLight = ReflectedLight(vec3(0.0), vec3(0.0), vec3(0.0), vec3(0.0));
     vec3 totalEmissiveRadiance = emissive;
 
