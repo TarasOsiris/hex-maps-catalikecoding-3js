@@ -1,6 +1,6 @@
 #define STANDARD
 
-attribute vec2 uv2;
+attribute vec2 uvSecond;
 
 varying vec2 vUv2;
 
@@ -51,5 +51,5 @@ void main() {
     #include <fog_vertex>
 
     vWorldPosition = worldPosition.xyz;
-    vUv2 = uv2;
+    vUv2 = uvSecond;
 }

@@ -77,7 +77,7 @@ export class HexMesh extends THREE.Mesh {
             HexMesh.uvsPool.add(this.meshUVs);
         }
         if (this._useUV2Coordinates) {
-            BufferGeometryUtils.setUVs(meshGeometry, this.meshUV2s, '2');
+            BufferGeometryUtils.setUVs(meshGeometry, this.meshUV2s, 'Second');
             HexMesh.uvsPool.add(this.meshUV2s);
         }
 
