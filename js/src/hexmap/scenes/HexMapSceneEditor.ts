@@ -12,7 +12,7 @@ export class HexMapSceneEditor {
     applyElevation = true;
     applyWaterLevel = true;
     activeElevation = 0;
-    activeWaterLevel = 1;
+    activeWaterLevel = 0;
     brushSize = 0;
     showGridLabels = false;
     riverMode = OptionalToggle.Ignore.valueOf();
@@ -27,6 +27,8 @@ export class HexMapSceneEditor {
         waterShore: false,
         estuaries: false
     };
+
+    showTerrain = true;
     showRivers = true;
 
     colorOptions = {
@@ -45,7 +47,7 @@ export class HexMapSceneEditor {
         gui.add(this, 'selectedColorIndex', this.colorOptions).name('Color');
         gui.add(this, 'activeElevation').name('Cell elevation').min(0).max(6).step(1);
         gui.add(this, 'applyElevation').name('Apply elevation?');
-        gui.add(this, 'activeWaterLevel').name('Cell water level').min(1).max(6).step(1);
+        gui.add(this, 'activeWaterLevel').name('Cell water level').min(0).max(6).step(1);
         gui.add(this, 'applyWaterLevel').name('Apply water level?');
         gui.add(this, 'brushSize').name('Brush Size').min(0).max(4).step(1);
         gui.add(this, 'showGridLabels').name('Labels').onChange(() => {
@@ -54,12 +56,20 @@ export class HexMapSceneEditor {
         gui.add(this, 'roadMode', this.toggleOptions).name('Road');
         gui.add(this, 'riverMode', this.toggleOptions).name('River');
 
+        gui.add(this, 'showTerrain').onChange((value: boolean) => {
+            hexGrid.showTerrain(value);
+        });
         gui.add(this, 'showRivers').onChange((value: boolean) => {
             hexGrid.showRivers(value);
         });
+        gui.add(this, 'refreshGrid');
         this.addWireframeToggles(gui, hexGrid);
 
         this.setInitialValues();
+    }
+
+    refreshGrid() {
+        this._hexGrid.refreshAll();
     }
 
     private addWireframeToggles(gui: GUI, hexGrid: HexGrid) {
@@ -97,5 +107,6 @@ export class HexMapSceneEditor {
         this._hexGrid.showWireframe(this.wireframe.estuaries, MeshType.Estuaries);
         this._hexGrid.showLabels(this.showGridLabels);
         this._hexGrid.showRivers(this.showRivers);
+        this._hexGrid.showTerrain(this.showTerrain);
     }
 }

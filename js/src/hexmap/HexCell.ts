@@ -52,6 +52,12 @@ export class HexCell extends THREE.Object3D {
         return this._hasIncomingRiver != this._hasOutgoingRiver;
     }
 
+    isValidRiverDestination(neighbor: HexCell): boolean {
+        return neighbor && (
+           this.elevation >= neighbor.elevation || this.waterLevel == neighbor.elevation
+        );
+    }
+
     get streamBedY() {
         return (this._elevation + HexMetrics.streamBedElevationOffset) * HexMetrics.elevationStep;
     }
@@ -239,7 +245,7 @@ export class HexCell extends THREE.Object3D {
         }
 
         const neighbor = this.getNeighbor(direction);
-        if (!neighbor || this._elevation < neighbor.elevation) {
+        if (!this.isValidRiverDestination(neighbor)) {
             return;
         }
 

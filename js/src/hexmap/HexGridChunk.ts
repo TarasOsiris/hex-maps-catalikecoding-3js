@@ -58,8 +58,8 @@ export class HexGridChunk extends Object3D {
         this.water.clearAll();
         this.waterShore.clearAll();
         this.estuaries.clearAll();
-        for (let i = 0; i < this.cells.length; i++) {
-            this.triangulateCell((this.cells)[i]);
+        for (const cell of this.cells) {
+            this.triangulateCell(cell);
         }
         this.terrain.apply();
         this.rivers.apply();

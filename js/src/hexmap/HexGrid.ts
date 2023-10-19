@@ -43,6 +43,10 @@ export class HexGrid {
         });
     }
 
+    refreshAll() {
+        this.chunks.forEach(ch => ch.refresh());
+    }
+
     createCells() {
         this.cells = new Array<HexCell>(this.cellCountX * this.cellCountZ);
         for (let z = 0, i = 0; z < this.cellCountZ; z++) {
@@ -152,5 +156,9 @@ export class HexGrid {
 
     showRivers(show: boolean) {
         this.chunks.forEach(chunk => chunk.rivers.visible = show);
+    }
+
+    showTerrain(show: boolean) {
+        this.chunks.forEach(chunk => chunk.terrain.visible = show);
     }
 }
