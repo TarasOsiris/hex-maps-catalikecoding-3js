@@ -11,7 +11,7 @@ export class HexCell extends THREE.Object3D {
     coordinates: HexCoordinates;
     private _elevation: number = Number.MIN_SAFE_INTEGER;
     private _color = new THREE.Color();
-    neighbors: Array<HexCell> = new Array<HexCell>(6);
+    neighbors: Array<Nullable<HexCell>> = new Array<Nullable<HexCell>>(6);
     textMesh!: THREE.Mesh;
     chunk!: HexGridChunk;
 
@@ -25,6 +25,7 @@ export class HexCell extends THREE.Object3D {
 
     constructor(coordinates: HexCoordinates) {
         super();
+        this.neighbors.fill(null);
         this.coordinates = coordinates;
     }
 
@@ -118,8 +119,8 @@ export class HexCell extends THREE.Object3D {
 
     private setRoad(direction: HexDirection, state: boolean) {
         this._roads[direction] = state;
-        this.neighbors[direction]._roads[HexDirectionUtils.opposite(direction)] = state;
-        this.neighbors[direction].refreshSelfOnly();
+        this.getNeighbor(direction)._roads[HexDirectionUtils.opposite(direction)] = state;
+        this.getNeighbor(direction).refreshSelfOnly();
         this.refreshSelfOnly();
     }
 
@@ -175,8 +176,8 @@ export class HexCell extends THREE.Object3D {
         return this.position;
     }
 
-    public getNeighbor(direction: HexDirection) {
-        return this.neighbors[direction as number];
+    public getNeighbor(direction: HexDirection) : HexCell {
+        return this.neighbors[direction as number]!;
     }
 
     public setNeighbor(direction: HexDirection, cell: HexCell) {

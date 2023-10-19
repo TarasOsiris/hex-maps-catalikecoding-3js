@@ -62,11 +62,6 @@ export class HexMesh extends THREE.Mesh {
     apply() {
         const meshGeometry = new THREE.BufferGeometry();
 
-        if (this.meshVertices.length == 0) {
-            // no use updating mesh if it is empty
-            return;
-        }
-
         meshGeometry.setIndex(this.meshTriangles);
         HexMesh.trianglesPool.add(this.meshTriangles);
 

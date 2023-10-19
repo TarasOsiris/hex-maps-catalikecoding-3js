@@ -163,7 +163,7 @@ export class HexMapScene extends FullScreenScene {
         }
     }
 
-    editCell(cell: null | HexCell) {
+    editCell(cell: Nullable<HexCell>) {
         if (cell) {
             const applyColor = this._editor.selectedColorIndex >= 0;
             if (applyColor) {
