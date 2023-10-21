@@ -699,7 +699,7 @@ export class HexGridChunk extends Object3D {
             Vec3.add(center2, HexMetrics.getFirstSolidCorner(HexDirectionUtils.opposite(direction)))
         );
         if (cell.hasRiverThroughEdge(direction)) {
-            this.triangulateEstuary(e1, e2);
+            this.triangulateEstuary(e1, e2, cell.incomingRiver == direction);
         } else {
             this.waterShore.addQuad(e1.v1, e1.v2, e2.v1, e2.v2);
             this.waterShore.addQuad(e1.v2, e1.v3, e2.v2, e2.v3);
@@ -750,7 +750,7 @@ export class HexGridChunk extends Object3D {
         this.rivers.addQuadUVNumbers(0, 1, 0.8, 1);
     }
 
-    private triangulateEstuary(e1: EdgeVertices, e2: EdgeVertices) {
+    private triangulateEstuary(e1: EdgeVertices, e2: EdgeVertices, incomingRiver: boolean) {
         this.waterShore.addTriangle(e2.v1, e1.v2, e1.v1);
         this.waterShore.addTriangle(e2.v5, e1.v5, e1.v4);
         this.waterShore.addTriangleUV(new Vector2(0, 1), new Vector2(0, 0), new Vector2(0, 0));
@@ -760,17 +760,33 @@ export class HexGridChunk extends Object3D {
         this.estuaries.addTriangle(e1.v3, e2.v2, e2.v4);
         this.estuaries.addQuad(e1.v3, e1.v4, e2.v4, e2.v5);
 
-        this.estuaries.addQuadUV(
-            new Vector2(0, 1), new Vector2(0, 0),
-            new Vector2(1, 1), new Vector2(0, 0)
-        );
-        this.estuaries.addTriangleUV(
-            new Vector2(0, 0), new Vector2(1, 1), new Vector2(1, 1)
-        );
-        this.estuaries.addQuadUV(
-            new Vector2(0, 0), new Vector2(0, 0),
-            new Vector2(1, 1), new Vector2(0, 1)
-        );
+        if (incomingRiver) {
+            this.estuaries.addQuadUV(
+                new Vector2(0, 1), new Vector2(0, 0),
+                new Vector2(1, 1), new Vector2(0, 0)
+            );
+            this.estuaries.addTriangleUV(
+                new Vector2(0, 0), new Vector2(1, 1), new Vector2(1, 1)
+            );
+            this.estuaries.addQuadUV(
+                new Vector2(0, 0), new Vector2(0, 0),
+                new Vector2(1, 1), new Vector2(0, 1)
+            );
+        } else {
+            this.estuaries.addQuadUV2(
+                new Vector2(-0.5, -0.2), new Vector2(0.3, -0.35),
+                new Vector2(0, 0), new Vector2(0.5, -0.3)
+            );
+            this.estuaries.addTriangleUV2(
+                new Vector2(0.5, -0.3),
+                new Vector2(0, 0),
+                new Vector2(1, 0)
+            );
+            this.estuaries.addQuadUV2(
+                new Vector2(0.5, -0.3), new Vector2(0.7, -0.35),
+                new Vector2(1, 0), new Vector2(1.5, -0.2)
+            );
+        }
 
         this.estuaries.addQuadUV2(
             new Vector2(1.5, 1), new Vector2(0.7, 1.15),

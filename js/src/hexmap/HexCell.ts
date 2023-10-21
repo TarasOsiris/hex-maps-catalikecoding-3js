@@ -55,8 +55,23 @@ export class HexCell extends THREE.Object3D {
 
     isValidRiverDestination(neighbor: HexCell): boolean {
         return neighbor && (
-           this.elevation >= neighbor.elevation || this.waterLevel == neighbor.elevation
+            this.elevation >= neighbor.elevation || this.waterLevel == neighbor.elevation
         );
+    }
+
+    validateRivers() {
+        if (
+            this.hasOutgoingRiver &&
+            !this.isValidRiverDestination(this.getNeighbor(this.outgoingRiver))
+        ) {
+            this.removeOutgoingRiver();
+        }
+        if (
+            this.hasIncomingRiver &&
+            !this.getNeighbor(this.incomingRiver).isValidRiverDestination(this)
+        ) {
+            this.removeIncomingRiver();
+        }
     }
 
     get streamBedY() {
@@ -96,6 +111,7 @@ export class HexCell extends THREE.Object3D {
             return;
         }
         this._waterLevel = value;
+        this.validateRivers();
         this.refresh();
     }
 
@@ -140,12 +156,7 @@ export class HexCell extends THREE.Object3D {
         this.position.set(position.x, position.y, position.z);
         this.textMesh.position.set(this.textMesh.position.x, position.y, this.textMesh.position.z);
 
-        if (this._hasOutgoingRiver && this.elevation < this.getNeighbor(this._outgoingRiver!).elevation) {
-            this.removeOutgoingRiver();
-        }
-        if (this._hasIncomingRiver && this.elevation > this.getNeighbor(this._incomingRiver!).elevation) {
-            this.removeIncomingRiver();
-        }
+        this.validateRivers();
 
         for (let i = 0; i < this._roads.length; i++) {
             if (this._roads[i] && this.getElevationDifference(i) > 1) {
@@ -176,7 +187,7 @@ export class HexCell extends THREE.Object3D {
         return this.position;
     }
 
-    public getNeighbor(direction: HexDirection) : HexCell {
+    public getNeighbor(direction: HexDirection): HexCell {
         return this.neighbors[direction as number]!;
     }
 
