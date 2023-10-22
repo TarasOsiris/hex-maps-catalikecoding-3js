@@ -492,6 +492,10 @@ export class HexGridChunk extends Object3D {
 
         this.triangulateEdgeStrip(m, cell.color, e, cell.color);
         this.triangulateEdgeFan(center, m, cell.color);
+
+        if (!cell.isUnderwater && !cell.hasRoadThroughEdge(direction)) {
+            this.features.addFeature(Vec3.addMany(center, e.v1, e.v5).multiplyScalar(1 / 3));
+        }
     }
 
     showWireframe(show: boolean, type: MeshType) {
