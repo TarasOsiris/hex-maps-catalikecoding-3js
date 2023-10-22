@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import {HexMetrics} from "./HexMetrics";
 import {BufferGeometryUtils} from "../lib/BufferGeometryUtils";
-import {ListPool} from "./ListPool";
+import {ListPool} from "./util/ListPool";
 import {ColliderLayers} from "./ColliderLayers";
 
 export class HexMesh extends THREE.Mesh {

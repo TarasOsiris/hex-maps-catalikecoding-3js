@@ -6,8 +6,9 @@ import {EdgeVertices} from "./EdgeVertices";
 import {Vec3} from "../lib/math/Vec3";
 import {HexEdgeType} from "./HexEdgeType";
 import {HexMaterials} from "./util/HexMaterials";
-import {Color, Object3D, Vector2, Vector3} from "three";
+import {Color, Object3D, Scene, Vector2, Vector3} from "three";
 import {MeshType} from "./scenes/HexMapSceneEditor";
+import {HexFeatureManager} from "./features/HexFeatureManager";
 
 export class HexGridChunk extends Object3D {
     readonly cells: Array<HexCell> = [];
@@ -20,8 +21,12 @@ export class HexGridChunk extends Object3D {
     estuaries: HexMesh;
     dirty = true;
 
-    constructor() {
+    features: HexFeatureManager;
+    private readonly _scene: Scene;
+
+    constructor(scene: Scene) {
         super();
+        this._scene = scene;
         this.cells = new Array<HexCell>(HexMetrics.chunkSizeX * HexMetrics.chunkSizeZ);
 
         this.terrain = new HexMesh(HexMaterials.terrainMaterial, HexMaterials.wireframeMaterial, true, true, false);
@@ -48,6 +53,8 @@ export class HexGridChunk extends Object3D {
         this.estuaries.receiveShadow = true;
         this.estuaries.renderOrder = 0;
 
+        this.features = new HexFeatureManager(this._scene);
+
         this.add(this.terrain, this.roads, this.water, this.waterShore, this.rivers, this.estuaries);
     }
 
@@ -58,6 +65,7 @@ export class HexGridChunk extends Object3D {
         this.water.clearAll();
         this.waterShore.clearAll();
         this.estuaries.clearAll();
+        this.features.clear();
         for (const cell of this.cells) {
             this.triangulateCell(cell);
         }
@@ -67,6 +75,7 @@ export class HexGridChunk extends Object3D {
         this.water.apply();
         this.waterShore.apply();
         this.estuaries.apply();
+        this.features.apply();
 
         this.dirty = false;
     }
@@ -85,6 +94,7 @@ export class HexGridChunk extends Object3D {
         for (let d = HexDirection.NE; d <= HexDirection.NW; d++) {
             this.triangulateSector(d, cell);
         }
+        this.features.addFeature(cell.position);
     }
 
     private triangulateSector(direction: HexDirection, cell: HexCell) {

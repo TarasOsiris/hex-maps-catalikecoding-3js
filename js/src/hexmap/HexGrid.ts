@@ -9,6 +9,7 @@ import {HexDirection} from "./HexDirection";
 import {HexGridChunk} from "./HexGridChunk";
 import {HexMaterials} from "./util/HexMaterials";
 import {MeshType} from "./scenes/HexMapSceneEditor";
+import {Scene} from "three";
 
 export class HexGrid {
     chunkCountX = 3;
@@ -28,7 +29,7 @@ export class HexGrid {
     constructor(scene: HexMapScene, font: Font) {
         this.font = font;
 
-        this.createChunks();
+        this.createChunks(scene);
         this.createCells();
         this.refreshDirty();
 
@@ -56,12 +57,12 @@ export class HexGrid {
         }
     }
 
-    createChunks() {
+    createChunks(scene: Scene) {
         this.chunks = new Array<HexGridChunk>(this.chunkCountX * this.chunkCountZ);
 
         for (let z = 0, i = 0; z < this.chunkCountZ; z++) {
             for (let x = 0; x < this.chunkCountX; x++) {
-                const chunk = this.chunks[i++] = new HexGridChunk();
+                const chunk = this.chunks[i++] = new HexGridChunk(scene);
                 this.chunksGroup.add(chunk);
             }
         }

@@ -1,4 +1,4 @@
-import {Stack} from './util/Stack';
+import {Stack} from './Stack';
 export class ListPool<T> {
     stack: Stack<Array<T>> = new Stack<Array<T>>();
 
