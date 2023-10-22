@@ -1,5 +1,7 @@
 import {Scene, Vector3} from "three";
 import {CubeFeature} from "./CubeFeature";
+import {HexMetrics} from "../HexMetrics";
+import {Vec3} from "../../lib/math/Vec3";
 
 export class HexFeatureManager {
     private _scene: Scene;
@@ -17,8 +19,12 @@ export class HexFeatureManager {
 
     addFeature(position: Vector3) {
         const instance = new CubeFeature();
-        instance.position.copy(position);
-        instance.position.setY(instance.position.y + instance.scale.y * 0.5);
         this._scene.add(instance);
+
+        position = position.clone();
+
+
+        const worldPos = HexMetrics.perturb(position);
+        instance.position.copy(Vec3.add(worldPos, instance.position));
     }
 }
