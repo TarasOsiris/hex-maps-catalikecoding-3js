@@ -94,7 +94,9 @@ export class HexGridChunk extends Object3D {
         for (let d = HexDirection.NE; d <= HexDirection.NW; d++) {
             this.triangulateSector(d, cell);
         }
-        this.features.addFeature(cell.position);
+        if (!cell.isUnderwater && !cell.hasRiver && !cell.hasRoads) {
+            this.features.addFeature(cell.position);
+        }
     }
 
     private triangulateSector(direction: HexDirection, cell: HexCell) {
@@ -117,6 +119,9 @@ export class HexGridChunk extends Object3D {
             }
         } else {
             this.triangulateWithoutRiver(direction, cell, center, e);
+            if (!cell.isUnderwater && !cell.hasRoadThroughEdge(direction)) {
+                this.features.addFeature(Vec3.addMany(center, e.v1, e.v5).multiplyScalar(1 / 3));
+            }
         }
 
         if (direction <= HexDirection.SE) {

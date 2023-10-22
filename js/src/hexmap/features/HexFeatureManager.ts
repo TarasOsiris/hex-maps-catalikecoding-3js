@@ -16,7 +16,6 @@ export class HexFeatureManager {
 
     clear(): void {
         if (this._container) {
-            console.log(this._container.children.length);
             this._container.clear();
         }
     }

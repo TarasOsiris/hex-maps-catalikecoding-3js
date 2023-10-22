@@ -17,6 +17,14 @@ export class Vec3 {
         return new Vector3().addVectors(v1, v2);
     }
 
+    static addMany(v: Vector3, ...vectors: Array<Vector3>) {
+        const result = v.clone();
+        for (const vector of vectors) {
+            result.add(vector);
+        }
+        return result;
+    }
+
     static mul(v1: Vector3, v2: Vector3) {
         return new Vector3().multiplyVectors(v1, v2);
     }
