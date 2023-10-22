@@ -6,6 +6,7 @@ export class CubeFeature extends Mesh {
     constructor() {
         super(CubeFeature.geometry, CubeFeature.material);
         this.castShadow = true;
+        this.scale.set(3,3,3);
         this.position.setY(this.scale.y * 0.5);
     }
 }
