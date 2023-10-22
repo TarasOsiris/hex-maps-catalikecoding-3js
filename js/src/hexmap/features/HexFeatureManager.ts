@@ -23,7 +23,6 @@ export class HexFeatureManager {
 
         position = position.clone();
 
-
         const worldPos = HexMetrics.perturb(position);
         instance.position.copy(Vec3.add(worldPos, instance.position));
     }
