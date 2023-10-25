@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@tsconfig/recommended": "^1.0.2",
+    "@types/isaac": "^0.0.1",
     "@types/three": "^0.155.1",
     "@typescript-eslint/eslint-plugin": "^6.6.0",
     "@typescript-eslint/parser": "^6.6.0",
@@ -22,6 +23,7 @@
     "vite-plugin-glsl": "^1.1.2"
   },
   "dependencies": {
+    "isaac": "^0.0.5",
     "three": "^0.155.0",
     "three-addons": "^1.2.0"
   }

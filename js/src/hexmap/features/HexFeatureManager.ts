@@ -5,7 +5,7 @@ import {Vec3} from "../../lib/math/Vec3";
 
 export class HexFeatureManager {
     private _scene: Scene;
-    private _container: Group;
+    private readonly _container: Group;
 
     constructor(scene: Scene) {
         this._scene = scene;
@@ -30,8 +30,10 @@ export class HexFeatureManager {
 
         position = position.clone();
 
+        const hash = HexMetrics.sampleHashGrid(position);
         const worldPos = HexMetrics.perturb(position);
         instance.position.copy(Vec3.add(worldPos, instance.position));
+        instance.rotation.set(0, 360 * hash, 0);
         this._container.attach(instance);
     }
 }
