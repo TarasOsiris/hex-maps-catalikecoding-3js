@@ -31,9 +31,12 @@ export class HexFeatureManager {
         position = position.clone();
 
         const hash = HexMetrics.sampleHashGrid(position);
+        if (hash.a >= 0.5) {
+            return;
+        }
         const worldPos = HexMetrics.perturb(position);
         instance.position.copy(Vec3.add(worldPos, instance.position));
-        instance.rotation.set(0, 360 * hash, 0);
+        instance.rotation.set(0, 360 * hash.b, 0);
         this._container.attach(instance);
     }
 }

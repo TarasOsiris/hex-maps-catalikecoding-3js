@@ -3,6 +3,7 @@ import {HexDirection} from "./HexDirection";
 import {HexEdgeType} from "./HexEdgeType";
 import {Vec3} from "../lib/math/Vec3";
 import * as isaac from "isaac";
+import {HexHash} from "./features/HexHash";
 
 export class HexMetrics {
 	static readonly outerRadius = 10;
@@ -30,7 +31,7 @@ export class HexMetrics {
 	public static readonly hashGridSize = 256;
 	public static readonly hashGridScale = 0.25;
 
-	private static _hashGrid: Array<number>;
+	private static _hashGrid: Array<HexHash>;
 
 	static readonly chunkSizeX = 5;
 	static readonly chunkSizeZ = 5;
@@ -150,15 +151,15 @@ export class HexMetrics {
 	}
 
 	public static initializeHashGrid(seed: number) {
-		this._hashGrid = new Array<number>(this.hashGridSize * this.hashGridSize);
+		this._hashGrid = new Array<HexHash>(this.hashGridSize * this.hashGridSize);
 		isaac.seed(seed);
 		for (let i = 0; i < this._hashGrid.length; i++) {
-			this._hashGrid[i] = isaac.random();
+			this._hashGrid[i] = HexHash.Create();
 		}
 		isaac.reset();
 	}
 
-	public static sampleHashGrid(position: Vector3): number {
+	public static sampleHashGrid(position: Vector3): HexHash {
 		let x = Math.floor(position.x * this.hashGridScale) % this.hashGridSize;
 		if (x < 0) {
 			x += this.hashGridSize;
