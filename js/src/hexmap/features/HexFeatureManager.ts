@@ -2,6 +2,7 @@ import {Group, Scene, Vector3} from "three";
 import {CubeFeature} from "./CubeFeature";
 import {HexMetrics} from "../HexMetrics";
 import {Vec3} from "../../lib/math/Vec3";
+import {HexCell} from "../HexCell";
 
 export class HexFeatureManager {
     private _scene: Scene;
@@ -24,16 +25,16 @@ export class HexFeatureManager {
 
     }
 
-    addFeature(position: Vector3) {
+    addFeature(cell: HexCell, position: Vector3) {
+        const hash = HexMetrics.sampleHashGrid(position);
+        if (hash.a >= cell.urbanLevel * 0.25) {
+            return;
+        }
         const instance = new CubeFeature();
         this._scene.add(instance);
 
         position = position.clone();
 
-        const hash = HexMetrics.sampleHashGrid(position);
-        if (hash.a >= 0.5) {
-            return;
-        }
         const worldPos = HexMetrics.perturb(position);
         instance.position.copy(Vec3.add(worldPos, instance.position));
         instance.rotation.set(0, 360 * hash.b, 0);

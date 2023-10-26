@@ -23,6 +23,8 @@ export class HexCell extends THREE.Object3D {
     private _roads: Array<boolean> = new Array<boolean>(6).fill(false);
     private _waterLevel: number = 0;
 
+    private _urbanLevel: number = 0;
+
     constructor(coordinates: HexCoordinates) {
         super();
         this.neighbors.fill(null);
@@ -117,6 +119,17 @@ export class HexCell extends THREE.Object3D {
 
     get isUnderwater() {
         return this._waterLevel > this._elevation;
+    }
+
+    get urbanLevel() {
+        return this._urbanLevel;
+    }
+
+    set urbanLevel(value: number) {
+        if (this._urbanLevel != value) {
+            this._urbanLevel = value;
+            this.refreshSelfOnly();
+        }
     }
 
     removeRoads() {

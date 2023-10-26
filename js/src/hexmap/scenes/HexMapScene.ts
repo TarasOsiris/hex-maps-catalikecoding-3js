@@ -175,6 +175,9 @@ export class HexMapScene extends FullScreenScene {
             if (this._editor.applyWaterLevel) {
                 cell.waterLevel = this._editor.activeWaterLevel;
             }
+            if (this._editor.applyUrbanLevel) {
+                cell.urbanLevel = this._editor.activeUrbanLevel;
+            }
             if (this._editor.riverMode == OptionalToggle.No) {
                 cell.removeRiver();
             }

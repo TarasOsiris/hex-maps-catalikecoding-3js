@@ -17,6 +17,8 @@ export class HexMapSceneEditor {
     showGridLabels = false;
     riverMode = OptionalToggle.Ignore.valueOf();
     roadMode = OptionalToggle.Ignore.valueOf();
+    activeUrbanLevel = 0;
+    applyUrbanLevel = false;
 
     // TODO Implement this
     wireframe = {
@@ -50,19 +52,22 @@ export class HexMapSceneEditor {
         gui.add(this, 'activeWaterLevel').name('Cell water level').min(0).max(6).step(1);
         gui.add(this, 'applyWaterLevel').name('Apply water level?');
         gui.add(this, 'brushSize').name('Brush Size').min(0).max(4).step(1);
-        gui.add(this, 'showGridLabels').name('Labels').onChange(() => {
-            this.showLabels();
-        });
         gui.add(this, 'roadMode', this.toggleOptions).name('Road');
         gui.add(this, 'riverMode', this.toggleOptions).name('River');
+        gui.add(this, 'activeUrbanLevel').name('Urban level').min(0).max(3).step(1);
+        gui.add(this, 'applyUrbanLevel').name('Apply urban level?');
+        gui.add(this, 'refreshGrid');
 
-        gui.add(this, 'showTerrain').onChange((value: boolean) => {
+        const visibilityGui = gui.addFolder('Visibility').close();
+        visibilityGui.add(this, 'showGridLabels').name('Labels').onChange(() => {
+            this.showLabels();
+        });
+        visibilityGui.add(this, 'showTerrain').onChange((value: boolean) => {
             hexGrid.showTerrain(value);
         });
-        gui.add(this, 'showRivers').onChange((value: boolean) => {
+        visibilityGui.add(this, 'showRivers').onChange((value: boolean) => {
             hexGrid.showRivers(value);
         });
-        gui.add(this, 'refreshGrid');
         this.addWireframeToggles(gui, hexGrid);
 
         this.setInitialValues();

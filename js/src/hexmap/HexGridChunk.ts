@@ -95,7 +95,7 @@ export class HexGridChunk extends Object3D {
             this.triangulateSector(d, cell);
         }
         if (!cell.isUnderwater && !cell.hasRiver && !cell.hasRoads) {
-            this.features.addFeature(cell.position);
+            this.features.addFeature(cell, cell.position);
         }
     }
 
@@ -120,7 +120,7 @@ export class HexGridChunk extends Object3D {
         } else {
             this.triangulateWithoutRiver(direction, cell, center, e);
             if (!cell.isUnderwater && !cell.hasRoadThroughEdge(direction)) {
-                this.features.addFeature(Vec3.addMany(center, e.v1, e.v5).multiplyScalar(1 / 3));
+                this.features.addFeature(cell, Vec3.addMany(center, e.v1, e.v5).multiplyScalar(1 / 3));
             }
         }
 
@@ -494,7 +494,7 @@ export class HexGridChunk extends Object3D {
         this.triangulateEdgeFan(center, m, cell.color);
 
         if (!cell.isUnderwater && !cell.hasRoadThroughEdge(direction)) {
-            this.features.addFeature(Vec3.addMany(center, e.v1, e.v5).multiplyScalar(1 / 3));
+            this.features.addFeature(cell, Vec3.addMany(center, e.v1, e.v5).multiplyScalar(1 / 3));
         }
     }
 
