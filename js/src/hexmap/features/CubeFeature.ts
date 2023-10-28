@@ -1,12 +1,15 @@
-import {BoxGeometry, Mesh, MeshStandardMaterial} from "three";
+import {BoxGeometry, Mesh, MeshStandardMaterial, Vector3} from "three";
 
 export class CubeFeature extends Mesh {
-    private static readonly geometry = new BoxGeometry(1,1,1);
-    private static readonly material = new MeshStandardMaterial({color: 'red'});
-    constructor() {
-        super(CubeFeature.geometry, CubeFeature.material);
-        this.castShadow = true;
-        this.scale.set(3,3,3);
-        this.position.setY(this.scale.y * 0.5);
-    }
+	private static readonly geometry = new BoxGeometry(1, 1, 1);
+	private static readonly material = new MeshStandardMaterial({color: 'red'});
+
+	constructor(scale: Vector3) {
+		super(CubeFeature.geometry, CubeFeature.material);
+		this.castShadow = true;
+		if (scale) {
+			this.scale.set(scale.x, scale.y, scale.z);
+		}
+		this.position.setY(this.scale.y * 0.5);
+	}
 }
