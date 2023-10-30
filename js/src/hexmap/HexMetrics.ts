@@ -30,6 +30,11 @@ export class HexMetrics {
 
 	public static readonly hashGridSize = 256;
 	public static readonly hashGridScale = 0.25;
+	private static readonly featureThresholds: number[][] = [
+		[0.0, 0.0, 0.4],
+		[0.0, 0.4, 0.6],
+		[0.4, 0.6, 0.8],
+	];
 
 	private static _hashGrid: Array<HexHash>;
 
@@ -142,6 +147,7 @@ export class HexMetrics {
 		const integerPart = new Vector2(Math.floor(texCoord.x), Math.floor(texCoord.y));
 		return texCoord.clone().sub(integerPart);
 	}
+
 	static perturb(position: Vector3): Vector3 {
 		const result = position.clone();
 		const sample = HexMetrics.sampleNoise(position);
@@ -169,5 +175,9 @@ export class HexMetrics {
 			z += this.hashGridSize;
 		}
 		return this._hashGrid[x + z * this.hashGridSize];
+	}
+
+	public static getFeatureThresholds(level: number) {
+		return this.featureThresholds[level];
 	}
 }

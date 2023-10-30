@@ -24,7 +24,7 @@
     "strictNullChecks": true,
     "outDir": "./build",
     "baseUrl": ".",
-    "experimentalDecorators": true
+    "experimentalDecorators": false
   },
   "include": [
     "src/**/*",

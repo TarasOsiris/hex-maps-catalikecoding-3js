@@ -9,9 +9,9 @@ export class HexFeatureManager {
 	private readonly _container: Group;
 
 	private readonly urbanPrefabs = Array.of(
-		new CubeFeature(new Vector3(1, 1, 1)),
-		new CubeFeature(new Vector3(1.5, 2, 1.5)),
 		new CubeFeature(new Vector3(2, 5, 2)),
+		new CubeFeature(new Vector3(1.5, 2, 1.5)),
+		new CubeFeature(new Vector3(1, 1, 1)),
 	);
 
 	constructor(scene: Scene) {
@@ -33,10 +33,11 @@ export class HexFeatureManager {
 
 	addFeature(cell: HexCell, position: Vector3) {
 		const hash = HexMetrics.sampleHashGrid(position);
-		if (hash.a >= cell.urbanLevel * 0.25) {
+		const prefab = this.pickPrefab(cell.urbanLevel, hash.a);
+		if (!prefab) {
 			return;
 		}
-		const instance = this.urbanPrefabs[cell.urbanLevel - 1].clone();
+		const instance = prefab.clone();
 		this._scene.add(instance);
 
 		position = position.clone();
@@ -45,5 +46,17 @@ export class HexFeatureManager {
 		instance.position.copy(Vec3.add(worldPos, instance.position));
 		instance.rotation.set(0, 360 * hash.b, 0);
 		this._container.attach(instance);
+	}
+
+	pickPrefab(level: number, hash: number) {
+		if (level > 0) {
+			const thresholds = HexMetrics.getFeatureThresholds(level - 1);
+			for (let i = 0; i < thresholds.length; i++) {
+				if (hash < thresholds[i]) {
+					return this.urbanPrefabs[i];
+				}
+			}
+		}
+		return null;
 	}
 }
