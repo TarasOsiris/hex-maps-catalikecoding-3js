@@ -7,7 +7,7 @@ import {HexMetrics} from "./HexMetrics";
 export class HexMapCamera extends THREE.Object3D {
     scrollSensitivity = 0.001;
     zoom: number = 1;
-    stickMinZoom = -250;
+    stickMinZoom = -500;
     stickMaxZoom = -45;
     swivelMinZoom = 90;
     swivelMaxZoom = 45;
