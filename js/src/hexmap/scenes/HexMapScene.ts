@@ -79,14 +79,7 @@ export class HexMapScene extends FullScreenScene {
 
 		this.addLighting();
 		this.handleInput(this._hexGrid);
-
 		this.createEditor();
-
-		// TODO make proper rendering for everything
-		// const material = new CustomMat();
-		// const sphere = new Mesh(new SphereGeometry(10), material);
-		// console.log(material.uniforms);
-		// this.add(sphere);
 	}
 
 	private createEditor() {
