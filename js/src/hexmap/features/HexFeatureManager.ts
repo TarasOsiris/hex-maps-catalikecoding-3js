@@ -74,6 +74,8 @@ export class HexFeatureManager {
 	addFeature(cell: HexCell, position: Vector3) {
 		const hash = HexMetrics.sampleHashGrid(position);
 		const prefab = this.pickPrefab(this.urbanCollections, cell.urbanLevel, hash.a, hash.d);
+		const otherPrefab = this.pickPrefab(this.farmCollections, cell.urbanLevel, hash.b, hash.d);
+		// TODO continue here
 		if (!prefab) {
 			return;
 		}
