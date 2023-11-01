@@ -24,6 +24,36 @@ export class HexFeatureManager {
 		),
 	);
 
+	private readonly farmCollections: HexFeatureCollection[] = Array.of(
+		new HexFeatureCollection(
+			CubeFeature.createFarm(2.5, 2.5),
+			CubeFeature.createFarm(3.5, 2),
+		),
+		new HexFeatureCollection(
+			CubeFeature.createFarm(1.75, 1.75),
+			CubeFeature.createFarm(2.5, 1.25),
+		),
+		new HexFeatureCollection(
+			CubeFeature.createFarm(1, 1),
+			CubeFeature.createFarm(1.5, 0.75),
+		)
+	);
+
+	private readonly plantCollections: HexFeatureCollection[] = Array.of(
+		new HexFeatureCollection(
+			CubeFeature.createPlant(1.25, 4.5, 1.25),
+			CubeFeature.createPlant(1.5, 3, 1.5),
+		),
+		new HexFeatureCollection(
+			CubeFeature.createPlant(0.75, 3, 0.75),
+			CubeFeature.createPlant(1, 1.5, 1),
+		),
+		new HexFeatureCollection(
+			CubeFeature.createPlant(0.5, 1.5, 0.5),
+			CubeFeature.createPlant(0.75, 1, 0.75),
+		)
+	);
+
 	constructor(scene: Scene) {
 		this._scene = scene;
 		this._container = new Group();
@@ -43,7 +73,7 @@ export class HexFeatureManager {
 
 	addFeature(cell: HexCell, position: Vector3) {
 		const hash = HexMetrics.sampleHashGrid(position);
-		const prefab = this.pickPrefab(cell.urbanLevel, hash.a, hash.b);
+		const prefab = this.pickPrefab(this.urbanCollections, cell.urbanLevel, hash.a, hash.d);
 		if (!prefab) {
 			return;
 		}
@@ -54,16 +84,16 @@ export class HexFeatureManager {
 
 		const worldPos = HexMetrics.perturb(position);
 		instance.position.copy(Vec3.add(worldPos, instance.position));
-		instance.rotation.set(0, 360 * hash.c, 0);
+		instance.rotation.set(0, 360 * hash.e, 0);
 		this._container.attach(instance);
 	}
 
-	pickPrefab(level: number, hash: number, choice: number) {
+	pickPrefab(collection: HexFeatureCollection[], level: number, hash: number, choice: number) {
 		if (level > 0) {
 			const thresholds = HexMetrics.getFeatureThresholds(level - 1);
 			for (let i = 0; i < thresholds.length; i++) {
 				if (hash < thresholds[i]) {
-					return this.urbanCollections[i].pick(choice);
+					return collection[i].pick(choice);
 				}
 			}
 		}

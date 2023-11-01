@@ -16,4 +16,12 @@ export class CubeFeature extends Mesh {
 	public static createUrban(xScale: number, yScale: number, zScale: number): CubeFeature {
 		return new CubeFeature(new Vector3(xScale, yScale, zScale), HexMaterials.urbanFeatureMaterial);
 	}
+
+	public static createFarm(xScale: number, zScale: number): CubeFeature {
+		return new CubeFeature(new Vector3(xScale, 0.1, zScale), HexMaterials.farmFeatureMaterial);
+	}
+
+	public static createPlant(xScale: number, yScale: number, zScale: number): CubeFeature {
+		return new CubeFeature(new Vector3(xScale, yScale, zScale), HexMaterials.plantFeatureMaterial);
+	}
 }
