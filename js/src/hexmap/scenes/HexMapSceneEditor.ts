@@ -65,9 +65,9 @@ export class HexMapSceneEditor {
         const features = gui.addFolder("Features").close();
         features.add(this, 'activeUrbanLevel').name('Urban level').min(0).max(3).step(1);
         features.add(this, 'applyUrbanLevel').name('Apply urban level?');
-        features.add(this, 'activeFarmLevel').name('Urban level').min(0).max(3).step(1);
+        features.add(this, 'activeFarmLevel').name('Farm level').min(0).max(3).step(1);
         features.add(this, 'applyFarmLevel').name('Apply farm level?');
-        features.add(this, 'activePlantLevel').name('Urban level').min(0).max(3).step(1);
+        features.add(this, 'activePlantLevel').name('Plant level').min(0).max(3).step(1);
         features.add(this, 'applyPlantLevel').name('Apply plant level?');
 
         gui.add(this, 'refreshGrid');

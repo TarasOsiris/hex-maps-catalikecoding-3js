@@ -87,6 +87,6 @@ export class HexMaterials {
     });
 
     static readonly urbanFeatureMaterial = new MeshStandardMaterial({color: 'red'});
-    static readonly farmFeatureMaterial = new MeshStandardMaterial({color: '0xacdd22'});
-    static readonly plantFeatureMaterial = new MeshStandardMaterial({color: '0x319223'});
+    static readonly farmFeatureMaterial = new MeshStandardMaterial({color: 0xacdd22});
+    static readonly plantFeatureMaterial = new MeshStandardMaterial({color: 0x319223});
 }

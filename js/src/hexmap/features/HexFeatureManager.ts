@@ -39,6 +39,7 @@ export class HexFeatureManager {
 		)
 	);
 
+	// TODO finish this!
 	private readonly plantCollections: HexFeatureCollection[] = Array.of(
 		new HexFeatureCollection(
 			CubeFeature.createPlant(1.25, 4.5, 1.25),
@@ -73,10 +74,16 @@ export class HexFeatureManager {
 
 	addFeature(cell: HexCell, position: Vector3) {
 		const hash = HexMetrics.sampleHashGrid(position);
-		const prefab = this.pickPrefab(this.urbanCollections, cell.urbanLevel, hash.a, hash.d);
-		const otherPrefab = this.pickPrefab(this.farmCollections, cell.urbanLevel, hash.b, hash.d);
-		// TODO continue here
-		if (!prefab) {
+		let prefab = this.pickPrefab(this.urbanCollections, cell.urbanLevel, hash.a, hash.d);
+		const otherPrefab = this.pickPrefab(this.farmCollections, cell.farmLevel, hash.b, hash.d);
+
+		if (prefab) {
+			if (otherPrefab && hash.b < hash.a) {
+				prefab = otherPrefab;
+			}
+		} else if (otherPrefab) {
+			prefab = otherPrefab;
+		} else {
 			return;
 		}
 		const instance = prefab.clone();
