@@ -74,11 +74,28 @@ export class HexFeatureManager {
 
 	addFeature(cell: HexCell, position: Vector3) {
 		const hash = HexMetrics.sampleHashGrid(position);
-		let prefab = this.pickPrefab(this.urbanCollections, cell.urbanLevel, hash.a, hash.d);
-		const otherPrefab = this.pickPrefab(this.farmCollections, cell.farmLevel, hash.b, hash.d);
+		let prefab = this.pickPrefab(
+			this.urbanCollections, cell.urbanLevel, hash.a, hash.d
+		);
+		let otherPrefab = this.pickPrefab(
+			this.farmCollections, cell.farmLevel, hash.b, hash.d
+		);
 
+		let usedHash = hash.a;
 		if (prefab) {
 			if (otherPrefab && hash.b < hash.a) {
+				prefab = otherPrefab;
+				usedHash = hash.b;
+			}
+		} else if (otherPrefab) {
+			prefab = otherPrefab;
+			usedHash = hash.b;
+		}
+		otherPrefab = this.pickPrefab(
+			this.plantCollections, cell.plantLevel, hash.c, hash.d
+		);
+		if (prefab) {
+			if (otherPrefab && hash.c < usedHash) {
 				prefab = otherPrefab;
 			}
 		} else if (otherPrefab) {
