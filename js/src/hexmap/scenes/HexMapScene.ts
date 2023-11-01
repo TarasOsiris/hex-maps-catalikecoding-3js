@@ -12,7 +12,7 @@ import {HexDirection, HexDirectionUtils} from "../HexDirection";
 import {ColliderLayers} from "../ColliderLayers";
 import {HexMaterials} from "../util/HexMaterials";
 import {
-	AmbientLight, CameraHelper, DirectionalLight, LoadingManager, Object3D, PerspectiveCamera,
+	AmbientLight, DirectionalLight, LoadingManager, Object3D, PerspectiveCamera,
 	Raycaster, TextureLoader, Vector2
 } from "three";
 import {HexMapSceneEditor} from "./HexMapSceneEditor";
@@ -114,7 +114,7 @@ export class HexMapScene extends FullScreenScene {
 		shadowCamera.right = midX + 10;
 		// shadowCamera.lookAt(lightTarget.position);
 
-		this.add(new CameraHelper(shadowCamera));
+		// this.add(new CameraHelper(shadowCamera));
 		// new DirectionalLightHelper(directionalLight);
 	}
 
@@ -178,6 +178,12 @@ export class HexMapScene extends FullScreenScene {
 			}
 			if (this._editor.applyUrbanLevel) {
 				cell.urbanLevel = this._editor.activeUrbanLevel;
+			}
+			if (this._editor.applyFarmLevel) {
+				cell.farmLevel = this._editor.activeFarmLevel;
+			}
+			if (this._editor.applyPlantLevel) {
+				cell.plantLevel = this._editor.activeFarmLevel;
 			}
 			if (this._editor.riverMode == OptionalToggle.No) {
 				cell.removeRiver();

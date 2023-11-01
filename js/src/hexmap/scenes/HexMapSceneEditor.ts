@@ -17,8 +17,15 @@ export class HexMapSceneEditor {
     showGridLabels = false;
     riverMode = OptionalToggle.Ignore.valueOf();
     roadMode = OptionalToggle.Ignore.valueOf();
+
     activeUrbanLevel = 0;
     applyUrbanLevel = false;
+
+    activeFarmLevel = 0;
+    applyFarmLevel = false;
+
+    activePlantLevel = 0;
+    applyPlantLevel = false;
 
     // TODO Implement this
     wireframe = {
@@ -54,8 +61,15 @@ export class HexMapSceneEditor {
         gui.add(this, 'brushSize').name('Brush Size').min(0).max(4).step(1);
         gui.add(this, 'roadMode', this.toggleOptions).name('Road');
         gui.add(this, 'riverMode', this.toggleOptions).name('River');
-        gui.add(this, 'activeUrbanLevel').name('Urban level').min(0).max(3).step(1);
-        gui.add(this, 'applyUrbanLevel').name('Apply urban level?');
+        // features
+        const features = gui.addFolder("Features").close();
+        features.add(this, 'activeUrbanLevel').name('Urban level').min(0).max(3).step(1);
+        features.add(this, 'applyUrbanLevel').name('Apply urban level?');
+        features.add(this, 'activeFarmLevel').name('Urban level').min(0).max(3).step(1);
+        features.add(this, 'applyFarmLevel').name('Apply farm level?');
+        features.add(this, 'activePlantLevel').name('Urban level').min(0).max(3).step(1);
+        features.add(this, 'applyPlantLevel').name('Apply plant level?');
+
         gui.add(this, 'refreshGrid');
 
         const visibilityGui = gui.addFolder('Visibility').close();

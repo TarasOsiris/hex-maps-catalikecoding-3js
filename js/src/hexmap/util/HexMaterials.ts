@@ -86,4 +86,5 @@ export class HexMaterials {
         defines: {'STANDARD': ''},
     });
 
+    static readonly urbanFeatureMaterial = new MeshStandardMaterial({color: 'red'});
 }

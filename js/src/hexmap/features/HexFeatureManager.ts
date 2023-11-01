@@ -9,18 +9,18 @@ export class HexFeatureManager {
 	private _scene: Scene;
 	private readonly _container: Group;
 
-	private readonly urbanPrefabs: HexFeatureCollection[] = Array.of(
+	private readonly urbanCollections: HexFeatureCollection[] = Array.of(
 		new HexFeatureCollection(
-			new CubeFeature(new Vector3(2, 5, 2)),
-			new CubeFeature(new Vector3(3.5, 3, 2)),
+			CubeFeature.createUrban(2, 5, 2),
+			CubeFeature.createUrban(3.5, 3, 2),
 		),
 		new HexFeatureCollection(
-			new CubeFeature(new Vector3(1.5, 2, 1.5)),
-			new CubeFeature(new Vector3(2.75, 1.5, 1.5)),
+			CubeFeature.createUrban(1.5, 2, 1.5),
+			CubeFeature.createUrban(2.75, 1.5, 1.5),
 		),
 		new HexFeatureCollection(
-			new CubeFeature(new Vector3(1, 1, 1)),
-			new CubeFeature(new Vector3(1.75, 1, 1)),
+			CubeFeature.createUrban(1, 1, 1),
+			CubeFeature.createUrban(1.75, 1, 1),
 		),
 	);
 
@@ -63,7 +63,7 @@ export class HexFeatureManager {
 			const thresholds = HexMetrics.getFeatureThresholds(level - 1);
 			for (let i = 0; i < thresholds.length; i++) {
 				if (hash < thresholds[i]) {
-					return this.urbanPrefabs[i].pick(choice);
+					return this.urbanCollections[i].pick(choice);
 				}
 			}
 		}

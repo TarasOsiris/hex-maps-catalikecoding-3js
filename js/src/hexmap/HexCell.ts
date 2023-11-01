@@ -24,6 +24,8 @@ export class HexCell extends THREE.Object3D {
     private _waterLevel: number = 0;
 
     private _urbanLevel: number = 0;
+    private _farmLevel: number = 0;
+    private _plantLevel: number = 0;
 
     constructor(coordinates: HexCoordinates) {
         super();
@@ -128,6 +130,27 @@ export class HexCell extends THREE.Object3D {
     set urbanLevel(value: number) {
         if (this._urbanLevel != value) {
             this._urbanLevel = value;
+            this.refreshSelfOnly();
+        }
+    }
+
+    get plantLevel() {
+        return this._plantLevel;
+    }
+
+    set plantLevel(value: number) {
+        if (this._plantLevel != value) {
+            this._plantLevel = value;
+            this.refreshSelfOnly();
+        }
+    }
+    get farmLevel() {
+        return this._farmLevel;
+    }
+
+    set farmLevel(value: number) {
+        if (this._farmLevel != value) {
+            this._farmLevel = value;
             this.refreshSelfOnly();
         }
     }
