@@ -8,307 +8,321 @@ import {Color} from "three";
 import {Nullable} from "../lib/types/Types";
 
 export class HexCell extends THREE.Object3D {
-    coordinates: HexCoordinates;
-    private _elevation: number = Number.MIN_SAFE_INTEGER;
-    private _color = new THREE.Color();
-    neighbors: Array<Nullable<HexCell>> = new Array<Nullable<HexCell>>(6);
-    textMesh!: THREE.Mesh;
-    chunk!: HexGridChunk;
+	coordinates: HexCoordinates;
+	private _elevation: number = Number.MIN_SAFE_INTEGER;
+	private _color = new THREE.Color();
+	neighbors: Array<Nullable<HexCell>> = new Array<Nullable<HexCell>>(6);
+	textMesh!: THREE.Mesh;
+	chunk!: HexGridChunk;
 
-    private _hasIncomingRiver: boolean = false;
-    private _hasOutgoingRiver: boolean = false;
-    private _incomingRiver: Nullable<HexDirection> = null;
-    private _outgoingRiver: Nullable<HexDirection> = null;
+	private _hasIncomingRiver: boolean = false;
+	private _hasOutgoingRiver: boolean = false;
+	private _incomingRiver: Nullable<HexDirection> = null;
+	private _outgoingRiver: Nullable<HexDirection> = null;
 
-    private _roads: Array<boolean> = new Array<boolean>(6).fill(false);
-    private _waterLevel: number = 0;
+	private _roads: Array<boolean> = new Array<boolean>(6).fill(false);
+	private _waterLevel: number = 0;
 
-    private _urbanLevel: number = 0;
-    private _farmLevel: number = 0;
-    private _plantLevel: number = 0;
+	private _urbanLevel: number = 0;
+	private _farmLevel: number = 0;
+	private _plantLevel: number = 0;
 
-    constructor(coordinates: HexCoordinates) {
-        super();
-        this.neighbors.fill(null);
-        this.coordinates = coordinates;
-    }
+	private _walled: boolean = false;
 
-    get hasIncomingRiver(): boolean {
-        return this._hasIncomingRiver;
-    }
+	constructor(coordinates: HexCoordinates) {
+		super();
+		this.neighbors.fill(null);
+		this.coordinates = coordinates;
+	}
 
-    get hasOutgoingRiver(): boolean {
-        return this._hasOutgoingRiver;
-    }
+	get hasIncomingRiver(): boolean {
+		return this._hasIncomingRiver;
+	}
 
-    get incomingRiver(): HexDirection {
-        return <HexDirection>this._incomingRiver;
-    }
+	get hasOutgoingRiver(): boolean {
+		return this._hasOutgoingRiver;
+	}
 
-    get outgoingRiver(): HexDirection {
-        return <HexDirection>this._outgoingRiver;
-    }
+	get incomingRiver(): HexDirection {
+		return <HexDirection>this._incomingRiver;
+	}
 
-    get hasRiver(): boolean {
-        return this._hasIncomingRiver || this._hasOutgoingRiver;
-    }
+	get outgoingRiver(): HexDirection {
+		return <HexDirection>this._outgoingRiver;
+	}
 
-    get hasRiverBeginOrEnd() {
-        return this._hasIncomingRiver != this._hasOutgoingRiver;
-    }
+	get hasRiver(): boolean {
+		return this._hasIncomingRiver || this._hasOutgoingRiver;
+	}
 
-    isValidRiverDestination(neighbor: HexCell): boolean {
-        return neighbor && (
-            this.elevation >= neighbor.elevation || this.waterLevel == neighbor.elevation
-        );
-    }
+	get hasRiverBeginOrEnd() {
+		return this._hasIncomingRiver != this._hasOutgoingRiver;
+	}
 
-    validateRivers() {
-        if (
-            this.hasOutgoingRiver &&
-            !this.isValidRiverDestination(this.getNeighbor(this.outgoingRiver))
-        ) {
-            this.removeOutgoingRiver();
-        }
-        if (
-            this.hasIncomingRiver &&
-            !this.getNeighbor(this.incomingRiver).isValidRiverDestination(this)
-        ) {
-            this.removeIncomingRiver();
-        }
-    }
+	isValidRiverDestination(neighbor: HexCell): boolean {
+		return neighbor && (
+			this.elevation >= neighbor.elevation || this.waterLevel == neighbor.elevation
+		);
+	}
 
-    get streamBedY() {
-        return (this._elevation + HexMetrics.streamBedElevationOffset) * HexMetrics.elevationStep;
-    }
+	validateRivers() {
+		if (
+			this.hasOutgoingRiver &&
+			!this.isValidRiverDestination(this.getNeighbor(this.outgoingRiver))
+		) {
+			this.removeOutgoingRiver();
+		}
+		if (
+			this.hasIncomingRiver &&
+			!this.getNeighbor(this.incomingRiver).isValidRiverDestination(this)
+		) {
+			this.removeIncomingRiver();
+		}
+	}
 
-    get riverSurfaceY() {
-        return (this._elevation + HexMetrics.waterElevationOffset) * HexMetrics.elevationStep;
-    }
+	get streamBedY() {
+		return (this._elevation + HexMetrics.streamBedElevationOffset) * HexMetrics.elevationStep;
+	}
 
-    get waterSurfaceY() {
-        return (this._waterLevel + HexMetrics.waterElevationOffset) * HexMetrics.elevationStep;
-    }
+	get riverSurfaceY() {
+		return (this._elevation + HexMetrics.waterElevationOffset) * HexMetrics.elevationStep;
+	}
 
-    get riverBeginOrEndDirection(): HexDirection {
-        return this._hasIncomingRiver ? this._incomingRiver! : this._outgoingRiver!;
-    }
+	get waterSurfaceY() {
+		return (this._waterLevel + HexMetrics.waterElevationOffset) * HexMetrics.elevationStep;
+	}
 
-    hasRiverThroughEdge(direction: HexDirection) {
-        return (this._hasIncomingRiver && this.incomingRiver == direction) || (this._hasOutgoingRiver && this.outgoingRiver == direction);
-    }
+	get riverBeginOrEndDirection(): HexDirection {
+		return this._hasIncomingRiver ? this._incomingRiver! : this._outgoingRiver!;
+	}
 
-    hasRoadThroughEdge(direction: HexDirection) {
-        return this._roads[direction];
-    }
+	hasRiverThroughEdge(direction: HexDirection) {
+		return (this._hasIncomingRiver && this.incomingRiver == direction) || (this._hasOutgoingRiver && this.outgoingRiver == direction);
+	}
 
-    get hasRoads() {
-        return this._roads.some(value => value);
-    }
+	hasRoadThroughEdge(direction: HexDirection) {
+		return this._roads[direction];
+	}
 
-    get waterLevel() {
-        return this._waterLevel;
-    }
+	get hasRoads() {
+		return this._roads.some(value => value);
+	}
 
-    set waterLevel(value: number) {
-        if (this._waterLevel == value) {
-            return;
-        }
-        this._waterLevel = value;
-        this.validateRivers();
-        this.refresh();
-    }
+	get waterLevel() {
+		return this._waterLevel;
+	}
 
-    get isUnderwater() {
-        return this._waterLevel > this._elevation;
-    }
+	set waterLevel(value: number) {
+		if (this._waterLevel == value) {
+			return;
+		}
+		this._waterLevel = value;
+		this.validateRivers();
+		this.refresh();
+	}
 
-    get urbanLevel() {
-        return this._urbanLevel;
-    }
+	get isUnderwater() {
+		return this._waterLevel > this._elevation;
+	}
 
-    set urbanLevel(value: number) {
-        if (this._urbanLevel != value) {
-            this._urbanLevel = value;
-            this.refreshSelfOnly();
-        }
-    }
+	get urbanLevel() {
+		return this._urbanLevel;
+	}
 
-    get plantLevel() {
-        return this._plantLevel;
-    }
+	set urbanLevel(value: number) {
+		if (this._urbanLevel != value) {
+			this._urbanLevel = value;
+			this.refreshSelfOnly();
+		}
+	}
 
-    set plantLevel(value: number) {
-        if (this._plantLevel != value) {
-            this._plantLevel = value;
-            this.refreshSelfOnly();
-        }
-    }
-    get farmLevel() {
-        return this._farmLevel;
-    }
+	get plantLevel() {
+		return this._plantLevel;
+	}
 
-    set farmLevel(value: number) {
-        if (this._farmLevel != value) {
-            this._farmLevel = value;
-            this.refreshSelfOnly();
-        }
-    }
+	set plantLevel(value: number) {
+		if (this._plantLevel != value) {
+			this._plantLevel = value;
+			this.refreshSelfOnly();
+		}
+	}
 
-    removeRoads() {
-        for (let i = 0; i < this._roads.length; i++) {
-            if (this._roads[i]) {
-                this.setRoad(i, false);
-            }
-        }
-    }
+	get farmLevel() {
+		return this._farmLevel;
+	}
 
-    addRoad(direction: HexDirection) {
-        if (!this._roads[direction] && !this.hasRiverThroughEdge(direction) && this.getElevationDifference(direction) <= 1) {
-            this.setRoad(direction, true);
-        }
-    }
+	set farmLevel(value: number) {
+		if (this._farmLevel != value) {
+			this._farmLevel = value;
+			this.refreshSelfOnly();
+		}
+	}
 
-    private setRoad(direction: HexDirection, state: boolean) {
-        this._roads[direction] = state;
-        this.getNeighbor(direction)._roads[HexDirectionUtils.opposite(direction)] = state;
-        this.getNeighbor(direction).refreshSelfOnly();
-        this.refreshSelfOnly();
-    }
+	get walled() {
+		return this._walled;
+	}
 
-    getElevationDifference(direction: HexDirection): number {
-        const difference = this._elevation - this.getNeighbor(direction)._elevation;
-        return difference >= 0 ? difference : -difference;
-    }
+	set walled(value: boolean) {
+		if (this._walled != value) {
+			this._walled = value;
+			this.refresh();
+		}
+	}
 
-    set elevation(value: number) {
-        if (this._elevation == value) {
-            return;
-        }
-        this._elevation = value;
-        const position = this.position.clone();
-        position.y = value * HexMetrics.elevationStep;
-        position.y += (HexMetrics.sampleNoise(position).y * 2 - 1) * HexMetrics.elevationPerturbStrength;
-        this.position.set(position.x, position.y, position.z);
-        this.textMesh.position.set(this.textMesh.position.x, position.y, this.textMesh.position.z);
+	removeRoads() {
+		for (let i = 0; i < this._roads.length; i++) {
+			if (this._roads[i]) {
+				this.setRoad(i, false);
+			}
+		}
+	}
 
-        this.validateRivers();
+	addRoad(direction: HexDirection) {
+		if (!this._roads[direction] && !this.hasRiverThroughEdge(direction) && this.getElevationDifference(direction) <= 1) {
+			this.setRoad(direction, true);
+		}
+	}
 
-        for (let i = 0; i < this._roads.length; i++) {
-            if (this._roads[i] && this.getElevationDifference(i) > 1) {
-                this.setRoad(i, false);
-            }
-        }
+	private setRoad(direction: HexDirection, state: boolean) {
+		this._roads[direction] = state;
+		this.getNeighbor(direction)._roads[HexDirectionUtils.opposite(direction)] = state;
+		this.getNeighbor(direction).refreshSelfOnly();
+		this.refreshSelfOnly();
+	}
 
-        this.refresh();
-    }
+	getElevationDifference(direction: HexDirection): number {
+		const difference = this._elevation - this.getNeighbor(direction)._elevation;
+		return difference >= 0 ? difference : -difference;
+	}
 
-    get elevation(): number {
-        return this._elevation;
-    }
+	set elevation(value: number) {
+		if (this._elevation == value) {
+			return;
+		}
+		this._elevation = value;
+		const position = this.position.clone();
+		position.y = value * HexMetrics.elevationStep;
+		position.y += (HexMetrics.sampleNoise(position).y * 2 - 1) * HexMetrics.elevationPerturbStrength;
+		this.position.set(position.x, position.y, position.z);
+		this.textMesh.position.set(this.textMesh.position.x, position.y, this.textMesh.position.z);
 
-    get color(): Color {
-        return this._color;
-    }
+		this.validateRivers();
 
-    set color(value: Color) {
-        if (this.color.equals(value)) {
-            return;
-        }
-        this._color = value;
-        this.refresh();
-    }
+		for (let i = 0; i < this._roads.length; i++) {
+			if (this._roads[i] && this.getElevationDifference(i) > 1) {
+				this.setRoad(i, false);
+			}
+		}
 
-    get cellPosition(): THREE.Vector3 {
-        return this.position;
-    }
+		this.refresh();
+	}
 
-    public getNeighbor(direction: HexDirection): HexCell {
-        return this.neighbors[direction as number]!;
-    }
+	get elevation(): number {
+		return this._elevation;
+	}
 
-    public setNeighbor(direction: HexDirection, cell: HexCell) {
-        this.neighbors[direction as number] = cell;
-        cell.neighbors[HexDirectionUtils.opposite(direction) as number] = this;
-    }
+	get color(): Color {
+		return this._color;
+	}
 
-    getEdgeType(direction: HexDirection): HexEdgeType {
-        return HexMetrics.getEdgeType(this.elevation, this.neighbors[direction as number]!.elevation);
-    }
+	set color(value: Color) {
+		if (this.color.equals(value)) {
+			return;
+		}
+		this._color = value;
+		this.refresh();
+	}
 
-    getEdgeTypeWithOtherCell(otherCell: HexCell): HexEdgeType {
-        return HexMetrics.getEdgeType(this.elevation, otherCell.elevation);
-    }
+	get cellPosition(): THREE.Vector3 {
+		return this.position;
+	}
 
-    refresh() {
-        if (this.chunk) {
-            this.chunk.markDirty();
-            for (let i = 0; i < this.neighbors.length; i++) {
-                const neighbor = this.neighbors[i];
-                if (neighbor != null && neighbor.chunk != this.chunk) {
-                    neighbor.chunk.markDirty();
-                }
-            }
-        }
-    }
+	public getNeighbor(direction: HexDirection): HexCell {
+		return this.neighbors[direction as number]!;
+	}
 
-    refreshSelfOnly() {
-        this.chunk.markDirty();
-    }
+	public setNeighbor(direction: HexDirection, cell: HexCell) {
+		this.neighbors[direction as number] = cell;
+		cell.neighbors[HexDirectionUtils.opposite(direction) as number] = this;
+	}
 
-    removeOutgoingRiver() {
-        if (!this._hasOutgoingRiver) {
-            return;
-        }
+	getEdgeType(direction: HexDirection): HexEdgeType {
+		return HexMetrics.getEdgeType(this.elevation, this.neighbors[direction as number]!.elevation);
+	}
 
-        this._hasOutgoingRiver = false;
-        this.refreshSelfOnly();
+	getEdgeTypeWithOtherCell(otherCell: HexCell): HexEdgeType {
+		return HexMetrics.getEdgeType(this.elevation, otherCell.elevation);
+	}
 
-        const neighbor = this.getNeighbor(this._outgoingRiver!);
-        neighbor._hasIncomingRiver = false;
-        neighbor.refreshSelfOnly();
-    }
+	refresh() {
+		if (this.chunk) {
+			this.chunk.markDirty();
+			for (let i = 0; i < this.neighbors.length; i++) {
+				const neighbor = this.neighbors[i];
+				if (neighbor != null && neighbor.chunk != this.chunk) {
+					neighbor.chunk.markDirty();
+				}
+			}
+		}
+	}
 
-    removeIncomingRiver() {
-        if (!this._hasIncomingRiver) {
-            return;
-        }
+	refreshSelfOnly() {
+		this.chunk.markDirty();
+	}
 
-        this._hasIncomingRiver = false;
-        this.refreshSelfOnly();
+	removeOutgoingRiver() {
+		if (!this._hasOutgoingRiver) {
+			return;
+		}
 
-        const neighbor = this.getNeighbor(this.incomingRiver!);
-        neighbor._hasOutgoingRiver = false;
-        neighbor.refreshSelfOnly();
-    }
+		this._hasOutgoingRiver = false;
+		this.refreshSelfOnly();
 
-    removeRiver() {
-        this.removeIncomingRiver();
-        this.removeOutgoingRiver();
-    }
+		const neighbor = this.getNeighbor(this._outgoingRiver!);
+		neighbor._hasIncomingRiver = false;
+		neighbor.refreshSelfOnly();
+	}
 
-    setOutgoingRiver(direction: HexDirection) {
-        if (this._hasOutgoingRiver && this._outgoingRiver == direction) {
-            return;
-        }
+	removeIncomingRiver() {
+		if (!this._hasIncomingRiver) {
+			return;
+		}
 
-        const neighbor = this.getNeighbor(direction);
-        if (!this.isValidRiverDestination(neighbor)) {
-            return;
-        }
+		this._hasIncomingRiver = false;
+		this.refreshSelfOnly();
 
-        this.removeOutgoingRiver();
-        if (this._hasIncomingRiver && this._incomingRiver == direction) {
-            this.removeIncomingRiver();
-        }
+		const neighbor = this.getNeighbor(this.incomingRiver!);
+		neighbor._hasOutgoingRiver = false;
+		neighbor.refreshSelfOnly();
+	}
 
-        this._hasOutgoingRiver = true;
-        this._outgoingRiver = direction;
+	removeRiver() {
+		this.removeIncomingRiver();
+		this.removeOutgoingRiver();
+	}
 
-        neighbor.removeIncomingRiver();
-        neighbor._hasIncomingRiver = true;
-        neighbor._incomingRiver = HexDirectionUtils.opposite(direction);
+	setOutgoingRiver(direction: HexDirection) {
+		if (this._hasOutgoingRiver && this._outgoingRiver == direction) {
+			return;
+		}
 
-        this.setRoad(direction, false);
-    }
+		const neighbor = this.getNeighbor(direction);
+		if (!this.isValidRiverDestination(neighbor)) {
+			return;
+		}
+
+		this.removeOutgoingRiver();
+		if (this._hasIncomingRiver && this._incomingRiver == direction) {
+			this.removeIncomingRiver();
+		}
+
+		this._hasOutgoingRiver = true;
+		this._outgoingRiver = direction;
+
+		neighbor.removeIncomingRiver();
+		neighbor._hasIncomingRiver = true;
+		neighbor._incomingRiver = HexDirectionUtils.opposite(direction);
+
+		this.setRoad(direction, false);
+	}
 }

@@ -17,6 +17,7 @@ export class HexMapSceneEditor {
     showGridLabels = false;
     riverMode = OptionalToggle.Ignore.valueOf();
     roadMode = OptionalToggle.Ignore.valueOf();
+    walledMode = OptionalToggle.Ignore.valueOf();
 
     activeUrbanLevel = 0;
     applyUrbanLevel = false;
@@ -61,6 +62,7 @@ export class HexMapSceneEditor {
         gui.add(this, 'brushSize').name('Brush Size').min(0).max(4).step(1);
         gui.add(this, 'roadMode', this.toggleOptions).name('Road');
         gui.add(this, 'riverMode', this.toggleOptions).name('River');
+        gui.add(this, 'walledMode', this.toggleOptions).name('Walls');
         // features
         const features = gui.addFolder("Features").close();
         features.add(this, 'activeUrbanLevel').name('Urban level').min(0).max(3).step(1);

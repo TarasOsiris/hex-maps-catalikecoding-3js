@@ -191,6 +191,9 @@ export class HexMapScene extends FullScreenScene {
 			if (this._editor.roadMode == OptionalToggle.No) {
 				cell.removeRoads();
 			}
+			if (this._editor.walledMode != OptionalToggle.Ignore) {
+				cell.walled = this._editor.walledMode == OptionalToggle.Yes;
+			}
 
 			if (this._isDrag) {
 				const otherCell = cell.getNeighbor(HexDirectionUtils.opposite(this._dragDirection!));
