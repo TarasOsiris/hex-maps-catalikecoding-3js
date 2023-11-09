@@ -29,27 +29,27 @@ export class HexGridChunk extends Object3D {
         this._scene = scene;
         this.cells = new Array<HexCell>(HexMetrics.chunkSizeX * HexMetrics.chunkSizeZ);
 
-        this.terrain = new HexMesh(HexMaterials.terrainMaterial, HexMaterials.wireframeMaterial, true, true, false);
+        this.terrain = new HexMesh(HexMaterials.terrainMaterial, true, true, false);
         this.terrain.castShadow = true;
         this.terrain.receiveShadow = true;
 
-        this.roads = new HexMesh(HexMaterials.roadMaterial, HexMaterials.wireframeMaterial, false, false, true);
+        this.roads = new HexMesh(HexMaterials.roadMaterial, false, false, true);
         this.roads.receiveShadow = true;
 
-        this.rivers = new HexMesh(HexMaterials.riverMaterial, HexMaterials.wireframeMaterial, false, false, true);
+        this.rivers = new HexMesh(HexMaterials.riverMaterial, false, false, true);
         this.rivers.receiveShadow = true;
         // TODO there is this issue where the rivers are not drawn at all below the water
         this.rivers.renderOrder = 0;
 
-        this.water = new HexMesh(HexMaterials.waterMaterial, HexMaterials.wireframeMaterial, false, false, false);
+        this.water = new HexMesh(HexMaterials.waterMaterial, false, false, false);
         this.water.receiveShadow = true;
         this.water.renderOrder = 0;
 
-        this.waterShore = new HexMesh(HexMaterials.waterShoreMaterial, HexMaterials.wireframeMaterial, false, false, true, true);
+        this.waterShore = new HexMesh(HexMaterials.waterShoreMaterial, false, false, true, true);
         this.waterShore.receiveShadow = true;
         this.waterShore.renderOrder = 0;
 
-        this.estuaries = new HexMesh(HexMaterials.estuariesMaterial, HexMaterials.wireframeMaterial, false, false, true, true);
+        this.estuaries = new HexMesh(HexMaterials.estuariesMaterial, false, false, true, true);
         this.estuaries.receiveShadow = true;
         this.estuaries.renderOrder = 0;
 
