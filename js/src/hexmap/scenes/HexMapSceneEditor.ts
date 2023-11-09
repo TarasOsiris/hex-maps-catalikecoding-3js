@@ -6,6 +6,7 @@ import {HexGrid} from "../HexGrid";
 
 export enum MeshType {Terrain, Roads, Rivers, Water, WaterShore, Estuaries}
 
+// TODO! Persist settings across sessions
 export class HexMapSceneEditor {
     colors = new Array<Color>(ColorUtils.red, ColorUtils.green, ColorUtils.yellow, new Color(0x548af9),);
     selectedColorIndex = -1;

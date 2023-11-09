@@ -4,10 +4,13 @@ import {HexMetrics} from "../HexMetrics";
 import {Vec3} from "../../lib/math/Vec3";
 import {HexCell} from "../HexCell";
 import {HexFeatureCollection} from "./HexFeatureCollection";
+import {HexMesh} from "../HexMesh";
+import {HexMaterials} from "../util/HexMaterials";
 
 export class HexFeatureManager {
 	private _scene: Scene;
 	private readonly _container: Group;
+	private readonly _walls: HexMesh;
 
 	private readonly urbanCollections: HexFeatureCollection[] = Array.of(
 		new HexFeatureCollection(
@@ -39,7 +42,6 @@ export class HexFeatureManager {
 		)
 	);
 
-	// TODO finish this!
 	private readonly plantCollections: HexFeatureCollection[] = Array.of(
 		new HexFeatureCollection(
 			CubeFeature.createPlant(1.25, 4.5, 1.25),
@@ -56,6 +58,7 @@ export class HexFeatureManager {
 	);
 
 	constructor(scene: Scene) {
+		this._walls = new HexMesh(HexMaterials.urbanFeatureMaterial, false, false, false, false);
 		this._scene = scene;
 		this._container = new Group();
 		this._container.name = "Features container";
@@ -66,10 +69,11 @@ export class HexFeatureManager {
 		if (this._container) {
 			this._container.clear();
 		}
+		this._walls.clearAll();
 	}
 
 	apply(): void {
-
+		this._walls.apply();
 	}
 
 	addFeature(cell: HexCell, position: Vector3) {

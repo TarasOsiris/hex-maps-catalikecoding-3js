@@ -3,6 +3,7 @@ import {HexMetrics} from "./HexMetrics";
 import {BufferGeometryUtils} from "../lib/BufferGeometryUtils";
 import {ListPool} from "./util/ListPool";
 import {ColliderLayers} from "./ColliderLayers";
+import {HexMaterials} from "./util/HexMaterials";
 
 export class HexMesh extends THREE.Mesh {
 
@@ -22,7 +23,7 @@ export class HexMesh extends THREE.Mesh {
     private readonly _useUVCoordinates: boolean;
     private readonly _useUV2Coordinates: boolean;
 
-    constructor(material: THREE.Material, wireframeMaterial: THREE.Material,
+    constructor(material: THREE.Material,
                 useCollider: boolean,
                 useColors: boolean,
                 useUVCoordinates: boolean,
@@ -40,7 +41,7 @@ export class HexMesh extends THREE.Mesh {
             this.layers.enable(ColliderLayers.Collidable);
         }
 
-        this.wireframeCopy = new THREE.Mesh(geometry, wireframeMaterial);
+        this.wireframeCopy = new THREE.Mesh(geometry, HexMaterials.wireframeMaterial);
         this.add(this.wireframeCopy);
         this.wireframeCopy.name = "Wireframe mesh copy";
     }
