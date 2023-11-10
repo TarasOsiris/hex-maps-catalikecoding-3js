@@ -1,11 +1,12 @@
-import {Group, Scene, Vector3} from "three";
-import {CubeFeature} from "./CubeFeature";
-import {HexMetrics} from "../HexMetrics";
-import {Vec3} from "../../lib/math/Vec3";
-import {HexCell} from "../HexCell";
-import {HexFeatureCollection} from "./HexFeatureCollection";
-import {HexMesh} from "../HexMesh";
-import {HexMaterials} from "../util/HexMaterials";
+import { Group, Scene, Vector3 } from "three";
+import { CubeFeature } from "./CubeFeature";
+import { HexMetrics } from "../HexMetrics";
+import { Vec3 } from "../../lib/math/Vec3";
+import { HexCell } from "../HexCell";
+import { HexFeatureCollection } from "./HexFeatureCollection";
+import { HexMesh } from "../HexMesh";
+import { HexMaterials } from "../util/HexMaterials";
+import { EdgeVertices } from "../EdgeVertices";
 
 export class HexFeatureManager {
 	private _scene: Scene;
@@ -63,6 +64,8 @@ export class HexFeatureManager {
 		this._container = new Group();
 		this._container.name = "Features container";
 		this._scene.add(this._container);
+		this._scene.add(this._walls);
+		this._walls.wireframeCopy.visible = true;
 	}
 
 	clear(): void {
@@ -128,5 +131,30 @@ export class HexFeatureManager {
 			}
 		}
 		return null;
+	}
+
+	addWall(
+		near: EdgeVertices, nearCell: HexCell,
+		far: EdgeVertices, farCell: HexCell) {
+		if (nearCell.walled != farCell.walled) {
+			this.addWallSegment(near.v1, far.v1, near.v5, far.v5);
+		}
+	}
+
+	addWallSegment(nearLeft: Vector3, farLeft: Vector3, nearRight: Vector3, farRight: Vector3) {
+		const left = Vec3.lerp(nearLeft, farLeft, 0.5);
+		const right = Vec3.lerp(nearRight, farRight, 0.5);
+		let v1: Vector3;
+		let v2: Vector3;
+		let v3: Vector3;
+		let v4: Vector3;
+		v1 = left.clone();
+		v3 = left.clone();
+		v2 = right.clone();
+		v4 = right.clone();
+		const upperY = left.y + HexMetrics.wallHeight;
+		v3.y = v4.y = upperY;
+		this._walls.addQuad(v1, v2, v3, v4);
+		this._walls.addQuad(v2, v1, v4, v3);
 	}
 }

@@ -18,7 +18,7 @@ export class HexMapSceneEditor {
     showGridLabels = false;
     riverMode = OptionalToggle.Ignore.valueOf();
     roadMode = OptionalToggle.Ignore.valueOf();
-    walledMode = OptionalToggle.Ignore.valueOf();
+    walledMode = OptionalToggle.Yes.valueOf();
 
     activeUrbanLevel = 0;
     applyUrbanLevel = false;

@@ -1,14 +1,14 @@
-import {HexCell} from "./HexCell";
-import {HexMesh} from "./HexMesh";
-import {HexMetrics} from "./HexMetrics";
-import {HexDirection, HexDirectionUtils} from "./HexDirection";
-import {EdgeVertices} from "./EdgeVertices";
-import {Vec3} from "../lib/math/Vec3";
-import {HexEdgeType} from "./HexEdgeType";
-import {HexMaterials} from "./util/HexMaterials";
-import {Color, Object3D, Scene, Vector2, Vector3} from "three";
-import {MeshType} from "./scenes/HexMapSceneEditor";
-import {HexFeatureManager} from "./features/HexFeatureManager";
+import { HexCell } from "./HexCell";
+import { HexMesh } from "./HexMesh";
+import { HexMetrics } from "./HexMetrics";
+import { HexDirection, HexDirectionUtils } from "./HexDirection";
+import { EdgeVertices } from "./EdgeVertices";
+import { Vec3 } from "../lib/math/Vec3";
+import { HexEdgeType } from "./HexEdgeType";
+import { HexMaterials } from "./util/HexMaterials";
+import { Color, Object3D, Scene, Vector2, Vector3 } from "three";
+import { MeshType } from "./scenes/HexMapSceneEditor";
+import { HexFeatureManager } from "./features/HexFeatureManager";
 
 export class HexGridChunk extends Object3D {
     readonly cells: Array<HexCell> = [];
@@ -220,6 +220,8 @@ export class HexGridChunk extends Object3D {
             this.triangulateEdgeStrip(e1, cell.color, e2, neighbor.color, cell.hasRoadThroughEdge(direction));
         }
 
+        this.features.addWall(e1, cell, e2, neighbor);
+
         const nextDirection = HexDirectionUtils.next(direction);
         const nextNeighbor = cell.getNeighbor(nextDirection);
         if (direction <= HexDirection.E && nextNeighbor != null) {
@@ -241,8 +243,8 @@ export class HexGridChunk extends Object3D {
     }
 
     triangulateCorner(bottom: Vector3, bottomCell: HexCell,
-                      left: Vector3, leftCell: HexCell,
-                      right: Vector3, rightCell: HexCell) {
+        left: Vector3, leftCell: HexCell,
+        right: Vector3, rightCell: HexCell) {
         const leftEdgeType = bottomCell.getEdgeTypeWithOtherCell(leftCell);
         const rightEdgeType = bottomCell.getEdgeTypeWithOtherCell(rightCell);
 
@@ -349,8 +351,8 @@ export class HexGridChunk extends Object3D {
     }
 
     private triangulateBoundaryTriangle(begin: Vector3, beginCell: HexCell,
-                                        left: Vector3, leftCell: HexCell,
-                                        boundary: Vector3, boundaryColor: Color) {
+        left: Vector3, leftCell: HexCell,
+        boundary: Vector3, boundaryColor: Color) {
         let v2 = HexMetrics.perturb(HexMetrics.terraceLerp(begin, left, 1));
         let c2 = HexMetrics.terraceLerpColor(beginCell.color, leftCell.color, 1);
 
@@ -371,7 +373,7 @@ export class HexGridChunk extends Object3D {
     }
 
     triangulateEdgeTerraces(begin: EdgeVertices, beginCell: HexCell,
-                            end: EdgeVertices, endCell: HexCell, hasRoad: boolean) {
+        end: EdgeVertices, endCell: HexCell, hasRoad: boolean) {
         let e2 = EdgeVertices.terraceLerp(begin, end, 1);
         let c2 = HexMetrics.terraceLerpColor(beginCell.color, endCell.color, 1);
 
@@ -522,7 +524,7 @@ export class HexGridChunk extends Object3D {
     }
 
     triangulateRiverQuad(v1: Vector3, v2: Vector3, v3: Vector3, v4: Vector3,
-                         y1: number, y2: number, v: number, reversed: boolean) {
+        y1: number, y2: number, v: number, reversed: boolean) {
         v1 = v1.clone();
         v2 = v2.clone();
         v3 = v3.clone();
@@ -539,7 +541,7 @@ export class HexGridChunk extends Object3D {
     }
 
     triangulateRiverQuadSameY(v1: Vector3, v2: Vector3, v3: Vector3, v4: Vector3,
-                              y: number, v: number, reversed: boolean) {
+        y: number, v: number, reversed: boolean) {
         this.triangulateRiverQuad(v1, v2, v3, v4, y, y, v, reversed);
     }
 
@@ -750,7 +752,7 @@ export class HexGridChunk extends Object3D {
     }
 
     triangulateWaterfallInWater(v1: Vector3, v2: Vector3, v3: Vector3, v4: Vector3,
-                                y1: number, y2: number, waterY: number) {
+        y1: number, y2: number, waterY: number) {
         v1 = v1.clone();
         v2 = v2.clone();
         v3 = v3.clone();
@@ -821,4 +823,5 @@ export class HexGridChunk extends Object3D {
             );
         }
     }
+
 }

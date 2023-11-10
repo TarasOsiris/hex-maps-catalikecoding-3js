@@ -45,6 +45,8 @@ export class HexMetrics {
 
 	static readonly waterElevationOffset = -0.5;
 
+	static readonly wallHeight = 3;
+
 	private static corners = [
 		new Vector3(0, 0, HexMetrics.invZ * this.outerRadius),
 		new Vector3(this.innerRadius, 0, HexMetrics.invZ * 0.5 * this.outerRadius),
