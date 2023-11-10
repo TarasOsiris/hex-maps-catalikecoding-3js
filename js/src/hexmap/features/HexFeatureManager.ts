@@ -1,12 +1,12 @@
-import { Group, Scene, Vector3 } from "three";
-import { CubeFeature } from "./CubeFeature";
-import { HexMetrics } from "../HexMetrics";
-import { Vec3 } from "../../lib/math/Vec3";
-import { HexCell } from "../HexCell";
-import { HexFeatureCollection } from "./HexFeatureCollection";
-import { HexMesh } from "../HexMesh";
-import { HexMaterials } from "../util/HexMaterials";
-import { EdgeVertices } from "../EdgeVertices";
+import {Group, Scene, Vector3} from "three";
+import {CubeFeature} from "./CubeFeature";
+import {HexMetrics} from "../HexMetrics";
+import {Vec3} from "../../lib/math/Vec3";
+import {HexCell} from "../HexCell";
+import {HexFeatureCollection} from "./HexFeatureCollection";
+import {HexMesh} from "../HexMesh";
+import {HexMaterials} from "../util/HexMaterials";
+import {EdgeVertices} from "../EdgeVertices";
 
 export class HexFeatureManager {
 	private _scene: Scene;
@@ -60,6 +60,7 @@ export class HexFeatureManager {
 
 	constructor(scene: Scene) {
 		this._walls = new HexMesh(HexMaterials.urbanFeatureMaterial, false, false, false, false);
+		this._walls.castShadow = true;
 		this._scene = scene;
 		this._container = new Group();
 		this._container.name = "Features container";
@@ -144,17 +145,32 @@ export class HexFeatureManager {
 	addWallSegment(nearLeft: Vector3, farLeft: Vector3, nearRight: Vector3, farRight: Vector3) {
 		const left = Vec3.lerp(nearLeft, farLeft, 0.5);
 		const right = Vec3.lerp(nearRight, farRight, 0.5);
+
+		const leftThicknessOffset =
+			HexMetrics.wallThicknessOffset(nearLeft, farLeft);
+		const rightThicknessOffset =
+			HexMetrics.wallThicknessOffset(nearRight, farRight);
+
 		let v1: Vector3;
 		let v2: Vector3;
 		let v3: Vector3;
 		let v4: Vector3;
-		v1 = left.clone();
-		v3 = left.clone();
-		v2 = right.clone();
-		v4 = right.clone();
+
+		v1 = left.clone().sub(leftThicknessOffset);
+		v3 = left.clone().sub(leftThicknessOffset);
+		v2 = right.clone().add(rightThicknessOffset);
+		v4 = right.clone().add(rightThicknessOffset);
 		const upperY = left.y + HexMetrics.wallHeight;
 		v3.y = v4.y = upperY;
 		this._walls.addQuad(v1, v2, v3, v4);
+
+		v1 = left.clone().add(leftThicknessOffset);
+		v3 = left.clone().add(leftThicknessOffset);
+		v2 = right.clone().add(rightThicknessOffset);
+		v4 = right.clone().add(rightThicknessOffset);
+		v3.y = v4.y = left.y + HexMetrics.wallHeight;
 		this._walls.addQuad(v2, v1, v4, v3);
 	}
+
+
 }

@@ -46,6 +46,7 @@ export class HexMetrics {
 	static readonly waterElevationOffset = -0.5;
 
 	static readonly wallHeight = 3;
+	static readonly wallThickness = 0.75;
 
 	private static corners = [
 		new Vector3(0, 0, HexMetrics.invZ * this.outerRadius),
@@ -181,5 +182,13 @@ export class HexMetrics {
 
 	public static getFeatureThresholds(level: number) {
 		return this.featureThresholds[level];
+	}
+
+	public static wallThicknessOffset(near: Vector3, far: Vector3): Vector3 {
+		const offset = new Vector3();
+		offset.x = far.x - near.x;
+		offset.y = 0;
+		offset.z = far.z - near.z;
+		return offset.normalize().multiplyScalar(this.wallThickness * 0.5);
 	}
 }
