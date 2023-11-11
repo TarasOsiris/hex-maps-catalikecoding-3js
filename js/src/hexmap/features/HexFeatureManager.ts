@@ -158,11 +158,14 @@ export class HexFeatureManager {
 
 		v1 = left.clone().sub(leftThicknessOffset);
 		v3 = left.clone().sub(leftThicknessOffset);
-		v2 = right.clone().add(rightThicknessOffset);
-		v4 = right.clone().add(rightThicknessOffset);
+		v2 = right.clone().sub(rightThicknessOffset);
+		v4 = right.clone().sub(rightThicknessOffset);
 		const upperY = left.y + HexMetrics.wallHeight;
 		v3.y = v4.y = upperY;
 		this._walls.addQuad(v1, v2, v3, v4);
+
+		const t1 = v3.clone();
+		const t2 = v4.clone();
 
 		v1 = left.clone().add(leftThicknessOffset);
 		v3 = left.clone().add(leftThicknessOffset);
@@ -170,6 +173,8 @@ export class HexFeatureManager {
 		v4 = right.clone().add(rightThicknessOffset);
 		v3.y = v4.y = left.y + HexMetrics.wallHeight;
 		this._walls.addQuad(v2, v1, v4, v3);
+
+		this._walls.addQuad(t1, t2, v3, v4);
 	}
 
 
