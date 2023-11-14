@@ -142,7 +142,39 @@ export class HexFeatureManager {
 		}
 	}
 
-	addWallSegment(nearLeft: Vector3, farLeft: Vector3, nearRight: Vector3, farRight: Vector3) {
+	addWallThreeCells(
+		c1: Vector3, cell1: HexCell,
+		c2: Vector3, cell2: HexCell,
+		c3: Vector3, cell3: HexCell) {
+		if (cell1.walled) {
+			if (cell2.walled) {
+				if (!cell3.walled) {
+					this.addWallSegmentThreeCells(c3, cell3, c1, cell1, c2, cell2);
+				}
+			} else if (cell3.walled) {
+				this.addWallSegmentThreeCells(c2, cell2, c3, cell3, c1, cell1);
+			} else {
+				this.addWallSegmentThreeCells(c1, cell1, c2, cell2, c3, cell3);
+			}
+		} else if (cell2.walled) {
+			if (cell3.walled) {
+				this.addWallSegmentThreeCells(c1, cell1, c2, cell2, c3, cell3);
+			} else {
+				this.addWallSegmentThreeCells(c2, cell2, c3, cell3, c1, cell1);
+			}
+		} else if (cell3.walled) {
+			this.addWallSegmentThreeCells(c3, cell3, c1, cell1, c2, cell2);
+		}
+	}
+
+	addWallSegmentThreeCells(pivot: Vector3, pivotCell: HexCell,
+	                         left: Vector3, leftCell: HexCell,
+	                         right: Vector3, rightCell: HexCell): void {
+		this.addWallSegment(pivot, left, pivot, right);
+	}
+
+	addWallSegment(nearLeft: Vector3, farLeft: Vector3,
+	               nearRight: Vector3, farRight: Vector3) {
 		const left = Vec3.lerp(nearLeft, farLeft, 0.5);
 		const right = Vec3.lerp(nearRight, farRight, 0.5);
 
@@ -150,6 +182,8 @@ export class HexFeatureManager {
 			HexMetrics.wallThicknessOffset(nearLeft, farLeft);
 		const rightThicknessOffset =
 			HexMetrics.wallThicknessOffset(nearRight, farRight);
+		const leftTop = left.y + HexMetrics.wallHeight;
+		const rightTop = right.y + HexMetrics.wallHeight;
 
 		let v1: Vector3;
 		let v2: Vector3;
@@ -160,8 +194,8 @@ export class HexFeatureManager {
 		v3 = left.clone().sub(leftThicknessOffset);
 		v2 = right.clone().sub(rightThicknessOffset);
 		v4 = right.clone().sub(rightThicknessOffset);
-		const upperY = left.y + HexMetrics.wallHeight;
-		v3.y = v4.y = upperY;
+		v3.y = leftTop;
+		v4.y = rightTop;
 		this._walls.addQuad(v1, v2, v3, v4);
 
 		const t1 = v3.clone();
@@ -171,7 +205,8 @@ export class HexFeatureManager {
 		v3 = left.clone().add(leftThicknessOffset);
 		v2 = right.clone().add(rightThicknessOffset);
 		v4 = right.clone().add(rightThicknessOffset);
-		v3.y = v4.y = left.y + HexMetrics.wallHeight;
+		v3.y = leftTop;
+		v4.y = rightTop;
 		this._walls.addQuad(v2, v1, v4, v3);
 
 		this._walls.addQuad(t1, t2, v3, v4);

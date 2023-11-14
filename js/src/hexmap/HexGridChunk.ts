@@ -272,6 +272,8 @@ export class HexGridChunk extends Object3D {
 			this.terrain.addTriangle(bottom, left, right);
 			this.terrain.addTriangleColor(bottomCell.color, leftCell.color, rightCell.color);
 		}
+
+		this.features.addWallThreeCells(bottom, bottomCell, left, leftCell, right, rightCell);
 	}
 
 	triangulateCornerTerraces(

@@ -6,5 +6,6 @@ module.exports = {
     root: true,
     rules: {
         'semi': ['error', 'always'], // Enforce semicolons always
+        'no-mixed-spaces-and-tabs': ["error", "smart-tabs"],
     }
 };
