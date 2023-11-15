@@ -1,12 +1,12 @@
-import {Group, Scene, Vector3} from "three";
-import {CubeFeature} from "./CubeFeature";
-import {HexMetrics} from "../HexMetrics";
-import {Vec3} from "../../lib/math/Vec3";
-import {HexCell} from "../HexCell";
-import {HexFeatureCollection} from "./HexFeatureCollection";
-import {HexMesh} from "../HexMesh";
-import {HexMaterials} from "../util/HexMaterials";
-import {EdgeVertices} from "../EdgeVertices";
+import { Group, Scene, Vector3 } from "three";
+import { CubeFeature } from "./CubeFeature";
+import { HexMetrics } from "../HexMetrics";
+import { Vec3 } from "../../lib/math/Vec3";
+import { HexCell } from "../HexCell";
+import { HexFeatureCollection } from "./HexFeatureCollection";
+import { HexMesh } from "../HexMesh";
+import { HexMaterials } from "../util/HexMaterials";
+import { EdgeVertices } from "../EdgeVertices";
 
 export class HexFeatureManager {
 	private _scene: Scene;
@@ -170,8 +170,11 @@ export class HexFeatureManager {
 		}
 	}
 
+	// @ts-ignore
 	addWallSegmentThreeCells(pivot: Vector3, pivotCell: HexCell,
+	                         // @ts-ignore
 	                         left: Vector3, leftCell: HexCell,
+	                         // @ts-ignore
 	                         right: Vector3, rightCell: HexCell): void {
 		this.addWallSegment(pivot, left, pivot, right);
 	}
