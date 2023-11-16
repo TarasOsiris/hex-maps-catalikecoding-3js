@@ -1,9 +1,9 @@
-import {Color, MathUtils, Vector2, Vector3, Vector4} from "three";
-import {HexDirection} from "./HexDirection";
-import {HexEdgeType} from "./HexEdgeType";
-import {Vec3} from "../lib/math/Vec3";
+import { Color, MathUtils, Vector2, Vector3, Vector4 } from "three";
+import { HexDirection } from "./HexDirection";
+import { HexEdgeType } from "./HexEdgeType";
+import { Vec3 } from "../lib/math/Vec3";
 import * as isaac from "isaac";
-import {HexHash} from "./features/HexHash";
+import { HexHash } from "./features/HexHash";
 
 export class HexMetrics {
 	static readonly outerRadius = 10;
@@ -18,6 +18,8 @@ export class HexMetrics {
 	static readonly elevationStep = 3;
 	static readonly terracesPerSlope = 2;
 	static readonly terraceSteps = HexMetrics.terracesPerSlope * 2 + 1;
+	static readonly horizontalTerraceStepSize = 1 / HexMetrics.terraceSteps;
+	static readonly verticalTerraceStepSize = 1 / (HexMetrics.terracesPerSlope + 1);
 
 	private static invZ = -1;
 
@@ -47,6 +49,7 @@ export class HexMetrics {
 
 	static readonly wallHeight = 3;
 	static readonly wallThickness = 0.75;
+	public static readonly wallElevationOffset = HexMetrics.verticalTerraceStepSize;
 
 	private static corners = [
 		new Vector3(0, 0, HexMetrics.invZ * this.outerRadius),
@@ -98,9 +101,6 @@ export class HexMetrics {
 		const corner2 = this.getSecondCorner(direction);
 		return corner1.add(corner2).multiplyScalar(this.waterBlendFactor);
 	}
-
-	static readonly horizontalTerraceStepSize = 1 / HexMetrics.terraceSteps;
-	static readonly verticalTerraceStepSize = 1 / (HexMetrics.terracesPerSlope + 1);
 
 	public static terraceLerp(a: Vector3, b: Vector3, step: number): Vector3 {
 		const h = step * this.horizontalTerraceStepSize;
@@ -190,5 +190,14 @@ export class HexMetrics {
 		offset.y = 0;
 		offset.z = far.z - near.z;
 		return offset.normalize().multiplyScalar(this.wallThickness * 0.5);
+	}
+
+	public static wallLerp(near: Vector3, far: Vector3): Vector3 {
+		near = near.clone();
+		near.x += (far.x - near.x) * 0.5;
+		near.z += (far.z - near.z) * 0.5;
+		const v = near.y < far.y ? this.wallElevationOffset : (1 - this.wallElevationOffset);
+		near.y += (far.y - near.y) * v;
+		return near;
 	}
 }

@@ -66,7 +66,7 @@ export class HexFeatureManager {
 		this._container.name = "Features container";
 		this._scene.add(this._container);
 		this._scene.add(this._walls);
-		this._walls.wireframeCopy.visible = true;
+		this._walls.wireframeCopy.visible = false;
 	}
 
 	clear(): void {
@@ -181,8 +181,8 @@ export class HexFeatureManager {
 
 	addWallSegment(nearLeft: Vector3, farLeft: Vector3,
 	               nearRight: Vector3, farRight: Vector3) {
-		const left = Vec3.lerp(nearLeft, farLeft, 0.5);
-		const right = Vec3.lerp(nearRight, farRight, 0.5);
+		const left = HexMetrics.wallLerp(nearLeft, farLeft);
+		const right = HexMetrics.wallLerp(nearRight, farRight);
 
 		const leftThicknessOffset =
 			HexMetrics.wallThicknessOffset(nearLeft, farLeft);
