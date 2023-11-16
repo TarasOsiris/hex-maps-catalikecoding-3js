@@ -9,13 +9,13 @@
     "preview": "vite preview"
   },
   "devDependencies": {
-    "@tsconfig/recommended": "^1.0.2",
-    "@types/isaac": "^0.0.1",
-    "@types/three": "^0.155.1",
-    "@typescript-eslint/eslint-plugin": "^6.6.0",
-    "@typescript-eslint/parser": "^6.6.0",
-    "eslint": "^8.49.0",
-    "lil-gui": "^0.18.2",
+    "@tsconfig/recommended": "^1.0.3",
+    "@types/isaac": "^0.0.2",
+    "@types/three": "^0.158.2",
+    "@typescript-eslint/eslint-plugin": "^6.11.0",
+    "@typescript-eslint/parser": "^6.11.0",
+    "eslint": "^8.53.0",
+    "lil-gui": "^0.19.1",
     "tslib": "^2.6.2",
     "typescript": "^5.2.2",
     "vite": "^4.4.5",
@@ -24,7 +24,7 @@
   },
   "dependencies": {
     "isaac": "^0.0.5",
-    "three": "^0.155.0",
+    "three": "^0.158.0",
     "three-addons": "^1.2.0"
   }
 }
