@@ -181,6 +181,11 @@ export class HexFeatureManager {
 
 	addWallSegment(nearLeft: Vector3, farLeft: Vector3,
 	               nearRight: Vector3, farRight: Vector3) {
+		nearLeft = HexMetrics.perturb(nearLeft);
+		farLeft = HexMetrics.perturb(farLeft);
+		nearRight = HexMetrics.perturb(nearRight);
+		farRight = HexMetrics.perturb(farRight);
+
 		const left = HexMetrics.wallLerp(nearLeft, farLeft);
 		const right = HexMetrics.wallLerp(nearRight, farRight);
 
@@ -202,7 +207,7 @@ export class HexFeatureManager {
 		v4 = right.clone().sub(rightThicknessOffset);
 		v3.y = leftTop;
 		v4.y = rightTop;
-		this._walls.addQuad(v1, v2, v3, v4);
+		this._walls.addQuadUnperturbed(v1, v2, v3, v4);
 
 		const t1 = v3.clone();
 		const t2 = v4.clone();
@@ -213,10 +218,8 @@ export class HexFeatureManager {
 		v4 = right.clone().add(rightThicknessOffset);
 		v3.y = leftTop;
 		v4.y = rightTop;
-		this._walls.addQuad(v2, v1, v4, v3);
+		this._walls.addQuadUnperturbed(v2, v1, v4, v3);
 
-		this._walls.addQuad(t1, t2, v3, v4);
+		this._walls.addQuadUnperturbed(t1, t2, v3, v4);
 	}
-
-
 }
