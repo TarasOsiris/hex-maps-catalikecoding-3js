@@ -136,11 +136,16 @@ export class HexFeatureManager {
 
 	addWall(
 		near: EdgeVertices, nearCell: HexCell,
-		far: EdgeVertices, farCell: HexCell) {
+		far: EdgeVertices, farCell: HexCell,
+		hasRiver: boolean, hasRoad: boolean) {
 		if (nearCell.walled != farCell.walled) {
 			this.addWallSegment(near.v1, far.v1, near.v2, far.v2);
-			this.addWallSegment(near.v2, far.v2, near.v3, far.v3);
-			this.addWallSegment(near.v3, far.v3, near.v4, far.v4);
+			if (hasRiver || hasRoad) {
+				// leave a gap
+			} else {
+				this.addWallSegment(near.v2, far.v2, near.v3, far.v3);
+				this.addWallSegment(near.v3, far.v3, near.v4, far.v4);
+			}
 			this.addWallSegment(near.v4, far.v4, near.v5, far.v5);
 		}
 	}

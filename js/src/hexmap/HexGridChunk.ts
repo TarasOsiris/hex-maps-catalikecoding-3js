@@ -189,7 +189,10 @@ export class HexGridChunk extends Object3D {
 			Vec3.add(e1.v5, bridge)
 		);
 
-		if (cell.hasRiverThroughEdge(direction)) {
+		const hasRiver = cell.hasRiverThroughEdge(direction);
+		const hasRoad = cell.hasRoadThroughEdge(direction);
+
+		if (hasRiver) {
 			e2.v3.y = neighbor.streamBedY;
 
 			if (!cell.isUnderwater) {
@@ -215,12 +218,12 @@ export class HexGridChunk extends Object3D {
 		}
 
 		if (cell.getEdgeType(direction) == HexEdgeType.Slope) {
-			this.triangulateEdgeTerraces(e1, cell, e2, neighbor, cell.hasRoadThroughEdge(direction));
+			this.triangulateEdgeTerraces(e1, cell, e2, neighbor, hasRoad);
 		} else {
-			this.triangulateEdgeStrip(e1, cell.color, e2, neighbor.color, cell.hasRoadThroughEdge(direction));
+			this.triangulateEdgeStrip(e1, cell.color, e2, neighbor.color, hasRoad);
 		}
 
-		this.features.addWall(e1, cell, e2, neighbor);
+		this.features.addWall(e1, cell, e2, neighbor, hasRiver, hasRoad);
 
 		const nextDirection = HexDirectionUtils.next(direction);
 		const nextNeighbor = cell.getNeighbor(nextDirection);
