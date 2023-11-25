@@ -7,6 +7,7 @@ import { HexFeatureCollection } from "./HexFeatureCollection";
 import { HexMesh } from "../HexMesh";
 import { HexMaterials } from "../util/HexMaterials";
 import { EdgeVertices } from "../EdgeVertices";
+import { Vec2 } from "../../lib/math/Vec2";
 
 export class HexFeatureManager {
 	private _scene: Scene;
@@ -141,7 +142,8 @@ export class HexFeatureManager {
 		if (nearCell.walled != farCell.walled) {
 			this.addWallSegment(near.v1, far.v1, near.v2, far.v2);
 			if (hasRiver || hasRoad) {
-				// leave a gap
+				this.addWallCap(near.v2, far.v2);
+				this.addWallCap(far.v4, near.v4);
 			} else {
 				this.addWallSegment(near.v2, far.v2, near.v3, far.v3);
 				this.addWallSegment(near.v3, far.v3, near.v4, far.v4);
@@ -226,5 +228,21 @@ export class HexFeatureManager {
 		this._walls.addQuadUnperturbed(v2, v1, v4, v3);
 
 		this._walls.addQuadUnperturbed(t1, t2, v3, v4);
+	}
+
+	addWallCap(near: Vector3, far: Vector3) {
+		near = HexMetrics.perturb(near);
+		far = HexMetrics.perturb(far);
+
+		const center = HexMetrics.wallLerp(near, far);
+		const thickness = HexMetrics.wallThicknessOffset(near, far);
+
+		const v1 = Vec3.sub(center, thickness);
+		const v2 = Vec3.add(center, thickness);
+		const v3 = Vec3.sub(center, thickness);
+		const v4 = Vec3.add(center, thickness);
+
+		v3.y = v4.y = center.y + HexMetrics.wallHeight;
+		this._walls.addQuadUnperturbed(v1, v2, v3, v4);
 	}
 }
