@@ -7,7 +7,7 @@ import { HexFeatureCollection } from "./HexFeatureCollection";
 import { HexMesh } from "../HexMesh";
 import { HexMaterials } from "../util/HexMaterials";
 import { EdgeVertices } from "../EdgeVertices";
-import { Vec2 } from "../../lib/math/Vec2";
+import { HexEdgeType } from "../HexEdgeType";
 
 export class HexFeatureManager {
 	private _scene: Scene;
@@ -139,7 +139,10 @@ export class HexFeatureManager {
 		near: EdgeVertices, nearCell: HexCell,
 		far: EdgeVertices, farCell: HexCell,
 		hasRiver: boolean, hasRoad: boolean) {
-		if (nearCell.walled != farCell.walled) {
+		if (nearCell.walled != farCell.walled &&
+			!nearCell.isUnderwater && !farCell.isUnderwater &&
+			nearCell.getEdgeTypeWithOtherCell(farCell) != HexEdgeType.Cliff
+		) {
 			this.addWallSegment(near.v1, far.v1, near.v2, far.v2);
 			if (hasRiver || hasRoad) {
 				this.addWallCap(near.v2, far.v2);
@@ -183,7 +186,17 @@ export class HexFeatureManager {
 	                         left: Vector3, leftCell: HexCell,
 	                         // @ts-ignore
 	                         right: Vector3, rightCell: HexCell): void {
-		this.addWallSegment(pivot, left, pivot, right);
+		if (pivotCell.isUnderwater) {
+			return;
+		}
+
+		const hasLeftWall = !leftCell.isUnderwater &&
+			pivotCell.getEdgeTypeWithOtherCell(leftCell) != HexEdgeType.Cliff;
+		const hasRightWall = !rightCell.isUnderwater &&
+			pivotCell.getEdgeTypeWithOtherCell(rightCell) != HexEdgeType.Cliff;
+		if (hasLeftWall && hasRightWall) {
+			this.addWallSegment(pivot, left, pivot, right);
+		}
 	}
 
 	addWallSegment(nearLeft: Vector3, farLeft: Vector3,
