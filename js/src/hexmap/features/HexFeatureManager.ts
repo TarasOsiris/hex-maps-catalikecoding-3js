@@ -197,11 +197,17 @@ export class HexFeatureManager {
 		if (hasLeftWall) {
 			if (hasRightWall) {
 				this.addWallSegment(pivot, left, pivot, right);
+			} else if (leftCell.elevation < rightCell.elevation) {
+				this.addWallWedge(pivot, left, right);
 			} else {
 				this.addWallCap(pivot, left);
 			}
 		} else if (hasRightWall) {
-			this.addWallCap(right, pivot);
+			if (rightCell.elevation < leftCell.elevation) {
+				this.addWallWedge(right, pivot, left);
+			} else {
+				this.addWallCap(right, pivot);
+			}
 		}
 	}
 
@@ -263,5 +269,27 @@ export class HexFeatureManager {
 
 		v3.y = v4.y = center.y + HexMetrics.wallHeight;
 		this._walls.addQuadUnperturbed(v1, v2, v3, v4);
+	}
+
+	addWallWedge(near: Vector3, far: Vector3, point: Vector3) {
+		near = HexMetrics.perturb(near);
+		far = HexMetrics.perturb(far);
+		point = HexMetrics.perturb(point);
+
+		const center = HexMetrics.wallLerp(near, far);
+		const thickness = HexMetrics.wallThicknessOffset(near, far);
+
+		const v1 = Vec3.sub(center, thickness);
+		const v2 = Vec3.add(center, thickness);
+		const v3 = Vec3.sub(center, thickness);
+		const v4 = Vec3.add(center, thickness);
+		const pointTop = point.clone();
+		point.y = center.y;
+
+		v3.y = v4.y = pointTop.y = center.y + HexMetrics.wallHeight;
+
+		this._walls.addQuadUnperturbed(v1, point, v3, pointTop);
+		this._walls.addQuadUnperturbed(point, v2, pointTop, v4);
+		this._walls.addTriangleUnperturbed(pointTop, v3, v4);
 	}
 }
