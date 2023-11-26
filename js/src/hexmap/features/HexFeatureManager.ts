@@ -182,10 +182,10 @@ export class HexFeatureManager {
 
 	// @ts-ignore
 	addWallSegmentThreeCells(pivot: Vector3, pivotCell: HexCell,
-	                         // @ts-ignore
-	                         left: Vector3, leftCell: HexCell,
-	                         // @ts-ignore
-	                         right: Vector3, rightCell: HexCell): void {
+		// @ts-ignore
+		left: Vector3, leftCell: HexCell,
+		// @ts-ignore
+		right: Vector3, rightCell: HexCell): void {
 		if (pivotCell.isUnderwater) {
 			return;
 		}
@@ -194,13 +194,19 @@ export class HexFeatureManager {
 			pivotCell.getEdgeTypeWithOtherCell(leftCell) != HexEdgeType.Cliff;
 		const hasRightWall = !rightCell.isUnderwater &&
 			pivotCell.getEdgeTypeWithOtherCell(rightCell) != HexEdgeType.Cliff;
-		if (hasLeftWall && hasRightWall) {
-			this.addWallSegment(pivot, left, pivot, right);
+		if (hasLeftWall) {
+			if (hasRightWall) {
+				this.addWallSegment(pivot, left, pivot, right);
+			} else {
+				this.addWallCap(pivot, left);
+			}
+		} else if (hasRightWall) {
+			this.addWallCap(right, pivot);
 		}
 	}
 
 	addWallSegment(nearLeft: Vector3, farLeft: Vector3,
-	               nearRight: Vector3, farRight: Vector3) {
+		nearRight: Vector3, farRight: Vector3) {
 		nearLeft = HexMetrics.perturb(nearLeft);
 		farLeft = HexMetrics.perturb(farLeft);
 		nearRight = HexMetrics.perturb(nearRight);
